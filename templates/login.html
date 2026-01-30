@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Alumni Management System{% endblock %}
+
+{% block content %}
+<div class="login-split">
+    <!-- Left Side - Branding -->
+    <div class="login-left">
+        <div class="login-left-content">
+            <h1>🎓 Alumni Hub</h1>
+            <p style="margin: 2rem 0; font-size: 1.2rem; font-weight: 500;">
+                Connect with thousands of successful LPU alumni worldwide
+            </p>
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid rgba(255,255,255,0.2);">
+                <p style="opacity: 0.9;">✓ Network with Professionals</p>
+                <p style="opacity: 0.9; margin-top: 0.8rem;">✓ Career Opportunities</p>
+                <p style="opacity: 0.9; margin-top: 0.8rem;">✓ Community Support</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side - Login Form -->
+    <div class="login-right">
+        <div class="login-form">
+            <h2>Welcome Back</h2>
+            <p class="form-subtitle">Sign in to your account to continue</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="/login">
+                <div class="form-group">
+                    <label for="email">📧 Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">🔐 Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="form-submit">🚀 Sign In</button>
+            </form>
+
+            <div class="form-footer">
+                Don't have an account? <a href="/register">Create one now</a>
+            </div>
+            <div class="form-footer" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e2e8f0;">
+                <a href="/">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

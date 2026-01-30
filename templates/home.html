@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Alumni Management System{% endblock %}
+
+{% block content %}
+
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="animate-fade-down">Welcome to Alumni Hub</h1>
+            <p class="animate-fade-down" style="animation-delay: 0.1s;">Connect, Network, and Grow with LPU Alumni Community</p>
+            <p class="animate-fade-down" style="font-size: 1rem; opacity: 0.9; margin-top: 1rem; animation-delay: 0.2s;">Join thousands of successful professionals from around the world</p>
+            <div style="margin-top: 2.5rem; animation-delay: 0.3s; animation: slideInUp 0.8s ease-out backwards;">
+                {% if session.get('user_id') %}
+                    <a href="/student/dashboard" class="btn btn-primary">Go to Dashboard</a>
+                {% else %}
+                    <a href="/login" class="btn btn-primary">Login Now</a>
+                    <a href="/register" class="btn btn-secondary" style="margin-left: 1rem;">Create Account</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MARQUEE SECTION ===== -->
+    <section class="marquee-section">
+        <div class="marquee-container">
+            <div class="marquee">
+                <span>⭐ 15000+ Alumni Network</span>
+                <span>🌍 50+ Countries</span>
+                <span>💼 1000+ Job Opportunities</span>
+                <span>🏆 Top Companies Hiring</span>
+                <span>📚 Premium Learning Resources</span>
+                <span>⭐ 15000+ Alumni Network</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FEATURES SECTION ===== -->
+    <section class="features-section">
+        <div class="section-header animate-fade-down">
+            <h2>Why Join Alumni Hub?</h2>
+            <p>Discover the benefits of being part of our thriving community</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card animate-feature">
+                <div class="feature-icon">🤝</div>
+                <h3>Network with Professionals</h3>
+                <p>Connect with thousands of LPU alumni across the globe and build meaningful professional relationships.</p>
+            </div>
+            <div class="feature-card animate-feature">
+                <div class="feature-icon">💼</div>
+                <h3>Career Opportunities</h3>
+                <p>Access exclusive job postings, internships, and career advancement opportunities shared by our community.</p>
+            </div>
+            <div class="feature-card animate-feature">
+                <div class="feature-icon">📚</div>
+                <h3>Learning Resources</h3>
+                <p>Learn from webinars, workshops, and mentorship programs led by successful alumni.</p>
+            </div>
+            <div class="feature-card animate-feature">
+                <div class="feature-icon">🏆</div>
+                <h3>Success Stories</h3>
+                <p>Get inspired by stories of alumni who have achieved remarkable success in their careers.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ALUMNI GUIDE SECTION ===== -->
+    <section class="guide-section animate-fade-down" id="alumni-guide">
+        <div class="guide-container">
+            <div class="guide-content">
+                <h2>For Alumni</h2>
+                <p style="font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--text-light);">
+                    Share your experience and help the next generation succeed
+                </p>
+                <div class="guide-points">
+                    <div class="guide-point animate-slide-left">
+                        <span class="point-number">1</span>
+                        <div>
+                            <h4>Create Your Profile</h4>
+                            <p>Build a comprehensive profile showcasing your career journey, skills, and achievements.</p>
+                        </div>
+                    </div>
+                    <div class="guide-point animate-slide-left" style="animation-delay: 0.1s;">
+                        <span class="point-number">2</span>
+                        <div>
+                            <h4>Share Opportunities</h4>
+                            <p>Post job openings, internship opportunities, and mentorship programs for students.</p>
+                        </div>
+                    </div>
+                    <div class="guide-point animate-slide-left" style="animation-delay: 0.2s;">
+                        <span class="point-number">3</span>
+                        <div>
+                            <h4>Mentor Students</h4>
+                            <p>Guide students through their career journey with your valuable experience and insights.</p>
+                        </div>
+                    </div>
+                    <div class="guide-point animate-slide-left" style="animation-delay: 0.3s;">
+                        <span class="point-number">4</span>
+                        <div>
+                            <h4>Network & Collaborate</h4>
+                            <p>Connect with fellow alumni for business partnerships and professional growth.</p>
+                        </div>
+                    </div>
+                </div>
+                {% if not session.get('user_id') %}
+                    <a href="/register" class="btn btn-primary" style="margin-top: 2rem;">Register as Alumni</a>
+                {% endif %}
+            </div>
+            <div class="guide-image">
+                <div class="alumni-illustration">
+                    <div style="font-size: 4rem;">👨‍💼👩‍💼</div>
+                    <p style="margin-top: 1rem; color: var(--text-light);">Experienced Professionals</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== STUDENTS GUIDE SECTION ===== -->
+    <section class="guide-section animate-fade-down" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
+        <div class="guide-container" style="flex-direction: row-reverse;">
+            <div class="guide-content">
+                <h2>For Students</h2>
+                <p style="font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--text-light);">
+                    Get ready for your future with guidance from industry leaders
+                </p>
+                <div class="guide-points">
+                    <div class="guide-point animate-slide-right">
+                        <span class="point-number">1</span>
+                        <div>
+                            <h4>Discover Career Paths</h4>
+                            <p>Learn about different career opportunities through alumni success stories and experiences.</p>
+                        </div>
+                    </div>
+                    <div class="guide-point animate-slide-right" style="animation-delay: 0.1s;">
+                        <span class="point-number">2</span>
+                        <div>
+                            <h4>Find Mentors</h4>
+                            <p>Connect with experienced alumni who can guide you in your academic and professional journey.</p>
+                        </div>
+                    </div>
+                    <div class="guide-point animate-slide-right" style="animation-delay: 0.2s;">
+                        <span class="point-number">3</span>
+                        <div>
+                            <h4>Access Job Opportunities</h4>
+                            <p>Browse and apply for internships and job openings exclusively shared by our alumni network.</p>
+                        </div>
+                    </div>
+                    <div class="guide-point animate-slide-right" style="animation-delay: 0.3s;">
+                        <span class="point-number">4</span>
+                        <div>
+                            <h4>Develop Skills</h4>
+                            <p>Attend webinars and workshops conducted by industry experts to enhance your skills.</p>
+                        </div>
+                    </div>
+                </div>
+                {% if not session.get('user_id') %}
+                    <a href="/register" class="btn btn-primary" style="margin-top: 2rem;">Register as Student</a>
+                {% endif %}
+            </div>
+            <div class="guide-image">
+                <div class="student-illustration">
+                    <div style="font-size: 4rem;">👨‍🎓👩‍🎓</div>
+                    <p style="margin-top: 1rem; color: var(--text-light);">Future Leaders</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== STATS SECTION ===== -->
+    <section class="stats-section">
+        <div class="section-header animate-fade-down">
+            <h2>Our Community by Numbers</h2>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card animate-scale-up">
+                <div class="stat-number">15K+</div>
+                <p>Active Alumni</p>
+            </div>
+            <div class="stat-card animate-scale-up" style="animation-delay: 0.1s;">
+                <div class="stat-number">5K+</div>
+                <p>Current Students</p>
+            </div>
+            <div class="stat-card animate-scale-up" style="animation-delay: 0.2s;">
+                <div class="stat-number">50+</div>
+                <p>Countries</p>
+            </div>
+            <div class="stat-card animate-scale-up" style="animation-delay: 0.3s;">
+                <div class="stat-number">1000+</div>
+                <p>Job Opportunities</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA SECTION ===== -->
+    <section class="cta-section animate-fade-down">
+        <div class="cta-content">
+            <h2>Ready to Join Our Community?</h2>
+            <p>Start your journey with Alumni Hub today and unlock endless opportunities</p>
+            <div style="margin-top: 2rem;">
+                {% if session.get('user_id') %}
+                    <a href="/student/dashboard" class="btn btn-primary">Go to Dashboard</a>
+                {% else %}
+                    <a href="/register" class="btn btn-primary">Get Started Now</a>
+                    <a href="/login" class="btn btn-secondary" style="margin-left: 1rem;">Already Member?</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

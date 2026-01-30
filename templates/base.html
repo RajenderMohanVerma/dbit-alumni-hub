@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Alumni Management System{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/social_pages.css') }}">
+</head>
+<body>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-animated" href="/">
+                <i class="fas fa-graduation-cap"></i> Alumni Hub
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link nav-item-custom" href="/">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-item-custom" href="/about">
+                            <i class="fas fa-info-circle"></i> About
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-item-custom" href="/services">
+                            <i class="fas fa-briefcase"></i> Services
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-item-custom" href="/contact">
+                            <i class="fas fa-envelope"></i> Contact
+                        </a>
+                    </li>
+                    
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle nav-item-custom" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle"></i> 
+                                <span class="d-none d-sm-inline">{{ current_user.name }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                {% if current_user.role == 'admin' %}
+                                    <li><a class="dropdown-item" href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Admin Dashboard</a></li>
+                                {% elif current_user.role == 'alumni' %}
+                                    <li><a class="dropdown-item" href="/alumni/dashboard"><i class="fas fa-user-tie"></i> Alumni Dashboard</a></li>
+                                {% elif current_user.role == 'student' %}
+                                    <li><a class="dropdown-item" href="/student/dashboard"><i class="fas fa-search"></i> Find Mentors</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-login" href="/login">
+                                <i class="fas fa-key"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-register" href="/register">
+                                <i class="fas fa-user-plus"></i> Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== ALERTS ===== -->
+    <div class="alerts-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' if category == 'success' else 'warning' if category == 'warning' else 'info' }} alert-dismissible fade show animate__animated animate__slideInDown" role="alert">
+                        <i class="fas fa-{{ 'exclamation-circle' if category == 'danger' else 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'info-circle' }}"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-wrapper">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer-custom">
+        <!-- Footer Marquee -->
+        <div class="footer-marquee">
+            <div class="marquee-inner">
+                <span>⭐ Join 15000+ Alumni</span>
+                <span>🌍 Connect Globally</span>
+                <span>💼 Career Opportunities</span>
+                <span>📚 Learning Resources</span>
+                <span>🤝 Networking Events</span>
+                <span>⭐ Join 15000+ Alumni</span>
+            </div>
+        </div>
+
+        <!-- Footer Content -->
+        <div class="footer-content">
+            <div class="container">
+                <div class="row g-4">
+                    <!-- Company Info with Social Links -->
+                    <div class="col-md-6 col-lg-3" data-aos="fade-up">
+                        <div class="footer-section">
+                            <h5 class="footer-title">
+                                <i class="fas fa-graduation-cap"></i> Alumni Hub
+                            </h5>
+                            <p class="footer-text">
+                                Connecting DBIT alumni worldwide to build meaningful professional relationships and unlock opportunities.
+                            </p>
+                            
+                            <!-- Social Media Links -->
+                            <div class="social-links-container">
+                                <h6 class="social-section-title">
+                                    <i class="fas fa-share-alt"></i> Follow Us
+                                </h6>
+                                <div class="social-links-grid">
+                                    <!-- LinkedIn -->
+                                    <a href="/social/linkedin" 
+                                       class="social-icon-btn linkedin-btn" 
+                                       title="LinkedIn">
+                                        <div class="icon-wrapper">
+                                            <i class="fab fa-linkedin-in"></i>
+                                        </div>
+                                        <span class="social-text">LinkedIn</span>
+                                    </a>
+                                    
+                                    <!-- Facebook -->
+                                    <a href="/social/facebook" 
+                                       class="social-icon-btn facebook-btn" 
+                                       title="Facebook">
+                                        <div class="icon-wrapper">
+                                            <i class="fab fa-facebook-f"></i>
+                                        </div>
+                                        <span class="social-text">Facebook</span>
+                                    </a>
+                                    
+                                    <!-- Instagram -->
+                                    <a href="/social/instagram" 
+                                       class="social-icon-btn instagram-btn" 
+                                       title="Instagram">
+                                        <div class="icon-wrapper">
+                                            <i class="fab fa-instagram"></i>
+                                        </div>
+                                        <span class="social-text">Instagram</span>
+                                    </a>
+                                    
+                                    <!-- YouTube -->
+                                    <a href="/social/youtube" 
+                                       class="social-icon-btn youtube-btn" 
+                                       title="YouTube">
+                                        <div class="icon-wrapper">
+                                            <i class="fab fa-youtube"></i>
+                                        </div>
+                                        <span class="social-text">YouTube</span>
+                                    </a>
+
+                                    <!-- GitHub -->
+                                    <a href="/social/github" 
+                                       class="social-icon-btn github-btn" 
+                                       title="GitHub">
+                                        <div class="icon-wrapper">
+                                            <i class="fab fa-github"></i>
+                                        </div>
+                                        <span class="social-text">GitHub</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                        <div class="footer-section">
+                            <h5 class="footer-title">Quick Links</h5>
+                            <ul class="footer-links">
+                                <li><a href="/" class="footer-link"><i class="fas fa-chevron-right"></i> Home</a></li>
+                                <li><a href="/about" class="footer-link"><i class="fas fa-chevron-right"></i> About</a></li>
+                                <li><a href="/services" class="footer-link"><i class="fas fa-chevron-right"></i> Services</a></li>
+                                <li><a href="/contact" class="footer-link"><i class="fas fa-chevron-right"></i> Contact</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Information -->
+                    <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                        <div class="footer-section">
+                            <h5 class="footer-title">Information</h5>
+                            <ul class="footer-links">
+                                <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
+                                <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i> Terms & Conditions</a></li>
+                                <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i> FAQ</a></li>
+                                <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i> Report Issue</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                        <div class="footer-section">
+                            <h5 class="footer-title">Contact Info</h5>
+                            <ul class="footer-links">
+                                <li>
+                                    <a href="tel:+919876543210" class="footer-link">
+                                        <i class="fas fa-phone"></i> +91-9876-543-210
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="mailto:support@alumnihub.com" class="footer-link">
+                                        <i class="fas fa-envelope"></i> support@alumnihub.com
+                                    </a>
+                                </li>
+                                <li class="footer-link">
+                                    <i class="fas fa-map-marker-alt"></i> DBIT Campus, New Delhi, Delhi
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="footer-bottom-text">
+                            &copy; 2024 DBIT Alumni Management System. All rights reserved.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p class="footer-bottom-text">
+                            Designed & Developed with <i class="fas fa-heart text-danger"></i> by Alumni Hub Team
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" title="Go to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: false,
+            offset: 100
+        });
+
+        // Back to Top Button
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.style.display = 'block';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Alert Auto Close
+        document.querySelectorAll('.alert').forEach(alert => {
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

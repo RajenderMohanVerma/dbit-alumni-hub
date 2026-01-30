@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Alumni Management System{% endblock %}
+
+{% block content %}
+<div class="form-wrapper">
+    <div class="form-container">
+        <div class="form-header">
+            <h2>Join Alumni Hub</h2>
+            <p>Create your account and connect with LPU community</p>
+        </div>
+
+        <div class="form-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="/register">
+                <!-- Basic Information -->
+                <div class="form-group">
+                    <label for="name">👤 Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">📧 Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">📱 Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+91 9876543210">
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">🔐 Password</label>
+                    <input type="password" id="password" name="password" placeholder="Min 6 characters" required>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="form-group">
+                    <label for="role">👨‍🎓 I am a</label>
+                    <select id="role" name="role" required>
+                        <option value="">-- Select your role --</option>
+                        <option value="student">Student</option>
+                        <option value="alumni">Alumni</option>
+                    </select>
+                </div>
+
+                <!-- Student/Alumni Specific Fields -->
+                <div id="student-fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="degree">📚 Degree Program</label>
+                        <select id="degree" name="degree">
+                            <option value="">-- Select degree --</option>
+                            <option value="B.Tech">B.Tech</option>
+                            <option value="B.Sc">B.Sc</option>
+                            <option value="MBA">MBA</option>
+                            <option value="M.Tech">M.Tech</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="department">🏫 Department</label>
+                        <input type="text" id="department" name="department" placeholder="CSE, ECE, Mechanical...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pass_year">📅 Passing Year</label>
+                        <input type="number" id="pass_year" name="pass_year" placeholder="2024" min="1990" max="2030">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg_number">🆔 Registration Number</label>
+                        <input type="text" id="reg_number" name="reg_number" placeholder="LPU12345678">
+                    </div>
+                </div>
+
+                <div id="alumni-fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="degree">📚 Degree Program</label>
+                        <select id="degree-alumni" name="degree">
+                            <option value="">-- Select degree --</option>
+                            <option value="B.Tech">B.Tech</option>
+                            <option value="B.Sc">B.Sc</option>
+                            <option value="MBA">MBA</option>
+                            <option value="M.Tech">M.Tech</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pass_year">📅 Graduation Year</label>
+                        <input type="number" id="pass_year-alumni" name="pass_year" placeholder="2020" min="1990" max="2024">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="company">🏢 Current Company</label>
+                        <input type="text" id="company" name="company" placeholder="Your company name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="designation">💼 Designation</label>
+                        <input type="text" id="designation" name="designation" placeholder="Your job title">
+                    </div>
+                </div>
+
+                <button type="submit" class="form-submit">✨ Create Account</button>
+            </form>
+
+            <div class="form-footer">
+                Already have an account? <a href="/login">Sign in here</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/Hide fields based on role selection
+    document.getElementById('role').addEventListener('change', function() {
+        const studentFields = document.getElementById('student-fields');
+        const alumniFields = document.getElementById('alumni-fields');
+        
+        if (this.value === 'student') {
+            studentFields.style.display = 'block';
+            alumniFields.style.display = 'none';
+        } else if (this.value === 'alumni') {
+            studentFields.style.display = 'none';
+            alumniFields.style.display = 'block';
+        } else {
+            studentFields.style.display = 'none';
+            alumniFields.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

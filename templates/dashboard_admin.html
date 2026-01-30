@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container pb-5">
+    <h2 class="mb-4 text-white fw-bold">Admin Dashboard</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card glass-card p-3 text-center">
+                <h1 class="display-4 fw-bold text-warning">{{ a_count }}</h1>
+                <p>Alumni Connected</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card glass-card p-3 text-center">
+                <h1 class="display-4 fw-bold text-info">{{ s_count }}</h1>
+                <p>Students Active</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card glass-card p-3 text-center">
+                <h1 class="display-4 fw-bold text-success">₹40L</h1>
+                <p>Funds Raised</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card glass-card p-3">
+                <h5 class="mb-3">Placement & Fund Growth</h5>
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card glass-card p-3">
+                <h5 class="mb-3">User Distribution</h5>
+                <canvas id="userChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card glass-card p-3 overflow-auto">
+        <h5>Recent Registrations</h5>
+        <table class="table text-white">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Dept</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users[:5] %}
+                <tr>
+                    <td>{{ user['name'] }}</td>
+                    <td><span class="badge bg-secondary">{{ user['role'] }}</span></td>
+                    <td>{{ user['department'] }}</td>
+                    <td class="text-success"><i class="fas fa-check-circle"></i> Verified</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Growth Chart (Bar)
+    var ctx = document.getElementById('growthChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_data.years | tojson }},
+            datasets: [{
+                label: 'Placements',
+                data: {{ chart_data.placements | tojson }},
+                backgroundColor: 'rgba(54, 162, 235, 0.6)'
+            }, {
+                label: 'Funds (Lakhs)',
+                data: {{ chart_data.funds | tojson }},
+                backgroundColor: 'rgba(255, 206, 86, 0.6)'
+            }]
+        },
+        options: { plugins: { legend: { labels: { color: 'white' } } }, scales: { y: { ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } } }
+    });
+
+    // User Chart (Doughnut)
+    var ctx2 = document.getElementById('userChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: ['Alumni', 'Students'],
+            datasets: [{
+                data: [{{ a_count }}, {{ s_count }}],
+                backgroundColor: ['#ffc107', '#0dcaf0']
+            }]
+        },
+        options: { plugins: { legend: { labels: { color: 'white' } } } }
+    });
+</script>
+{% endblock %}
