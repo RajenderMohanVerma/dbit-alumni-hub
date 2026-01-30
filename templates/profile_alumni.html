@@ -1,0 +1,411 @@
+<!-- filepath: d:\RajenderMohan_BCA\RajenderMohan_Projects\6_Semester\Major Project\Alumni App\templates\profile_alumni.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="profile-background" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); padding: 60px 0; min-height: 100vh; position: relative; overflow: hidden;">
+    <!-- Animated Background Elements -->
+    <div class="animated-bg-elements">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="container" style="position: relative; z-index: 2;">
+        <!-- Marquee Section -->
+        <div class="marquee-container mb-5" style="background: rgba(255,255,255,0.15); border-radius: 15px; overflow: hidden; backdrop-filter: blur(10px);">
+            <div class="marquee" style="animation: scroll 25s linear infinite;">
+                <span style="color: white; font-weight: bold; font-size: 1.2rem; margin-right: 60px;">
+                    ✨ Alumni Success Stories | 🚀 Career Journey | 💼 Professional Network | 🤝 Mentorship Opportunities | 🏆 Industry Leaders
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <!-- Left Sidebar - Profile Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-lg h-100" style="border-radius: 20px; border: none; overflow: hidden; animation: slideInLeft 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <!-- Cover Image -->
+                <div style="height: 120px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);"></div>
+                
+                <div class="card-body text-center" style="margin-top: -60px; position: relative; z-index: 10;">
+                    <!-- Profile Photo -->
+                    <div class="mb-3" style="position: relative;">
+                        <div style="width: 140px; height: 140px; margin: 0 auto; border-radius: 50%; border: 5px solid white; box-shadow: 0 10px 40px rgba(40, 167, 69, 0.3); overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                            {% if user['profile_pic'] and user['profile_pic'].startswith('/') %}
+                                <img src="{{ user['profile_pic'] }}" alt="Avatar" class="profile-pic-display w-100 h-100" style="object-fit: cover;">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&size=140&background=28A745&color=fff" alt="Avatar" class="profile-pic-display w-100">
+                            {% endif %}
+                        </div>
+                        <span class="badge bg-success" style="position: absolute; bottom: 10px; right: 50%; transform: translateX(50%); font-size: 0.9rem;">
+                            <i class="fas fa-check-circle"></i> Active
+                        </span>
+                    </div>
+
+                    <!-- Name and Title -->
+                    <h3 class="card-title fw-bold mt-4 mb-1" style="font-size: 1.8rem;">{{ user['name'] }}</h3>
+                    <p class="text-success fw-bold mb-2" style="font-size: 1.1rem;">
+                        <i class="fas fa-users"></i> Alumni
+                    </p>
+                    
+                    <!-- Badge -->
+                    <div class="mb-4">
+                        <span class="badge bg-success me-2" style="font-size: 0.95rem; padding: 0.6rem 1rem;">
+                            <i class="fas fa-calendar-alt"></i> Batch {{ profile['pass_year'] }}
+                        </span>
+                        {% if profile['company_name'] %}
+                        <span class="badge bg-info" style="font-size: 0.95rem; padding: 0.6rem 1rem;">
+                            <i class="fas fa-briefcase"></i> Employed
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <hr style="margin: 1.5rem 0;">
+
+                    <!-- Contact Information -->
+                    <div class="mb-4">
+                        <div class="contact-item mb-3 p-2" style="background: #f8f9fa; border-radius: 10px; transition: all 0.3s;">
+                            <small class="text-muted d-block"><i class="fas fa-envelope"></i> Email</small>
+                            <p class="mb-0 fw-bold text-break" style="font-size: 0.95rem;">{{ user['email'] }}</p>
+                        </div>
+                        <div class="contact-item mb-3 p-2" style="background: #f8f9fa; border-radius: 10px; transition: all 0.3s;">
+                            <small class="text-muted d-block"><i class="fas fa-phone"></i> Phone</small>
+                            <p class="mb-0 fw-bold">{{ user['phone'] or 'N/A' }}</p>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 1.5rem 0;">
+
+                    <!-- Action Links -->
+                    <div class="d-grid gap-2 mb-3">
+                        {% if profile['linkedin_url'] %}
+                        <a href="{{ profile['linkedin_url'] }}" target="_blank" class="btn btn-info btn-sm" style="border-radius: 10px;">
+                            <i class="fab fa-linkedin"></i> LinkedIn Profile
+                        </a>
+                        {% endif %}
+                        
+                        {% if current_user.id == user['id'] %}
+                        <a href="{{ url_for('edit_alumni_profile', user_id=user['id']) }}" class="btn btn-success btn-sm" style="border-radius: 10px;">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                        <a href="{{ url_for('change_password') }}" class="btn btn-warning btn-sm" style="border-radius: 10px;">
+                            <i class="fas fa-lock"></i> Change Password
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Content - Details -->
+        <div class="col-lg-8">
+            <!-- Professional Information -->
+            <div class="card shadow-lg mb-4" style="border-radius: 20px; border: none; animation: slideInRight 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); overflow: hidden;">
+                <div class="card-header" style="background: linear-gradient(135deg, #28A745 0%, #20c997 100%); border: none; padding: 1.5rem;">
+                    <h5 class="mb-0 text-white fw-bold" style="font-size: 1.3rem;">
+                        <i class="fas fa-briefcase me-2"></i> Professional Information
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if profile['company_name'] %}
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="info-box" style="background: #f8f9fa; padding: 1.2rem; border-radius: 12px; border-left: 4px solid #28A745;">
+                                <small class="text-muted d-block mb-1"><i class="fas fa-building"></i> Company</small>
+                                <h6 class="fw-bold mb-0">{{ profile['company_name'] }}</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-box" style="background: #f8f9fa; padding: 1.2rem; border-radius: 12px; border-left: 4px solid #0D6EFD;">
+                                <small class="text-muted d-block mb-1"><i class="fas fa-briefcase"></i> Designation</small>
+                                <h6 class="fw-bold mb-0">{{ profile['designation'] }}</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="info-box" style="background: #f8f9fa; padding: 1.2rem; border-radius: 12px; border-left: 4px solid #FFC107;">
+                                <small class="text-muted d-block mb-1"><i class="fas fa-map-marker-alt"></i> Location</small>
+                                <h6 class="fw-bold mb-0">{{ profile['work_location'] or 'N/A' }}</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-box" style="background: #f8f9fa; padding: 1.2rem; border-radius: 12px; border-left: 4px solid #DC3545;">
+                                <small class="text-muted d-block mb-1"><i class="fas fa-briefcase-medical"></i> Experience</small>
+                                <h6 class="fw-bold mb-0">{{ profile['experience_years'] or 0 }} Years</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="experience-bar">
+                        <small class="text-muted d-block mb-2">Experience Progress</small>
+                        <div class="progress" style="height: 25px; border-radius: 10px; background: #e9ecef;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {% if profile['experience_years'] %}{{ (profile['experience_years'] | int / 30) * 100 }}%{% else %}0%{% endif %}; border-radius: 10px;">
+                                {{ profile['experience_years'] or 0 }}/30 Years
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info" style="border-radius: 12px; border: none; background: #e7f3ff; border-left: 4px solid #0D6EFD;">
+                        <i class="fas fa-info-circle"></i> Professional details not added yet
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Academic Background -->
+            <div class="card shadow-lg mb-4" style="border-radius: 20px; border: none; animation: slideInRight 0.9s cubic-bezier(0.34, 1.56, 0.64, 1); overflow: hidden;">
+                <div class="card-header" style="background: linear-gradient(135deg, #0D6EFD 0%, #0DCE5E 100%); border: none; padding: 1.5rem;">
+                    <h5 class="mb-0 text-white fw-bold" style="font-size: 1.3rem;">
+                        <i class="fas fa-graduation-cap me-2"></i> Academic Background
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="info-box" style="background: #f8f9fa; padding: 1.2rem; border-radius: 12px; border-left: 4px solid #0D6EFD;">
+                                <small class="text-muted d-block mb-1"><i class="fas fa-book"></i> Department</small>
+                                <h6 class="fw-bold mb-0">{{ profile['department'] }}</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-box" style="background: #f8f9fa; padding: 1.2rem; border-radius: 12px; border-left: 4px solid #6C5CE7;">
+                                <small class="text-muted d-block mb-1"><i class="fas fa-certificate"></i> Degree</small>
+                                <h6 class="fw-bold mb-0">{{ profile['degree'] }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <div class="info-box" style="background: #f8f9fa; padding: 1.2rem; border-radius: 12px; border-left: 4px solid #00B894;">
+                                <small class="text-muted d-block mb-1"><i class="fas fa-id-card"></i> Enrollment No.</small>
+                                <h6 class="fw-bold mb-0">{{ profile['enrollment_no'] }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bio & Achievements -->
+            {% if profile['achievements'] or profile['bio'] %}
+            <div class="card shadow-lg" style="border-radius: 20px; border: none; animation: slideInRight 1.0s cubic-bezier(0.34, 1.56, 0.64, 1); overflow: hidden;">
+                <div class="card-header" style="background: linear-gradient(135deg, #FFC107 0%, #FF9800 100%); border: none; padding: 1.5rem;">
+                    <h5 class="mb-0 text-dark fw-bold" style="font-size: 1.3rem;">
+                        <i class="fas fa-star me-2"></i> Bio & Achievements
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if profile['bio'] %}
+                    <div class="mb-4 p-3" style="background: #fffbf0; border-left: 4px solid #FFC107; border-radius: 10px;">
+                        <small class="text-muted d-block mb-2"><i class="fas fa-comment"></i> Bio</small>
+                        <p class="mb-0" style="font-style: italic; font-size: 1.05rem;">{{ profile['bio'] }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile['achievements'] %}
+                    <div>
+                        <small class="text-muted d-block mb-3"><i class="fas fa-trophy"></i> Achievements</small>
+                        <div class="achievements-list">
+                            {% for achievement in profile['achievements'].split('|') %}
+                                <div class="achievement-item mb-3 p-3" style="background: #f8f9fa; border-left: 4px solid #FFC107; border-radius: 10px; animation: slideUp 0.5s ease forwards;">
+                                    <i class="fas fa-medal text-warning me-2"></i>
+                                    <span class="fw-bold">{{ achievement.strip() }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Animations */
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes scroll {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-100%);
+        }
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Background Shapes */
+    .animated-bg-elements {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .shape {
+        position: absolute;
+        opacity: 0.1;
+        border-radius: 50%;
+    }
+
+    .shape-1 {
+        width: 300px;
+        height: 300px;
+        background: white;
+        top: -50px;
+        left: -50px;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .shape-2 {
+        width: 200px;
+        height: 200px;
+        background: white;
+        top: 50%;
+        right: -50px;
+        animation: float 8s ease-in-out infinite reverse;
+    }
+
+    .shape-3 {
+        width: 250px;
+        height: 250px;
+        background: white;
+        bottom: -50px;
+        left: 50%;
+        animation: float 7s ease-in-out infinite;
+    }
+
+    /* Card Hover Effects */
+    .card {
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* Info Box Hover */
+    .info-box {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .info-box:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Contact Item Hover */
+    .contact-item:hover {
+        background: #e9ecef !important;
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Achievement Item */
+    .achievement-item {
+        transition: all 0.3s ease;
+    }
+
+    .achievement-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
+    }
+
+    /* Profile Picture */
+    .profile-pic-display {
+        transition: transform 0.3s ease;
+    }
+
+    .profile-pic-display:hover {
+        transform: scale(1.05);
+    }
+
+    /* Marquee */
+    .marquee-container {
+        white-space: nowrap;
+    }
+
+    .marquee {
+        display: inline-block;
+        padding-left: 100%;
+    }
+
+    /* Progress Bar */
+    .progress {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        transition: width 1s ease;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .marquee {
+            font-size: 0.9rem !important;
+        }
+
+        h3.card-title {
+            font-size: 1.5rem !important;
+        }
+    }
+</style>
+{% endblock %}

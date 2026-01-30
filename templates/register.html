@@ -1,142 +1,387 @@
-{% extends 'base.html' %}
-
-{% block title %}Register - Alumni Management System{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="form-wrapper">
-    <div class="form-container">
-        <div class="form-header">
-            <h2>Join Alumni Hub</h2>
-            <p>Create your account and connect with LPU community</p>
-        </div>
-
-        <div class="form-body">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">
-                            {{ message }}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0" style="border-radius: 15px;">
+                <div class="card-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
+                    <h3 class="mb-0"><i class="fas fa-user-plus"></i> Register as {{ role | capitalize }}</h3>
+                </div>
+                <div class="card-body p-5">
+                    <form method="POST" id="registerForm">
+                        <!-- Role Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Select Role</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="role" id="roleStudent" value="student" 
+                                       {% if role == 'student' %}checked{% endif %} onchange="updateFormFields()">
+                                <label class="btn btn-outline-primary" for="roleStudent">
+                                    <i class="fas fa-graduation-cap"></i> Student
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="role" id="roleAlumni" value="alumni" 
+                                       {% if role == 'alumni' %}checked{% endif %} onchange="updateFormFields()">
+                                <label class="btn btn-outline-success" for="roleAlumni">
+                                    <i class="fas fa-users"></i> Alumni
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="role" id="roleFaculty" value="faculty" 
+                                       {% if role == 'faculty' %}checked{% endif %} onchange="updateFormFields()">
+                                <label class="btn btn-outline-warning" for="roleFaculty">
+                                    <i class="fas fa-chalkboard-user"></i> Faculty
+                                </label>
+                            </div>
                         </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
 
-            <form method="POST" action="/register">
-                <!-- Basic Information -->
-                <div class="form-group">
-                    <label for="name">👤 Full Name</label>
-                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                        <hr>
+
+                        <!-- Common Fields -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                        </div>
+
+                        <!-- Student Specific Fields -->
+                        <div id="studentFields" style="display: {% if role == 'student' %}block{% else %}none{% endif %};">
+                            <div class="card mb-4 border-light">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-graduation-cap"></i> Student Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="enrollment_no" class="form-label">Enrollment No. <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="enrollment_no" name="enrollment_no">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="category" class="form-label">Course Category <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="category" name="category" onchange="updateCourseDropdown()">
+                                                <option value="">Select Category</option>
+                                                <option value="IT">IT / Technology</option>
+                                                <option value="Engineering">Engineering (Non-IT)</option>
+                                                <option value="Science">Science</option>
+                                                <option value="Commerce">Commerce & Management</option>
+                                                <option value="Arts">Arts / Humanities</option>
+                                                <option value="Medical">Medical & Health Sciences</option>
+                                                <option value="Law">Law / Education / Others</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="level" class="form-label">Study Level <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="level" name="level" onchange="updateCourseDropdown()">
+                                                <option value="">Select Level</option>
+                                                <option value="UG">Undergraduate (UG)</option>
+                                                <option value="PG">Postgraduate (PG)</option>
+                                                <option value="Diploma">Diploma / Certification</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="degree" class="form-label">Course / Degree <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="degree" name="degree">
+                                                <option value="">Select Course First</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="department" class="form-label">Department <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="department" name="department">
+                                                <option value="">Select Department</option>
+                                                <option value="Information Technology">Information Technology</option>
+                                                <option value="Computer Science">Computer Science</option>
+                                                <option value="Computer Engineering">Computer Engineering</option>
+                                                <option value="Electronics & Communication">Electronics & Communication</option>
+                                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                                <option value="Civil Engineering">Civil Engineering</option>
+                                                <option value="Commerce">Commerce</option>
+                                                <option value="Management">Management</option>
+                                                <option value="Arts">Arts</option>
+                                                <option value="Science">Science</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="semester" class="form-label">Current Semester <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="semester" name="semester">
+                                                <option value="">Select Semester</option>
+                                                <option value="1">1st Semester</option>
+                                                <option value="2">2nd Semester</option>
+                                                <option value="3">3rd Semester</option>
+                                                <option value="4">4th Semester</option>
+                                                <option value="5">5th Semester</option>
+                                                <option value="6">6th Semester</option>
+                                                <option value="7">7th Semester</option>
+                                                <option value="8">8th Semester</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alumni Specific Fields -->
+                        <div id="alumniFields" style="display: {% if role == 'alumni' %}block{% else %}none{% endif %};">
+                            <div class="card mb-4 border-light">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-users"></i> Alumni Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="alum_enrollment_no" class="form-label">Enrollment No. <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="alum_enrollment_no" name="enrollment_no">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="alum_category" class="form-label">Course Category <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="alum_category" name="category" onchange="updateAlumniCourseDropdown()">
+                                                <option value="">Select Category</option>
+                                                <option value="IT">IT / Technology</option>
+                                                <option value="Engineering">Engineering (Non-IT)</option>
+                                                <option value="Science">Science</option>
+                                                <option value="Commerce">Commerce & Management</option>
+                                                <option value="Arts">Arts / Humanities</option>
+                                                <option value="Medical">Medical & Health Sciences</option>
+                                                <option value="Law">Law / Education / Others</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="alum_level" class="form-label">Study Level <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="alum_level" name="level" onchange="updateAlumniCourseDropdown()">
+                                                <option value="">Select Level</option>
+                                                <option value="UG">Undergraduate (UG)</option>
+                                                <option value="PG">Postgraduate (PG)</option>
+                                                <option value="Diploma">Diploma / Certification</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="alum_degree" class="form-label">Course / Degree <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="alum_degree" name="degree">
+                                                <option value="">Select Course First</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="alum_department" class="form-label">Department <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="alum_department" name="department">
+                                                <option value="">Select Department</option>
+                                                <option value="Information Technology">Information Technology</option>
+                                                <option value="Computer Science">Computer Science</option>
+                                                <option value="Commerce">Commerce</option>
+                                                <option value="Arts">Arts</option>
+                                                <option value="Science">Science</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="pass_year" class="form-label">Passing Year <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="pass_year" name="pass_year">
+                                                <option value="">Select Year</option>
+                                                {% for year in range(2024, 1999, -1) %}
+                                                <option value="{{ year }}">{{ year }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="company_name" class="form-label">Company Name</label>
+                                            <input type="text" class="form-control" id="company_name" name="company_name" placeholder="Current Company">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="designation" class="form-label">Designation</label>
+                                            <input type="text" class="form-control" id="designation" name="designation" placeholder="Job Title">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Faculty Specific Fields -->
+                        <div id="facultyFields" style="display: {% if role == 'faculty' %}block{% else %}none{% endif %};">
+                            <div class="card mb-4 border-light">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-chalkboard-user"></i> Faculty Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="employee_id" class="form-label">Employee ID <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="employee_id" name="employee_id">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="fac_department" class="form-label">Department <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="fac_department" name="department">
+                                                <option value="">Select Department</option>
+                                                <option value="Information Technology">Information Technology</option>
+                                                <option value="Computer Science">Computer Science</option>
+                                                <option value="Electronics & Communication">Electronics & Communication</option>
+                                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                                <option value="Civil Engineering">Civil Engineering</option>
+                                                <option value="Commerce">Commerce</option>
+                                                <option value="Arts">Arts</option>
+                                                <option value="Science">Science</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="fac_designation" class="form-label">Designation <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="fac_designation" name="designation">
+                                                <option value="">Select Designation</option>
+                                                <option value="Professor">Professor</option>
+                                                <option value="Associate Professor">Associate Professor</option>
+                                                <option value="Assistant Professor">Assistant Professor</option>
+                                                <option value="Lecturer">Lecturer</option>
+                                                <option value="Head of Department">Head of Department</option>
+                                                <option value="Dean">Dean</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="qualification" class="form-label">Qualification <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="qualification" name="qualification" placeholder="e.g., B.Tech, M.Tech, Ph.D">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">
+                                <i class="fas fa-user-plus"></i> Register
+                            </button>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <p>Already have an account? <a href="{{ url_for('login') }}" class="fw-bold">Login here</a></p>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="form-group">
-                    <label for="email">📧 Email Address</label>
-                    <input type="email" id="email" name="email" placeholder="your@email.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="phone">📱 Phone Number</label>
-                    <input type="tel" id="phone" name="phone" placeholder="+91 9876543210">
-                </div>
-
-                <!-- Password -->
-                <div class="form-group">
-                    <label for="password">🔐 Password</label>
-                    <input type="password" id="password" name="password" placeholder="Min 6 characters" required>
-                </div>
-
-                <!-- Role Selection -->
-                <div class="form-group">
-                    <label for="role">👨‍🎓 I am a</label>
-                    <select id="role" name="role" required>
-                        <option value="">-- Select your role --</option>
-                        <option value="student">Student</option>
-                        <option value="alumni">Alumni</option>
-                    </select>
-                </div>
-
-                <!-- Student/Alumni Specific Fields -->
-                <div id="student-fields" style="display: none;">
-                    <div class="form-group">
-                        <label for="degree">📚 Degree Program</label>
-                        <select id="degree" name="degree">
-                            <option value="">-- Select degree --</option>
-                            <option value="B.Tech">B.Tech</option>
-                            <option value="B.Sc">B.Sc</option>
-                            <option value="MBA">MBA</option>
-                            <option value="M.Tech">M.Tech</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="department">🏫 Department</label>
-                        <input type="text" id="department" name="department" placeholder="CSE, ECE, Mechanical...">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="pass_year">📅 Passing Year</label>
-                        <input type="number" id="pass_year" name="pass_year" placeholder="2024" min="1990" max="2030">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="reg_number">🆔 Registration Number</label>
-                        <input type="text" id="reg_number" name="reg_number" placeholder="LPU12345678">
-                    </div>
-                </div>
-
-                <div id="alumni-fields" style="display: none;">
-                    <div class="form-group">
-                        <label for="degree">📚 Degree Program</label>
-                        <select id="degree-alumni" name="degree">
-                            <option value="">-- Select degree --</option>
-                            <option value="B.Tech">B.Tech</option>
-                            <option value="B.Sc">B.Sc</option>
-                            <option value="MBA">MBA</option>
-                            <option value="M.Tech">M.Tech</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="pass_year">📅 Graduation Year</label>
-                        <input type="number" id="pass_year-alumni" name="pass_year" placeholder="2020" min="1990" max="2024">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="company">🏢 Current Company</label>
-                        <input type="text" id="company" name="company" placeholder="Your company name">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="designation">💼 Designation</label>
-                        <input type="text" id="designation" name="designation" placeholder="Your job title">
-                    </div>
-                </div>
-
-                <button type="submit" class="form-submit">✨ Create Account</button>
-            </form>
-
-            <div class="form-footer">
-                Already have an account? <a href="/login">Sign in here</a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Show/Hide fields based on role selection
-    document.getElementById('role').addEventListener('change', function() {
-        const studentFields = document.getElementById('student-fields');
-        const alumniFields = document.getElementById('alumni-fields');
-        
-        if (this.value === 'student') {
-            studentFields.style.display = 'block';
-            alumniFields.style.display = 'none';
-        } else if (this.value === 'alumni') {
-            studentFields.style.display = 'none';
-            alumniFields.style.display = 'block';
-        } else {
-            studentFields.style.display = 'none';
-            alumniFields.style.display = 'none';
-        }
-    });
+// Course data
+const courseData = {
+    'IT': {
+        'UG': ['BCA – Bachelor of Computer Applications', 'B.Sc Computer Science', 'B.Sc Information Technology', 'B.Tech Computer Science Engineering', 'B.Tech Information Technology', 'B.Tech AI & ML', 'B.Tech Data Science', 'B.Tech Cyber Security', 'B.Tech Cloud Computing', 'B.Tech Software Engineering', 'B.Tech IoT', 'B.Tech Computer Engineering', 'B.Tech Blockchain Technology'],
+        'PG': ['MCA – Master of Computer Applications', 'M.Sc Computer Science', 'M.Sc Information Technology', 'M.Tech Computer Science', 'M.Tech Information Technology', 'M.Tech AI / ML', 'M.Tech Data Science', 'M.Tech Cyber Security'],
+        'Diploma': ['Diploma in Computer Engineering', 'Diploma in Information Technology', 'Diploma in Software Engineering', 'Full Stack Development', 'Data Science', 'AI / ML', 'Cyber Security', 'Cloud Computing']
+    },
+    'Engineering': {
+        'UG': ['B.Tech Mechanical Engineering', 'B.Tech Civil Engineering', 'B.Tech Electrical Engineering', 'B.Tech Electronics & Communication (ECE)', 'B.Tech Electronics & Instrumentation', 'B.Tech Automobile Engineering', 'B.Tech Chemical Engineering', 'B.Tech Aerospace Engineering', 'B.Tech Biomedical Engineering'],
+        'PG': ['M.Tech Mechanical Engineering', 'M.Tech Civil Engineering', 'M.Tech Electrical Engineering', 'M.Tech Electronics Engineering', 'M.Tech Structural Engineering', 'M.Tech Thermal Engineering']
+    },
+    'Science': {
+        'UG': ['B.Sc Mathematics', 'B.Sc Physics', 'B.Sc Chemistry', 'B.Sc Biotechnology', 'B.Sc Microbiology', 'B.Sc Environmental Science'],
+        'PG': ['M.Sc Mathematics', 'M.Sc Physics', 'M.Sc Chemistry', 'M.Sc Biotechnology', 'M.Sc Microbiology']
+    },
+    'Commerce': {
+        'UG': ['B.Com', 'BBA – Bachelor of Business Administration', 'BMS – Business Management Studies'],
+        'PG': ['M.Com', 'MBA – Master of Business Administration', 'PGDM']
+    },
+    'Arts': {
+        'UG': ['BA (History)', 'BA (Political Science)', 'BA (English)', 'BA (Economics)', 'BA (Sociology)', 'BJMC – Journalism & Mass Communication', 'BFA – Fine Arts'],
+        'PG': ['MA (English)', 'MA (History)', 'MA (Political Science)', 'MA (Economics)', 'MA (Sociology)', 'MJMC – Journalism']
+    },
+    'Medical': {
+        'UG': ['MBBS', 'BDS', 'B.Pharm', 'B.Sc Nursing', 'BPT – Physiotherapy', 'BAMS', 'BHMS'],
+        'PG': ['MD', 'MS', 'M.Pharm', 'M.Sc Nursing']
+    },
+    'Law': {
+        'UG': ['LLB', 'BA LLB', 'B.Ed', 'Hotel Management (BHM)', 'Fashion Designing', 'Interior Designing'],
+        'PG': ['M.Ed', 'D.El.Ed', 'Hotel Management (MHM)']
+    }
+};
+
+function updateFormFields() {
+    const role = document.querySelector('input[name="role"]:checked').value;
+    document.getElementById('studentFields').style.display = role === 'student' ? 'block' : 'none';
+    document.getElementById('alumniFields').style.display = role === 'alumni' ? 'block' : 'none';
+    document.getElementById('facultyFields').style.display = role === 'faculty' ? 'block' : 'none';
+}
+
+function updateCourseDropdown() {
+    const category = document.getElementById('category').value;
+    const level = document.getElementById('level').value;
+    const degreeSelect = document.getElementById('degree');
+    
+    degreeSelect.innerHTML = '<option value="">Select Course</option>';
+    
+    if (category && level && courseData[category][level]) {
+        courseData[category][level].forEach(course => {
+            const option = document.createElement('option');
+            option.value = course;
+            option.textContent = course;
+            degreeSelect.appendChild(option);
+        });
+    }
+}
+
+function updateAlumniCourseDropdown() {
+    const category = document.getElementById('alum_category').value;
+    const level = document.getElementById('alum_level').value;
+    const degreeSelect = document.getElementById('alum_degree');
+    
+    degreeSelect.innerHTML = '<option value="">Select Course</option>';
+    
+    if (category && level && courseData[category][level]) {
+        courseData[category][level].forEach(course => {
+            const option = document.createElement('option');
+            option.value = course;
+            option.textContent = course;
+            degreeSelect.appendChild(option);
+        });
+    }
+}
 </script>
+
+<style>
+    .card {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-group .btn {
+        flex: 1;
+    }
+</style>
 {% endblock %}

@@ -1,9 +1,22 @@
 /* ===== SOCIAL PAGES COMMON STYLES ===== */
 
+/* Color Variables */
+:root {
+  --primary: #1e3a8a;
+  --secondary: #0ea5e9;
+  --accent: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --light: #f8fafc;
+  --dark: #0f172a;
+  --text-dark: #1e293b;
+  --text-light: #64748b;
+}
+
 /* Hero Marquee */
 .hero-marquee {
     height: 60px;
-    background: rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     display: flex;
     align-items: center;
     overflow: hidden;

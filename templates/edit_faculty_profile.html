@@ -1,0 +1,231 @@
+<!-- filepath: d:\RajenderMohan_BCA\RajenderMohan_Projects\6_Semester\Major Project\Alumni App\templates\edit_faculty_profile.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0" style="border-radius: 15px; animation: slideInUp 0.6s ease;">
+                <div class="card-header bg-warning text-dark" style="border-radius: 15px 15px 0 0;">
+                    <h3 class="mb-0"><i class="fas fa-edit"></i> Edit Faculty Profile</h3>
+                    <small>Update your professional details and office information</small>
+                </div>
+                <div class="card-body p-5">
+                    <form id="editForm" method="POST" enctype="multipart/form-data" class="needs-validation">
+                        <!-- Profile Photo -->
+                        <div class="card mb-4 border-light">
+                            <div class="card-header bg-light border-0">
+                                <h6 class="mb-0"><i class="fas fa-image"></i> Profile Photo</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <img id="photoPreview" 
+                                         src="https://ui-avatars.com/api/?name={{ user['name'] }}&size=150&background=FFC107&color=000&rounded=true" 
+                                         alt="Profile Photo" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="profile_pic" class="form-label">Upload Photo (JPG, PNG, GIF - Max 16MB)</label>
+                                    <input type="file" class="form-control" id="profile_pic" name="profile_pic" 
+                                           accept="image/*" onchange="previewPhoto(this)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <div class="card mb-4 border-light">
+                            <div class="card-header bg-light border-0">
+                                <h6 class="mb-0"><i class="fas fa-user-circle"></i> Personal Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="name" name="name" 
+                                               value="{{ user['name'] }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" 
+                                               value="{{ user['phone'] or '' }}" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Faculty Information -->
+                        <div class="card mb-4 border-light">
+                            <div class="card-header bg-light border-0">
+                                <h6 class="mb-0"><i class="fas fa-id-card"></i> Faculty Details</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Department (Fixed)</label>
+                                        <input type="text" class="form-control" value="{{ profile['department'] }}" disabled>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Designation (Fixed)</label>
+                                        <input type="text" class="form-control" value="{{ profile['designation'] }}" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="experience_years" class="form-label">Experience (Years)</label>
+                                        <input type="number" class="form-control" id="experience_years" name="experience_years" 
+                                               value="{{ profile['experience_years'] or '' }}" min="0">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="specialization" class="form-label">Specialization (comma-separated)</label>
+                                        <input type="text" class="form-control" id="specialization" name="specialization" 
+                                               value="{{ profile['specialization'] or '' }}" placeholder="e.g., Data Science, AI, ML">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Office Details -->
+                        <div class="card mb-4 border-light">
+                            <div class="card-header bg-light border-0">
+                                <h6 class="mb-0"><i class="fas fa-door-open"></i> Office Details</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="office_location" class="form-label">Office Location</label>
+                                        <input type="text" class="form-control" id="office_location" name="office_location" 
+                                               value="{{ profile['office_location'] or '' }}" placeholder="e.g., Room 301, Building A">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="office_hours" class="form-label">Office Hours</label>
+                                        <input type="text" class="form-control" id="office_hours" name="office_hours" 
+                                               value="{{ profile['office_hours'] or '' }}" placeholder="e.g., Mon-Fri 10am-12pm">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bio -->
+                        <div class="card mb-4 border-light">
+                            <div class="card-header bg-light border-0">
+                                <h6 class="mb-0"><i class="fas fa-book"></i> Bio</h6>
+                            </div>
+                            <div class="card-body">
+                                <textarea class="form-control" id="bio" name="bio" rows="4" 
+                                          placeholder="Tell us about yourself and your teaching philosophy">{{ profile['bio'] or '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning btn-lg fw-bold">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a href="{{ url_for('faculty_profile', user_id=user['id']) }}" class="btn btn-outline-secondary">
+                                Cancel & Go Back
+                            </a>
+                            <a href="{{ url_for('change_password') }}" class="btn btn-outline-info">
+                                <i class="fas fa-lock"></i> Change Password
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        border: none !important;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    #photoPreview {
+        transition: all 0.3s ease;
+        border: 3px solid #FFC107;
+        animation: pulse 2s infinite;
+    }
+
+    #photoPreview:hover {
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+    }
+</style>
+
+<script>
+function previewPhoto(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('photoPreview').src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Toast notification function
+function showToast(message, type = 'warning') {
+    const toastHtml = `
+        <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-${type === 'warning' ? 'exclamation-circle' : 'check-circle'} me-2"></i>${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+    const toastContainer = document.createElement('div');
+    toastContainer.innerHTML = toastHtml;
+    document.body.appendChild(toastContainer);
+    
+    const toastElement = toastContainer.querySelector('.toast');
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+    
+    setTimeout(() => toastContainer.remove(), 5000);
+}
+
+// Form submission with validation
+document.getElementById('editForm').addEventListener('submit', function(e) {
+    const name = document.getElementById('name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    
+    if (!name) {
+        e.preventDefault();
+        showToast('Name is required!', 'warning');
+        return false;
+    }
+    
+    if (!phone) {
+        e.preventDefault();
+        showToast('Phone is required!', 'warning');
+        return false;
+    }
+    
+    // If validation passes, form submits normally
+    return true;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="profile-background" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); padding: 40px 0; margin-bottom: 40px;">
+    <div class="container">
+        <!-- Marquee Section -->
+        <div class="marquee-container mb-4" style="background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+            <div class="marquee" style="animation: scroll 20s linear infinite;">
+                <span style="color: white; font-weight: bold; font-size: 1.1rem; margin-right: 50px;">
+                    📚 Knowledge Sharing | 🎓 Mentorship | 🤝 Collaboration | 💡 Innovation
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <!-- Profile Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow h-100" style="border-radius: 15px; animation: slideInLeft 0.8s ease;">
+                <div class="card-body text-center">
+                    <div class="mb-3" style="position: relative;">
+                        <!-- Display uploaded profile photo or avatar -->
+                        {% if user['profile_pic'] and user['profile_pic'].startswith('/') %}
+                            <img src="{{ user['profile_pic'] }}" alt="Avatar" class="rounded-circle profile-pic-display" 
+                                 style="width: 150px; height: 150px; border: 5px solid #FFC107; box-shadow: 0 10px 30px rgba(255, 193, 7, 0.3); object-fit: cover;">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&size=150&background=FFC107&color=000&rounded=true" 
+                                 alt="Avatar" class="rounded-circle profile-pic-display" style="width: 150px; height: 150px; border: 5px solid #FFC107; box-shadow: 0 10px 30px rgba(255, 193, 7, 0.3);">
+                        {% endif %}
+                        <span class="badge bg-warning text-dark" style="position: absolute; bottom: 0; right: 0;">Active</span>
+                    </div>
+                    <h4 class="card-title fw-bold">{{ user['name'] }}</h4>
+                    <p class="text-warning fw-bold mb-3"><i class="fas fa-chalkboard-user"></i> Faculty</p>
+                    
+                    <div class="badge bg-warning text-dark mb-3">{{ profile['designation'] }}</div>
+                    
+                    <hr>
+                    
+                    <div class="d-grid gap-2 mb-3">
+                        <button class="btn btn-outline-warning btn-sm"><i class="fas fa-envelope"></i> {{ user['email'] }}</button>
+                        <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-phone"></i> {{ user['phone'] }}</button>
+                    </div>
+
+                    {% if profile['office_location'] %}
+                    <div class="alert alert-light text-center mb-3">
+                        <small><i class="fas fa-door-open"></i> {{ profile['office_location'] }}</small>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile['office_hours'] %}
+                    <div class="alert alert-light text-center mb-3">
+                        <small><i class="fas fa-clock"></i> {{ profile['office_hours'] }}</small>
+                    </div>
+                    {% endif %}
+                    
+                    {% if current_user.id == user['id'] %}
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('edit_faculty_profile', user_id=user['id']) }}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                        <a href="{{ url_for('change_password') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-lock"></i> Change Password
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Details Cards -->
+        <div class="col-lg-8">
+            <!-- Faculty Information -->
+            <div class="card shadow mb-4" style="border-radius: 15px; animation: slideInRight 0.8s ease; border: none;">
+                <div class="card-header bg-warning text-dark" style="border-radius: 15px 15px 0 0;">
+                    <h5 class="mb-0"><i class="fas fa-id-card"></i> Faculty Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted"><small>Employee ID</small></label>
+                            <p class="fs-5 fw-bold">{{ profile['employee_id'] }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted"><small>Department</small></label>
+                            <p class="fs-5 fw-bold">{{ profile['department'] }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted"><small>Qualification</small></label>
+                            <p class="fw-bold"><i class="fas fa-certificate text-warning"></i> {{ profile['qualification'] }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted"><small>Experience</small></label>
+                            <p class="fw-bold">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-warning" style="width: {% if profile['experience_years'] %}{{ (profile['experience_years'] | int / 30) * 100 }}%{% else %}0%{% endif %}">
+                                        {{ profile['experience_years'] or 0 }} Yrs
+                                    </div>
+                                </div>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Specialization -->
+            {% if profile['specialization'] %}
+            <div class="card shadow mb-4" style="border-radius: 15px; animation: slideInRight 0.9s ease; border: none;">
+                <div class="card-header bg-info text-white" style="border-radius: 15px 15px 0 0;">
+                    <h5 class="mb-0"><i class="fas fa-flask"></i> Specialization</h5>
+                </div>
+                <div class="card-body">
+                    <div>
+                        {% for spec in profile['specialization'].split(',') %}
+                        <span class="badge bg-info me-2 mb-2" style="animation: fadeIn 0.5s ease;">{{ spec.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Bio -->
+            {% if profile['bio'] %}
+            <div class="card shadow" style="border-radius: 15px; animation: slideInRight 1.0s ease; border: none;">
+                <div class="card-header bg-secondary text-white" style="border-radius: 15px 15px 0 0;">
+                    <h5 class="mb-0"><i class="fas fa-book"></i> About</h5>
+                </div>
+                <div class="card-body">
+                    <p style="font-style: italic; border-left: 4px solid #FFC107; padding-left: 15px;">{{ profile['bio'] }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .profile-pic-display {
+        transition: transform 0.3s ease;
+    }
+
+    .profile-pic-display:hover {
+        transform: scale(1.1) rotate(2deg);
+        box-shadow: 0 15px 40px rgba(255, 193, 7, 0.5) !important;
+    }
+
+    @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+    }
+
+    .marquee-container { white-space: nowrap; }
+    .marquee { display: inline-block; padding-left: 100%; }
+</style>
+{% endblock %}

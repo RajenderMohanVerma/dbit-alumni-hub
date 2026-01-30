@@ -26,6 +26,58 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/social_pages.css') }}">
+    
+    <style>
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .map-container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .map-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .map-container:hover .map-overlay {
+            opacity: 1;
+        }
+        
+        .map-overlay-text {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
 </head>
 <body>
     <!-- ===== NAVBAR ===== -->
@@ -75,7 +127,12 @@
                                     <li><a class="dropdown-item" href="/alumni/dashboard"><i class="fas fa-user-tie"></i> Alumni Dashboard</a></li>
                                 {% elif current_user.role == 'student' %}
                                     <li><a class="dropdown-item" href="/student/dashboard"><i class="fas fa-search"></i> Find Mentors</a></li>
+                                {% elif current_user.role == 'faculty' %}
+                                    <li><a class="dropdown-item" href="/faculty/dashboard"><i class="fas fa-chalkboard-user"></i> Faculty Dashboard</a></li>
                                 {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/profile"><i class="fas fa-user"></i> My Profile</a></li>
+                                <li><a class="dropdown-item" href="/change_password"><i class="fas fa-lock"></i> Change Password</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                             </ul>
@@ -231,25 +288,23 @@
                         </div>
                     </div>
 
-                    <!-- Contact Info -->
+                    <!-- Location Map -->
                     <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
                         <div class="footer-section">
-                            <h5 class="footer-title">Contact Info</h5>
-                            <ul class="footer-links">
-                                <li>
-                                    <a href="tel:+919876543210" class="footer-link">
-                                        <i class="fas fa-phone"></i> +91-9876-543-210
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="mailto:support@alumnihub.com" class="footer-link">
-                                        <i class="fas fa-envelope"></i> support@alumnihub.com
-                                    </a>
-                                </li>
-                                <li class="footer-link">
-                                    <i class="fas fa-map-marker-alt"></i> DBIT Campus, New Delhi, Delhi
-                                </li>
-                            </ul>
+                            <h5 class="footer-title">
+                                <i class="fas fa-map-location-dot"></i> Our Location
+                            </h5>
+                            <div class="map-container" id="mapContainer" title="Click to open in Google Maps">
+                                <img src="{{ url_for('static', filename='images/location_img.png') }}" alt="DBIT Alumni Hub Location">
+                                <div class="map-overlay">
+                                    <div class="map-overlay-text">
+                                        <i class="fas fa-arrow-up-right-from-square"></i> View on Maps
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="footer-text mt-3" style="font-size: 0.9rem;">
+                                <i class="fas fa-map-marker-alt text-danger"></i> 2, Okhla Rd, near Escort Hospital, Pocket A, Sukhdev Vihar, Okhla, New Delhi, Delhi 110025
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -334,6 +389,16 @@
                 bsAlert.close();
             }, 5000);
         });
+
+        // Google Maps Click Handler
+        const mapContainer = document.getElementById('mapContainer');
+        if (mapContainer) {
+            mapContainer.addEventListener('click', () => {
+                const location = '2, Okhla Rd, near Escort Hospital, Pocket A, Sukhdev Vihar, Okhla, New Delhi, Delhi 110025';
+                const googleMapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(location)}`;
+                window.open(googleMapsUrl, '_blank');
+            });
+        }
     </script>
 </body>
 </html>

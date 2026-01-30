@@ -1,33 +1,569 @@
-{% extends 'base.html' %}
+<!-- filepath: d:\RajenderMohan_BCA\RajenderMohan_Projects\6_Semester\Major Project\Alumni App\templates\dashboard_student.html -->
+{% extends "base.html" %}
+
 {% block content %}
-<h2 class="text-white mb-4">Find Your Mentor</h2>
+<div class="dashboard-wrapper">
+    <!-- Hero Section -->
+    <div class="hero-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 0; position: relative; overflow: hidden;">
+        <!-- Animated Background -->
+        <div class="hero-bg">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
+        </div>
 
-<div class="row mb-4">
-    <div class="col-md-12">
-        <input type="text" class="form-control form-control-lg" placeholder="Search by Company, Name or Skills...">
-    </div>
-</div>
-
-<div class="row">
-    {% for person in alumni %}
-    <div class="col-md-4 mb-4">
-        <div class="card glass-card h-100 text-center p-4 animate__animated animate__fadeInUp">
-            <img src="{{ person['profile_pic'] if person['profile_pic'] else 'https://ui-avatars.com/api/?name=' + person['name'] }}" class="rounded-circle mb-3 border border-3 border-warning" width="100" height="100">
-            <h4 class="fw-bold">{{ person['name'] }}</h4>
-            <p class="text-warning mb-1">{{ person['designation'] }}</p>
-            <p class="small text-white-50">{{ person['company'] }}</p>
-            <hr class="border-light">
-            <div class="d-flex justify-content-between text-start small mb-3">
-                <span><i class="fas fa-graduation-cap"></i> {{ person['pass_year'] }}</span>
-                <span><i class="fas fa-building"></i> {{ person['department'] }}</span>
+        <div class="container" style="position: relative; z-index: 2;">
+            <div class="row align-items-center py-5">
+                <div class="col-lg-8">
+                    <div class="hero-content" style="animation: fadeInLeft 0.8s ease;">
+                        <h1 class="text-white display-5 fw-bold mb-3">
+                            <i class="fas fa-user-graduate me-3"></i>Welcome back, <span style="color: #00d4ff;">{{ current_user.name }}!</span>
+                        </h1>
+                        <p class="text-white-50 lead mb-0" style="font-size: 1.15rem;">
+                            Connect with alumni, explore opportunities, and grow your network
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <div style="animation: fadeInRight 0.8s ease;">
+                        <div style="width: 140px; height: 140px; margin: 0 auto; border-radius: 50%; border: 5px solid rgba(255,255,255,0.3); overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
+                            {% if current_user.profile_pic and current_user.profile_pic.startswith('/') %}
+                                <img src="{{ current_user.profile_pic }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ current_user.name }}&size=140&background=0D6EFD&color=fff" alt="Profile" style="width: 100%;">
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button class="btn btn-outline-light w-100 rounded-pill">View Profile</button>
         </div>
     </div>
-    {% else %}
-    <div class="col-12 text-center text-white">
-        <h3>No Alumni Found.</h3>
+
+    <!-- Stats Section -->
+    <div class="container mt-5 mb-5">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="stat-card" style="animation: slideUp 0.6s ease;">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ alumni | length }}</h3>
+                        <p class="stat-label">Alumni Network</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="animation: slideUp 0.7s ease;">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <i class="fas fa-chalkboard-user"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ faculty | length }}</h3>
+                        <p class="stat-label">Faculty Members</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="animation: slideUp 0.8s ease;">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ student['semester'] or 'N/A' }}</h3>
+                        <p class="stat-label">Current Semester</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="animation: slideUp 0.9s ease;">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number" style="color: #43e97b;">{{ (student['cgpa'] or 0) }}</h3>
+                        <p class="stat-label">Your CGPA</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    {% endfor %}
+
+    <!-- Main Content -->
+    <div class="container mb-5">
+        <!-- Alumni Network Section -->
+        <div class="section-header mb-4">
+            <h2 class="section-title">
+                <i class="fas fa-network-wired"></i> Alumni Network
+                <span class="badge bg-primary ms-2">{{ alumni | length }} Members</span>
+            </h2>
+        </div>
+
+        <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <!-- Filter & Search -->
+            <div class="filter-section p-4" style="background: #f8f9fa; border-bottom: 2px solid #e9ecef;">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold mb-2"><i class="fas fa-search"></i> Search</label>
+                        <input type="text" class="form-control form-control-lg" id="searchAlumni" 
+                               placeholder="Search by name, company...">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold mb-2"><i class="fas fa-calendar"></i> Year</label>
+                        <select class="form-select form-select-lg" id="filterYear">
+                            <option value="">All Years</option>
+                            {% set years = [] %}
+                            {% for alum in alumni %}
+                                {% if alum['pass_year'] and alum['pass_year'] not in years %}
+                                    {% set _ = years.append(alum['pass_year']) %}
+                                {% endif %}
+                            {% endfor %}
+                            {% for year in years | sort(reverse=True) %}
+                                <option value="{{ year }}">{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold mb-2"><i class="fas fa-briefcase"></i> Status</label>
+                        <select class="form-select form-select-lg" id="filterStatus">
+                            <option value="">All</option>
+                            <option value="employed">Employed</option>
+                            <option value="unemployed">Not Employed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-primary btn-lg w-100" onclick="document.getElementById('filterYear').value=''; document.getElementById('filterStatus').value=''; applyFilters();">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alumni Grid -->
+            <div class="card-body p-4">
+                {% if alumni | length > 0 %}
+                    <div class="row g-4" id="alumniGrid">
+                        {% for alum in alumni %}
+                        <div class="col-lg-4 col-md-6 alumni-card" 
+                             data-year="{{ alum['pass_year'] }}"
+                             data-name="{{ alum['name'].lower() }}"
+                             data-company="{{ (alum['company_name'] or '').lower() }}"
+                             data-employed="{{ 'yes' if alum['company_name'] else 'no' }}"
+                             data-alumid="{{ alum['id'] }}"
+                             style="animation: fadeIn 0.6s ease;">
+                            <div class="alumni-card-wrapper" onclick="showAlumniModal({{ alum['id'] }})" style="cursor: pointer;">
+                                <!-- Cover -->
+                                <div class="alumni-cover" style="height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative;"></div>
+                                
+                                <!-- Card Body -->
+                                <div class="alumni-body" style="padding: 2rem 1.5rem;">
+                                    <!-- Avatar -->
+                                    <div class="text-center mb-3">
+                                        <div style="width: 90px; height: 90px; margin: 0 auto -45px; border-radius: 50%; border: 5px solid white; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10;">
+                                            {% if alum['profile_pic'] and alum['profile_pic'].startswith('/') %}
+                                                <img src="{{ alum['profile_pic'] }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                                            {% else %}
+                                                <img src="https://ui-avatars.com/api/?name={{ alum['name'] }}&size=90&background=28A745&color=fff" alt="Avatar" style="width: 100%;">
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Name & Year -->
+                                    <h6 class="fw-bold text-center mb-1" style="font-size: 1.1rem;">{{ alum['name'] }}</h6>
+                                    <p class="text-center text-muted small mb-3"><i class="fas fa-calendar-alt"></i> Batch {{ alum['pass_year'] }}</p>
+
+                                    <hr class="my-3">
+
+                                    <!-- Company Info -->
+                                    {% if alum['company_name'] %}
+                                    <div class="mb-3 pb-3" style="border-bottom: 1px solid #e9ecef;">
+                                        <small class="text-muted d-block mb-1"><i class="fas fa-building"></i> Company</small>
+                                        <p class="mb-0 fw-bold text-truncate" title="{{ alum['company_name'] }}">{{ alum['company_name'] }}</p>
+                                        <small class="text-muted">{{ alum['designation'] or 'Position not set' }}</small>
+                                    </div>
+                                    {% else %}
+                                    <div class="mb-3 pb-3" style="border-bottom: 1px solid #e9ecef;">
+                                        <small class="badge bg-warning text-dark"><i class="fas fa-briefcase"></i> Exploring</small>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Experience & Location -->
+                                    <div class="mb-3 pb-3" style="border-bottom: 1px solid #e9ecef;">
+                                        {% if alum['experience_years'] %}
+                                        <small class="text-muted"><i class="fas fa-hourglass-end"></i> {{ alum['experience_years'] }}+ yrs experience</small>
+                                        {% endif %}
+                                        {% if alum['work_location'] %}
+                                        <div class="small text-muted"><i class="fas fa-map-marker-alt"></i> {{ alum['work_location'] }}</div>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Action -->
+                                    <a href="{{ url_for('alumni_profile', user_id=alum['id']) }}" class="btn btn-primary btn-sm w-100" style="border-radius: 10px;">
+                                        <i class="fas fa-arrow-right"></i> View Profile
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                <div class="empty-state text-center py-5">
+                    <i class="fas fa-inbox" style="font-size: 4rem; color: #ddd;"></i>
+                    <p class="text-muted mt-3 mb-0">No alumni records found</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Faculty Section -->
+        {% if faculty | length > 0 %}
+        <div class="section-header mb-4 mt-5">
+            <h2 class="section-title">
+                <i class="fas fa-chalkboard-user"></i> Faculty Directory
+                <span class="badge bg-info ms-2">{{ faculty | length }} Members</span>
+            </h2>
+        </div>
+
+        <div class="row g-4">
+            {% for prof in faculty %}
+            <div class="col-lg-4 col-md-6">
+                <div class="faculty-card" style="animation: fadeIn 0.6s ease; cursor: pointer;" onclick="location.href='{{ url_for('faculty_profile', user_id=prof['id']) }}'">
+                    <!-- Header -->
+                    <div class="faculty-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.5rem;">
+                        <div class="d-flex align-items-center">
+                            <div style="width: 70px; height: 70px; border-radius: 50%; border: 3px solid white; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                {% if prof['profile_pic'] and prof['profile_pic'].startswith('/') %}
+                                    <img src="{{ prof['profile_pic'] }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{ prof['name'] }}&size=70&background=FFC107&color=000" alt="Avatar" style="width: 100%;">
+                                {% endif %}
+                            </div>
+                            <div class="text-white">
+                                <h6 class="fw-bold mb-0">{{ prof['name'] }}</h6>
+                                <small>{{ prof['designation'] }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="faculty-body p-3">
+                        <div class="mb-2">
+                            <small class="text-muted"><i class="fas fa-building"></i> Department</small>
+                            <p class="mb-0 fw-bold">{{ prof['department'] }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted"><i class="fas fa-envelope"></i> Email</small>
+                            <p class="mb-0 text-break small">{{ prof['email'] }}</p>
+                        </div>
+                        <a href="{{ url_for('faculty_profile', user_id=prof['id']) }}" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="fas fa-eye"></i> View Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="action-buttons mt-5 mb-4">
+            <div class="text-center">
+                <a href="{{ url_for('edit_student_profile', user_id=current_user.id) }}" class="btn btn-primary btn-lg me-2" style="border-radius: 12px; padding: 0.8rem 2rem;">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </a>
+                <button class="btn btn-warning btn-lg me-2" data-bs-toggle="modal" data-bs-target="#upgradeModal" style="border-radius: 12px; padding: 0.8rem 2rem;">
+                    <i class="fas fa-arrow-up"></i> Upgrade to Alumni
+                </button>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger btn-lg" style="border-radius: 12px; padding: 0.8rem 2rem;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Alumni Modal -->
+<div class="modal fade" id="alumniDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title fw-bold text-white">
+                    <i class="fas fa-user-circle"></i> Alumni Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-5" id="alumniDetailsContent">
+                <div class="text-center">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a id="viewFullProfileBtn" href="#" class="btn btn-success">
+                    <i class="fas fa-external-link-alt"></i> Full Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Hero Section */
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-bg {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+
+    .blob {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .blob-1 { width: 300px; height: 300px; top: -50px; left: -50px; animation: float 6s ease-in-out infinite; }
+    .blob-2 { width: 200px; height: 200px; top: 50%; right: -50px; animation: float 8s ease-in-out infinite reverse; }
+    .blob-3 { width: 250px; height: 250px; bottom: -50px; left: 50%; animation: float 7s ease-in-out infinite; }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+
+    @keyframes fadeInLeft {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInRight {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Stat Card */
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        display: flex;
+        gap: 1rem;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        border-color: #e9ecef;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0;
+    }
+
+    /* Section Header */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        color: #1a1a1a;
+    }
+
+    /* Alumni Card */
+    .alumni-card-wrapper {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        border: 2px solid transparent;
+    }
+
+    .alumni-card-wrapper:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        border-color: #e9ecef;
+    }
+
+    /* Faculty Card */
+    .faculty-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+
+    .faculty-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    /* Filter Section */
+    .filter-section {
+        background: #f8f9fa;
+    }
+
+    .form-control-lg, .form-select-lg {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-lg:focus, .form-select-lg:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Button Styles */
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-lg {
+        font-weight: 600;
+    }
+</style>
+
+<script>
+function showAlumniModal(alumniId) {
+    const modal = new bootstrap.Modal(document.getElementById('alumniDetailsModal'));
+    const contentDiv = document.getElementById('alumniDetailsContent');
+    
+    contentDiv.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    `;
+    
+    fetch(`/api/alumni/${alumniId}`)
+        .then(response => response.json())
+        .then(data => {
+            const user = data.user;
+            const profile = data.profile;
+            
+            const html = `
+                <div class="text-center mb-4">
+                    <div style="width: 120px; height: 120px; margin: 0 auto; border-radius: 50%; border: 4px solid #28A745; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        ${user.profile_pic && user.profile_pic.startsWith('/') 
+                            ? `<img src="${user.profile_pic}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">` 
+                            : `<img src="https://ui-avatars.com/api/?name=${user.name}&size=120&background=28A745&color=fff" alt="Avatar" style="width: 100%;">`
+                        }
+                    </div>
+                    <h4 class="mt-3 mb-1 fw-bold">${user.name}</h4>
+                    <p class="text-success fw-bold mb-0"><i class="fas fa-calendar"></i> Batch ${profile.pass_year}</p>
+                </div>
+
+                <div class="info-section mb-4 p-3" style="background: #f8f9fa; border-radius: 12px; border-left: 4px solid #28A745;">
+                    <h6 class="fw-bold mb-3"><i class="fas fa-briefcase"></i> Professional</h6>
+                    <p class="mb-1"><strong>Company:</strong> ${profile.company_name || 'N/A'}</p>
+                    <p class="mb-1"><strong>Position:</strong> ${profile.designation || 'N/A'}</p>
+                    <p class="mb-0"><strong>Experience:</strong> ${profile.experience_years || 0} years</p>
+                </div>
+
+                <div class="info-section p-3" style="background: #f8f9fa; border-radius: 12px; border-left: 4px solid #0D6EFD;">
+                    <h6 class="fw-bold mb-3"><i class="fas fa-graduation-cap"></i> Academic</h6>
+                    <p class="mb-1"><strong>Department:</strong> ${profile.department}</p>
+                    <p class="mb-1"><strong>Degree:</strong> ${profile.degree}</p>
+                    <p class="mb-0"><strong>Contact:</strong> ${user.email}</p>
+                </div>
+            `;
+            
+            contentDiv.innerHTML = html;
+            document.getElementById('viewFullProfileBtn').href = `/alumni/profile/${alumniId}`;
+        })
+        .catch(error => {
+            contentDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Error loading details</div>`;
+        });
+    
+    modal.show();
+}
+
+// Search & Filter
+document.getElementById('searchAlumni').addEventListener('keyup', function() {
+    applyFilters();
+});
+
+document.getElementById('filterYear').addEventListener('change', applyFilters);
+document.getElementById('filterStatus').addEventListener('change', applyFilters);
+
+function applyFilters() {
+    const searchTerm = document.getElementById('searchAlumni').value.toLowerCase();
+    const year = document.getElementById('filterYear').value;
+    const status = document.getElementById('filterStatus').value;
+    const cards = document.querySelectorAll('.alumni-card');
+    
+    cards.forEach(card => {
+        let show = true;
+        const name = (card.dataset.name || '').toLowerCase();
+        const company = (card.dataset.company || '').toLowerCase();
+        const cardYear = card.dataset.year;
+        const employed = card.dataset.employed;
+        
+        if (searchTerm && !name.includes(searchTerm) && !company.includes(searchTerm)) show = false;
+        if (year && cardYear !== year) show = false;
+        if (status === 'employed' && employed !== 'yes') show = false;
+        if (status === 'unemployed' && employed !== 'no') show = false;
+        
+        card.style.display = show ? '' : 'none';
+    });
+}
+</script>
 {% endblock %}

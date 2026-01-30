@@ -4,6 +4,323 @@
 
 {% block content %}
 
+<style>
+    /* ===== PROFESSIONAL SERVICES STYLES ===== */
+    
+    /* Hero Section */
+    .page-hero {
+        position: relative;
+        overflow: hidden;
+        min-height: 700px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .page-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+        animation: slideBackground 20s linear infinite;
+    }
+
+    .page-hero::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(255,255,255,0.15) 0%, transparent 50%);
+        animation: pulse 8s ease-in-out infinite;
+    }
+
+    @keyframes slideBackground {
+        0% { transform: translate(0, 0); }
+        100% { transform: translate(100px, 100px); }
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 0.8; }
+    }
+
+    .page-hero-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        color: white;
+    }
+
+    .page-hero h1 {
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 1.5rem;
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        animation: slideInDown 1s ease-out;
+        letter-spacing: -1px;
+    }
+
+    .page-hero p {
+        font-size: 1.5rem;
+        opacity: 0.95;
+        animation: slideInUp 1s ease-out 0.2s both;
+        font-weight: 500;
+    }
+
+    /* Marquee Effect */
+    .marquee-container {
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        color: white;
+        overflow: hidden;
+        padding: 1rem 0;
+        margin: 2rem 0;
+        position: relative;
+    }
+
+    .marquee {
+        animation: marquee 30s linear infinite;
+        white-space: nowrap;
+        font-weight: 600;
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+    }
+
+    @keyframes marquee {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+
+    .marquee-container:hover .marquee {
+        animation-play-state: paused;
+    }
+
+    /* Service Cards */
+    .service-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .service-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+        animation: slideGradient 3s ease infinite;
+    }
+
+    @keyframes slideGradient {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .service-card:hover {
+        transform: translateY(-15px) scale(1.02);
+        border-color: var(--accent);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+
+    .service-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        display: inline-block;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .service-card:hover .service-icon {
+        transform: scale(1.2) rotateY(360deg);
+        filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+    }
+
+    .service-card h4 {
+        color: var(--primary);
+        font-size: 1.4rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .service-card p {
+        color: var(--text-dark);
+        line-height: 1.6;
+    }
+
+    .service-card ul {
+        margin-top: 1rem;
+        padding-left: 1.5rem;
+    }
+
+    .service-card li {
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .service-card:hover li {
+        color: var(--primary);
+        transform: translateX(5px);
+    }
+
+    /* Premium Cards */
+    .premium-card {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .premium-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 3s ease-in-out infinite;
+    }
+
+    .premium-card:hover {
+        transform: translateY(-20px);
+        box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+    }
+
+    .premium-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255,255,255,0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        backdrop-filter: blur(10px);
+    }
+
+    .premium-card .service-icon {
+        position: relative;
+        z-index: 2;
+        filter: drop-shadow(0 2px 10px rgba(0,0,0,0.2));
+    }
+
+    .premium-card h4,
+    .premium-card p {
+        position: relative;
+        z-index: 2;
+        color: white;
+    }
+
+    /* Section Header */
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-header h2 {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 0.8rem;
+        font-weight: 900;
+        letter-spacing: -1px;
+    }
+
+    .section-header p {
+        font-size: 1.2rem;
+        color: var(--text-light);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* Services Showcase */
+    .services-showcase {
+        padding: 6rem 2rem;
+        background: white;
+    }
+
+    .service-category {
+        margin-bottom: 4rem;
+    }
+
+    /* Services Grid */
+    .services-grid {
+        max-width: 1400px;
+        margin: 3rem auto 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2.5rem;
+    }
+
+    .premium-grid {
+        max-width: 1400px;
+        margin: 3rem auto 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 2.5rem;
+    }
+
+    /* Animations */
+    @keyframes slideInDown {
+        from { opacity: 0; transform: translateY(-40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-down {
+        animation: fadeDown 0.8s ease-out;
+    }
+
+    .animate-feature {
+        animation: featureBounce 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    @keyframes featureBounce {
+        0% { opacity: 0; transform: translateY(30px) scale(0.9); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 768px) {
+        .page-hero { min-height: 500px; }
+        .page-hero h1 { font-size: 2.5rem; }
+        .section-header h2 { font-size: 2rem; }
+        .services-grid, .premium-grid { grid-template-columns: 1fr; }
+        .marquee { font-size: 0.95rem; }
+    }
+</style>
+
+    <!-- ===== MARQUEE BANNER ===== -->
+    <div class="marquee-container">
+        <div class="marquee">
+            ✨ Empowering Career Growth • Connecting Alumni Worldwide • Building Opportunities • 🌟 Trusted by 1000+ Users • Excellence in Every Service 🚀
+        </div>
+    </div>
+
     <!-- ===== HERO SECTION ===== -->
     <section class="page-hero" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);">
         <div class="page-hero-content animate-fade-down">
