@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Alumni App
 
 A Flask-based Alumni Management System for colleges.
@@ -57,3 +58,6 @@ Alumni App/
 ├── README.md
 └── .gitignore
 ```
+=======
+# Alumni-App
+>>>>>>> 8e81e87587d9652f37e685e2b934e8c9b52cfdc7
