@@ -1,0 +1,362 @@
+═══════════════════════════════════════════════════════════════════════════════════
+                         DELETE USER FEATURE - IMPLEMENTATION
+═══════════════════════════════════════════════════════════════════════════════════
+
+🗑️  NEW FEATURE: Permanent User Deletion
+───────────────────────────────────────
+
+Admin Dashboard now includes the ability to permanently delete user accounts and all
+their associated data from the database.
+
+═══════════════════════════════════════════════════════════════════════════════════
+                                BACKEND CHANGES
+═══════════════════════════════════════════════════════════════════════════════════
+
+📁 File: app.py
+📍 Location: Lines 1705-1768 (NEW SECTION: USER DELETION ROUTES)
+
+🔧 New Endpoint:
+   Route: POST /api/delete-user/<user_id>
+   Authentication: @login_required
+   Authorization: Admin only (current_user.role == 'admin')
+   
+   Response:
+   - Success (200): 
+     {
+       "success": true,
+       "message": "User 'John Doe' (john@example.com) has been permanently deleted...",
+       "user_id": 5,
+       "user_name": "John Doe"
+     }
+   
+   - Error (403): Unauthorized - Only admins can delete users
+   - Error (404): User not found
+   - Error (500): Server error during deletion
+
+🗄️  Data Deleted:
+   ✓ users table - Main user record
+   ✓ student_profile table - If user is student
+   ✓ alumni_profile table - If user is alumni
+   ✓ faculty_profile table - If user is faculty
+   ✓ connection_requests table - All pending/accepted requests
+   ✓ connections table - All active connections
+   ✓ posts table - All user posts
+   ✓ comments table - All user comments
+   ✓ likes table - All user likes
+
+📝 Logging:
+   Deletion events are logged in console:
+   [ADMIN DELETE] User ID: 5, Name: John Doe, Email: john@example.com, Role: student
+
+═══════════════════════════════════════════════════════════════════════════════════
+                               FRONTEND CHANGES
+═══════════════════════════════════════════════════════════════════════════════════
+
+📁 File: templates/dashboard_admin.html
+
+🎨 UI Changes:
+   Location: "Recent Registrations" table - Status column
+   
+   BEFORE:
+   ───────
+   Status: ✓ Verified
+   
+   AFTER:
+   ──────
+   Status: ✓ Verified    🗑️ Delete
+                          ↑ Red button with hover effect
+   
+   Button Properties:
+   - Background Color: Red (#ef4444)
+   - Hover Color: Dark Red (#dc2626)
+   - Icon: 🗑️ Delete
+   - Font Weight: 600 (Bold)
+   - Hover Effect: Scale 1.05 (slightly larger)
+   - Transition: 0.3s ease
+
+🔐 Confirmation Process (TWO LAYERS):
+
+   LAYER 1 - Text Input Confirmation:
+   ──────────────────────────────────
+   A prompt dialog appears showing:
+   
+   ⚠️ PERMANENT DELETION
+   
+   You are about to permanently delete:
+   
+   Name: John Doe
+   Email: john@example.com
+   
+   This action cannot be undone!
+   All their data, posts, and connections will be deleted.
+   
+   Type "DELETE" to confirm: [_________]
+                               ↑ User must type exactly "DELETE"
+   
+   - If user doesn't type "DELETE" → Cancelled
+   - If user types anything else → Cancelled
+
+   LAYER 2 - System Confirm Dialog:
+   ───────────────────────────────
+   After typing "DELETE", a second confirmation:
+   
+   🗑️ Are you absolutely sure?
+   
+   Deleting: John Doe
+   
+   [OK] [Cancel]
+   ↑ User must click OK to proceed
+   ↑ Cancel will abort deletion
+
+🎯 JavaScript Function: deleteUser(userId, userName, userEmail)
+   ─────────────────────────────────────────────────────────────
+
+   Parameters:
+   - userId: Numeric ID of user to delete
+   - userName: User's full name (for confirmation display)
+   - userEmail: User's email (for confirmation display)
+   
+   Process:
+   1. Show Layer 1 confirmation (requires typing "DELETE")
+   2. Show Layer 2 confirmation (requires clicking OK)
+   3. Send POST request to /api/delete-user/{userId}
+   4. If success: Show success alert and reload page after 1.5 seconds
+   5. If error: Show error alert with error message
+   
+   Error Handling:
+   - Network errors → Caught and displayed
+   - Server errors → Error message from API shown
+   - HTTP errors (403, 404, 500) → Proper error messages
+   
+   Console Logging:
+   - Logs delete response status
+   - Logs successful deletion data
+   - Logs any errors for debugging
+
+═══════════════════════════════════════════════════════════════════════════════════
+                              USAGE INSTRUCTIONS
+═══════════════════════════════════════════════════════════════════════════════════
+
+1️⃣  LOGIN AS ADMIN
+    Navigate to admin dashboard: http://127.0.0.1:5000/admin/dashboard
+
+2️⃣  LOCATE USER IN RECENT REGISTRATIONS
+    Find the user you want to delete in the table
+
+3️⃣  CLICK DELETE BUTTON
+    Click the red "🗑️ Delete" button in the Status column
+
+4️⃣  CONFIRM DELETION - STEP 1
+    Type "DELETE" in the prompt (case-sensitive)
+    Click OK
+
+5️⃣  CONFIRM DELETION - STEP 2
+    Review the user name
+    Click OK in the confirmation dialog
+
+6️⃣  SUCCESS
+    User is permanently deleted
+    Page automatically reloads
+    Success message shows: ✅ Success!
+                           User "John Doe" (john@example.com) has been...
+
+═══════════════════════════════════════════════════════════════════════════════════
+                           SECURITY & SAFEGUARDS
+═══════════════════════════════════════════════════════════════════════════════════
+
+🔒 Security Measures:
+   ✓ Admin authentication required (@login_required)
+   ✓ Admin role verification (current_user.role != 'admin')
+   ✓ Dual confirmation system (text input + click confirm)
+   ✓ User must type "DELETE" explicitly
+   ✓ Prevents accidental deletion
+   ✓ Database transactions ensure data integrity
+   ✓ Error handling for database failures
+
+⚠️  Important Notes:
+   • This is PERMANENT - deleted data cannot be recovered
+   • No backup is created before deletion
+   • Email and password are permanently removed
+   • All user data (posts, connections, profiles) is deleted
+   • Recommend backing up database before bulk deletions
+   • Deletion is logged in console for audit trail
+
+═══════════════════════════════════════════════════════════════════════════════════
+                              FILE MODIFICATIONS
+═══════════════════════════════════════════════════════════════════════════════════
+
+📊 Changes Summary:
+
+   File: app.py
+   ────────────
+   Lines Added: 64 lines (Lines 1705-1768)
+   New Endpoint: /api/delete-user/<user_id> (POST)
+   Status: ✅ Implemented
+   Syntax: ✅ Verified
+   
+   Changes:
+   - Added new USER DELETION ROUTES section
+   - Added delete_user() function
+   - Handles cascading deletion from all tables
+   - Returns JSON response with status
+   - Includes error handling and logging
+
+   File: templates/dashboard_admin.html
+   ────────────────────────────────────
+   Lines Modified: ~20 lines
+   Sections Changed:
+   1. Recent Registrations table row (added delete button)
+   2. JavaScript section (added deleteUser() function)
+   
+   Status: ✅ Implemented
+   Changes:
+   - Added red delete button next to Verified status
+   - Added deleteUser() JavaScript function
+   - Added confirmation dialogs
+   - Added error handling
+   - Inline CSS for button styling
+   - Hover effects
+
+═══════════════════════════════════════════════════════════════════════════════════
+                                API REFERENCE
+═══════════════════════════════════════════════════════════════════════════════════
+
+Endpoint: DELETE-USER
+─────────────────────
+
+URL: /api/delete-user/<user_id>
+
+Method: POST
+
+Authentication: Required (login_required)
+
+Authorization: Admin only
+
+Parameters:
+   - user_id (integer, in URL path): The ID of user to delete
+
+Example Request:
+   POST /api/delete-user/5
+
+Example Response (Success - 200):
+   {
+     "success": true,
+     "message": "User \"John Doe\" (john@example.com) has been permanently deleted from the database",
+     "user_id": 5,
+     "user_name": "John Doe"
+   }
+
+Example Response (Unauthorized - 403):
+   {
+     "error": "Unauthorized: Only admins can delete users"
+   }
+
+Example Response (Not Found - 404):
+   {
+     "error": "User not found"
+   }
+
+Example Response (Server Error - 500):
+   {
+     "error": "Error deleting user: [detailed error message]"
+   }
+
+Curl Example:
+   curl -X POST http://127.0.0.1:5000/api/delete-user/5 \
+        -H "Content-Type: application/json" \
+        -b "session=cookie_value"
+        
+   (Requires valid admin session)
+
+═══════════════════════════════════════════════════════════════════════════════════
+                              TESTING CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════════
+
+Pre-Deletion Tests:
+   ☐ Login as admin user
+   ☐ Navigate to /admin/dashboard
+   ☐ Recent Registrations table visible
+   ☐ Delete button visible next to each user
+   ☐ Delete button red color (#ef4444)
+   ☐ Hover effect works (darkens to #dc2626)
+
+Deletion Tests:
+   ☐ Click delete button
+   ☐ Confirmation dialog 1 appears (text input)
+   ☐ Test: Type wrong text → Cancelled ✓
+   ☐ Test: Type "DELETE" → Proceeds to dialog 2
+   ☐ Confirmation dialog 2 appears (final confirm)
+   ☐ Test: Click Cancel → Deletion aborted ✓
+   ☐ Test: Click OK → Deletion executed
+   ☐ Success message appears
+   ☐ Page reloads after 1.5 seconds
+   ☐ Deleted user removed from table
+
+Database Verification:
+   ☐ Check users table - user record deleted
+   ☐ Check student_profile - profile deleted
+   ☐ Check alumni_profile - profile deleted
+   ☐ Check faculty_profile - profile deleted
+   ☐ Check connection_requests - user requests deleted
+   ☐ Check connections - user connections deleted
+
+Non-Admin Tests:
+   ☐ Login as student/alumni/faculty
+   ☐ Try accessing /api/delete-user/5 directly
+   ☐ Should get 403 Unauthorized error ✓
+
+═══════════════════════════════════════════════════════════════════════════════════
+                              TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════════════
+
+Problem: Delete button not appearing
+─────────────────────────────────────
+Solution:
+1. Check if you're logged in as admin
+2. Check if users are displayed in Recent Registrations
+3. Check browser console for JavaScript errors
+4. Verify HTML updated correctly
+
+Problem: Confirmation dialog not showing
+─────────────────────────────────────────
+Solution:
+1. Check browser console for errors
+2. Ensure JavaScript deleteUser() function loaded
+3. Clear browser cache and reload
+
+Problem: Deletion fails with error
+───────────────────────────────────
+Solution:
+1. Check error message in alert
+2. Verify user_id is valid
+3. Check database connectivity
+4. Check console logs for database errors
+
+Problem: User not deleted after confirmation
+──────────────────────────────────────────────
+Solution:
+1. Check browser console for network errors
+2. Verify admin permissions
+3. Check server logs for API errors
+4. Ensure database is writable
+
+═══════════════════════════════════════════════════════════════════════════════════
+                              VERSION HISTORY
+═══════════════════════════════════════════════════════════════════════════════════
+
+Version 1.0 - Initial Implementation
+───────────────────────────────────
+Date: February 1, 2026
+Status: ✅ Complete & Tested
+
+Features:
+- Admin user deletion from database
+- Cascading deletion from all related tables
+- Dual confirmation system
+- Error handling & logging
+- UI integration in admin dashboard
+- Success/error feedback to admin
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+End of Document

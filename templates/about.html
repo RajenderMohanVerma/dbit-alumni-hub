@@ -94,6 +94,95 @@
         align-items: center;
     }
 
+    /* Mission & Vision Cards with Glassmorphism */
+    .mission-vision-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    .mission-card, .vision-card {
+        position: relative;
+        padding: 3rem;
+        border-radius: 20px;
+        backdrop-filter: blur(20px);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    .mission-card {
+        animation-delay: 0.2s;
+    }
+
+    .vision-card {
+        animation-delay: 0.4s;
+    }
+
+    .mission-card::before, .vision-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 30%, rgba(245, 158, 11, 0.2), transparent 50%);
+        opacity: 0;
+        transition: opacity 0.6s ease;
+        pointer-events: none;
+    }
+
+    .vision-card::before {
+        background: radial-gradient(circle at 30% 30%, rgba(14, 165, 233, 0.2), transparent 50%);
+    }
+
+    .mission-card:hover, .vision-card:hover {
+        transform: translateY(-15px);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.15), 0 0 60px rgba(245, 158, 11, 0.15);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+    }
+
+    .vision-card:hover {
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.15), 0 0 60px rgba(14, 165, 233, 0.15);
+    }
+
+    .mission-card:hover::before, .vision-card:hover::before {
+        opacity: 1;
+    }
+
+    .mission-icon, .vision-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        display: inline-block;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mission-card:hover .mission-icon, .vision-card:hover .vision-icon {
+        transform: scale(1.2) rotateY(10deg);
+    }
+
+    .mission-card h3, .vision-card h3 {
+        font-size: 1.8rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .mission-card p, .vision-card p {
+        color: var(--text-dark);
+        font-size: 1.05rem;
+        line-height: 1.8;
+        margin-bottom: 0.8rem;
+    }
+
     .about-content h2 {
         font-size: 2.5rem;
         color: var(--primary);
@@ -181,14 +270,16 @@
     }
 
     .value-card {
-        background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
         padding: 2rem;
-        border-radius: 15px;
+        border-radius: 20px;
         text-align: center;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 2px solid transparent;
+        border: 2px solid rgba(255, 255, 255, 0.2);
         position: relative;
         overflow: hidden;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     }
 
     .value-card::before {
@@ -198,7 +289,7 @@
         left: -100%;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
         transition: left 0.6s;
     }
 
@@ -208,8 +299,9 @@
 
     .value-card:hover {
         transform: translateY(-15px) scale(1.05);
-        border-color: var(--accent);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        border-color: rgba(14, 165, 233, 0.4);
+        box-shadow: 0 30px 80px rgba(14, 165, 233, 0.2), 0 0 50px rgba(14, 165, 233, 0.1);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(14, 165, 233, 0.1) 100%);
     }
 
     .value-icon {
@@ -241,54 +333,141 @@
         max-width: 1200px;
         margin: 3rem auto 0;
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 3rem;
     }
 
     .team-card {
-        background: white;
-        border-radius: 15px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+        border-radius: 50%;
+        width: 320px;
+        height: 320px;
         padding: 2rem;
         text-align: center;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
-        border-top: 4px solid var(--primary);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        overflow: visible;
+        margin: 0 auto;
+        gap: 0.5rem;
+    }
+
+    .team-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.3), transparent 70%);
+        opacity: 0;
+        transition: opacity 0.6s ease;
+        pointer-events: none;
+        border-radius: 50%;
     }
 
     .team-card:hover {
-        transform: translateY(-25px);
-        box-shadow: 0 30px 50px rgba(0,0,0,0.2);
-        border-top-color: var(--accent);
+        transform: translateY(-30px) scale(1.08);
+        box-shadow: 0 40px 100px rgba(14, 165, 233, 0.2), 0 0 60px rgba(14, 165, 233, 0.15);
+        border-color: rgba(14, 165, 233, 0.4);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(14, 165, 233, 0.1) 100%);
+    }
+
+    .team-card:hover::before {
+        opacity: 1;
     }
 
     .team-image {
-        font-size: 4rem;
-        margin-bottom: 1rem;
+        font-size: 3.2rem;
+        margin-bottom: 0.5rem;
         display: inline-block;
-        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        z-index: 2;
+        line-height: 1;
     }
 
     .team-card:hover .team-image {
-        transform: rotateY(360deg) scale(1.2);
+        transform: rotateY(360deg) scale(1.3);
     }
 
     .team-card h3 {
         color: var(--primary);
-        font-size: 1.4rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+        margin: 0;
+        margin-bottom: 0.2rem;
+        position: relative;
+        z-index: 2;
+        font-weight: 700;
+        line-height: 1.2;
     }
 
     .team-card p:first-of-type {
         color: var(--secondary);
         font-weight: 600;
-        margin-bottom: 1rem;
+        margin: 0;
+        font-size: 0.8rem;
+        position: relative;
+        z-index: 2;
+        line-height: 1.2;
     }
 
     .team-bio {
-        color: var(--text-light);
-        font-size: 0.95rem;
-        line-height: 1.6;
+        color: var(--text-dark);
+        font-size: 0.75rem;
+        line-height: 1.3;
+        position: relative;
+        z-index: 2;
+        opacity: 0;
+        transition: opacity 0.6s ease;
+        margin: 0.3rem 0;
+    }
+
+    .team-card:hover .team-bio {
+        opacity: 1;
+    }
+
+    .team-social {
+        display: flex;
+        justify-content: center;
+        gap: 0.8rem;
+        margin-top: 0.8rem;
+        position: relative;
+        z-index: 2;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .team-card:hover .team-social {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .team-social a {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+        font-size: 1rem;
+    }
+
+    .team-social a:hover {
+        transform: scale(1.2) rotate(360deg);
+        box-shadow: 0 10px 30px rgba(13, 110, 253, 0.5);
     }
 
     /* Timeline */
@@ -359,11 +538,14 @@
     }
 
     .timeline-content {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
         padding: 1.5rem;
-        border-radius: 10px;
+        border-radius: 15px;
         border-left: 4px solid var(--accent);
         transition: all 0.4s ease;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     }
 
     .timeline-item:nth-child(even) .timeline-content {
@@ -378,7 +560,9 @@
 
     .timeline-content:hover {
         transform: translateX(10px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        box-shadow: 0 20px 50px rgba(14, 165, 233, 0.15), 0 0 40px rgba(14, 165, 233, 0.1);
+        border-color: rgba(14, 165, 233, 0.4);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(14, 165, 233, 0.1) 100%);
     }
 
     .timeline-content h3 {
@@ -502,6 +686,11 @@
             grid-template-columns: 1fr;
         }
 
+        .mission-vision-wrapper {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
         .page-hero h1 {
             font-size: 2rem;
         }
@@ -520,6 +709,119 @@
         .timeline-marker {
             left: 20px;
         }
+
+        .team-grid {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .team-card {
+            width: 280px;
+            height: 280px;
+            padding: 1.5rem;
+        }
+
+        .team-image {
+            font-size: 2.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .team-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .team-card p:first-of-type {
+            font-size: 0.75rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .team-bio {
+            font-size: 0.7rem;
+            margin: 0.2rem 0;
+        }
+
+        .team-social {
+            gap: 0.6rem;
+            margin-top: 0.6rem;
+        }
+
+        .team-social a {
+            width: 32px;
+            height: 32px;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .mission-vision-wrapper {
+            grid-template-columns: 1fr;
+            padding: 1rem;
+        }
+
+        .mission-card, .vision-card {
+            padding: 2rem;
+        }
+
+        .team-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .team-card {
+            width: 240px;
+            height: 240px;
+            padding: 1.2rem;
+            margin: 0 auto;
+        }
+
+        .team-image {
+            font-size: 2.4rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .team-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .team-card p:first-of-type {
+            font-size: 0.7rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .team-bio {
+            font-size: 0.65rem;
+            line-height: 1.2;
+            margin: 0.2rem 0;
+        }
+
+        .team-social {
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .team-social a {
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+        }
+
+        .values-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .page-hero h1 {
+            font-size: 1.5rem;
+        }
+
+        .page-hero p {
+            font-size: 1rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+        }
     }
 </style>
 
@@ -528,6 +830,9 @@
         <div class="page-hero-content animate-fade-down">
             <h1>About Alumni Hub</h1>
             <p>Building Bridges Between Past, Present, and Future</p>
+            <p style="font-size: 0.95rem; opacity: 0.85; margin-top: 1.5rem; letter-spacing: 0.5px;">
+                A Legacy of Excellence from Lovely Professional University
+            </p>
         </div>
     </section>
 
@@ -540,24 +845,20 @@
 
     <!-- ===== ABOUT CONTENT ===== -->
     <section class="about-section">
-        <div class="about-container">
-            <div class="about-content animate-slide-left">
-                <h2>Our Mission</h2>
+        <div class="mission-vision-wrapper">
+            <div class="mission-card">
+                <div class="mission-icon">🎯</div>
+                <h3>Our Mission</h3>
                 <p>
-                    Alumni Hub is dedicated to creating a vibrant community where LPU alumni can connect, collaborate, 
-                    and contribute to each other's success. We believe in the power of networking and the value of 
-                    sharing experiences and opportunities.
-                </p>
-                <p style="margin-top: 1rem;">
-                    Our platform serves as a bridge between talented students seeking guidance and successful alumni 
-                    willing to mentor and share their expertise. Together, we create an ecosystem of growth, innovation, 
-                    and mutual support.
+                    Connecting 15000+ alumni across 50+ countries to foster collaboration, mentorship, and career growth through our innovative platform.
                 </p>
             </div>
-            <div class="about-image">
-                <div class="about-illustration">
-                    <div style="font-size: 5rem;">🌐</div>
-                </div>
+            <div class="vision-card">
+                <div class="vision-icon">🚀</div>
+                <h3>Our Vision</h3>
+                <p>
+                    To become the world's most trusted alumni network where every LPU graduate can thrive, innovate, and contribute to global excellence.
+                </p>
             </div>
         </div>
     </section>
@@ -601,45 +902,80 @@
         <div class="team-grid">
             <div class="team-card animate-slide-up">
                 <div class="team-image">👨‍💼</div>
-                <h3>Rajender Mohan Verma Kumar</h3>
+                <h3>Rajender Mohan Verma</h3>
                 <p style="color: var(--secondary); font-weight: 600;">Founder & CEO</p>
-                <p class="team-bio">2+ years of experience in building successful tech communities and leading innovative projects</p>
+                <p class="team-bio">2+ years building successful tech communities</p>
+                <div class="team-social">
+                    <a href="#linkedin" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#github" title="GitHub" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#instagram" title="Instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
             </div>
             <div class="team-card animate-slide-up" style="animation-delay: 0.1s;">
                 <div class="team-image">👨‍💼</div>
                 <h3>Shekhar Maurya</h3>
                 <p style="color: var(--secondary); font-weight: 600;">Head of Operations</p>
-                <p class="team-bio">Expert in program management and community engagement with proven track record</p>
+                <p class="team-bio">Expert in program management</p>
+                <div class="team-social">
+                    <a href="#linkedin" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#github" title="GitHub" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#instagram" title="Instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
             </div>
             <div class="team-card animate-slide-up" style="animation-delay: 0.2s;">
                 <div class="team-image">👨‍💻</div>
                 <h3>Rajender Mohan Verma</h3>
                 <p style="color: var(--secondary); font-weight: 600;">Technical Lead</p>
-                <p class="team-bio">Full-stack developer with passion for innovative solutions and cutting-edge technology</p>
+                <p class="team-bio">Full-stack developer with passion</p>
+                <div class="team-social">
+                    <a href="#linkedin" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#github" title="GitHub" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#instagram" title="Instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
             </div>
             <div class="team-card animate-slide-up" style="animation-delay: 0.3s;">
                 <div class="team-image">👩‍🎓</div>
                 <h3>Anushka Singh</h3>
                 <p style="color: var(--secondary); font-weight: 600;">Community Manager</p>
-                <p class="team-bio">Dedicated to creating meaningful connections within our community and fostering growth</p>
+                <p class="team-bio">Creating meaningful connections</p>
+                <div class="team-social">
+                    <a href="#linkedin" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#github" title="GitHub" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#instagram" title="Instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
             </div>
             <div class="team-card animate-slide-up" style="animation-delay: 0.4s;">
                 <div class="team-image">👩‍💼</div>
                 <h3>Karuna Singh</h3>
                 <p style="color: var(--secondary); font-weight: 600;">Marketing Lead</p>
-                <p class="team-bio">Strategic marketing expert focused on building brand awareness and community growth</p>
+                <p class="team-bio">Strategic marketing expert</p>
+                <div class="team-social">
+                    <a href="#linkedin" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#github" title="GitHub" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#instagram" title="Instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
             </div>
             <div class="team-card animate-slide-up" style="animation-delay: 0.5s;">
                 <div class="team-image">👩‍💻</div>
                 <h3>Sazida Sahin</h3>
                 <p style="color: var(--secondary); font-weight: 600;">Frontend Developer</p>
-                <p class="team-bio">Talented UI/UX developer creating beautiful and responsive user experiences</p>
+                <p class="team-bio">Beautiful UI/UX creator</p>
+                <div class="team-social">
+                    <a href="#linkedin" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#github" title="GitHub" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#instagram" title="Instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
             </div>
             <div class="team-card animate-slide-up" style="animation-delay: 0.6s;">
                 <div class="team-image">👨‍💻</div>
                 <h3>Harsh Verma</h3>
                 <p style="color: var(--secondary); font-weight: 600;">Backend Developer</p>
-                <p class="team-bio">Backend architecture expert ensuring scalability and reliability of our platform</p>
+                <p class="team-bio">Scalable architecture expert</p>
+                <div class="team-social">
+                    <a href="#linkedin" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#github" title="GitHub" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#twitter" title="Twitter" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                </div>
             </div>
         </div>
     </section>

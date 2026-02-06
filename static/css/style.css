@@ -2242,3 +2242,495 @@ nav a:hover {
         gap: 0.4rem;
     }
 }
+
+/* ===== PREMIUM PROFESSIONAL STYLES ===== */
+
+/* ===== GLASSMORPHISM EFFECT ===== */
+.glassmorphism {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+}
+
+.glassmorphism-dark {
+    background: rgba(30, 58, 138, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(30, 58, 138, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(30, 58, 138, 0.15);
+}
+
+.glassmorphism-accent {
+    background: rgba(245, 158, 11, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.12);
+}
+
+/* ===== FADE-IN ANIMATIONS ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(30, 58, 138, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(30, 58, 138, 0.5);
+    }
+}
+
+/* Fade-In Classes for Page Load */
+.fade-in {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.8s ease-in-out;
+}
+
+.fade-in-down {
+    animation: fadeInDown 0.8s ease-in-out;
+}
+
+.fade-in-left {
+    animation: fadeInLeft 0.8s ease-in-out;
+}
+
+.fade-in-right {
+    animation: fadeInRight 0.8s ease-in-out;
+}
+
+.slide-in-scale {
+    animation: slideInScale 0.8s ease-in-out;
+}
+
+.pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Stagger animations for multiple elements */
+.fade-in-up:nth-child(1) { animation-delay: 0.1s; }
+.fade-in-up:nth-child(2) { animation-delay: 0.2s; }
+.fade-in-up:nth-child(3) { animation-delay: 0.3s; }
+.fade-in-up:nth-child(4) { animation-delay: 0.4s; }
+.fade-in-up:nth-child(5) { animation-delay: 0.5s; }
+
+/* ===== MODERN PROFESSIONAL PALETTE ===== */
+/* Navy Blue - Primary (Already in :root as --primary: #1e3a8a) */
+/* Sky Blue - Secondary (Already in :root as --secondary: #0ea5e9) */
+/* Gold - Accent (Already in :root as --accent: #f59e0b) */
+/* White - Light (Already in :root as --light: #f8fafc) */
+
+/* Extended color palette for professional designs */
+:root {
+    /* Premium Professional Colors */
+    --navy-dark: #0f172a;
+    --navy-light: #1e293b;
+    --navy-medium: #1e3a8a;
+    --sky-blue: #0ea5e9;
+    --gold: #f59e0b;
+    --platinum: #e2e8f0;
+    --pearl: #f8fafc;
+    
+    /* Complementary Colors */
+    --teal: #14b8a6;
+    --purple: #8b5cf6;
+    --rose: #ec4899;
+}
+
+/* Professional Gradient Backgrounds */
+.gradient-navy-sky {
+    background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%);
+}
+
+.gradient-navy-gold {
+    background: linear-gradient(135deg, #1e3a8a 0%, #f59e0b 100%);
+}
+
+.gradient-sky-gold {
+    background: linear-gradient(135deg, #0ea5e9 0%, #f59e0b 100%);
+}
+
+.gradient-dark-navy {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+}
+
+.gradient-subtle {
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(14, 165, 233, 0.05) 100%);
+}
+
+/* ===== SMOOTH HOVER EFFECTS ===== */
+/* Universal smooth hover transition */
+a, button, .btn, .card, input, textarea, select {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Button Hover Effects */
+.btn-primary-premium {
+    background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%);
+    color: white;
+    border: none;
+    padding: 0.9rem 1.8rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary-premium:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 35px rgba(30, 58, 138, 0.5);
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+}
+
+.btn-primary-premium:active {
+    transform: translateY(-2px);
+}
+
+/* Button with Gold Accent */
+.btn-accent-premium {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border: none;
+    padding: 0.9rem 1.8rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.btn-accent-premium:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 35px rgba(245, 158, 11, 0.5);
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+
+.btn-accent-premium:active {
+    transform: translateY(-2px);
+}
+
+/* Outline Button */
+.btn-outline-premium {
+    background: transparent;
+    color: #1e3a8a;
+    border: 2px solid #1e3a8a;
+    padding: 0.8rem 1.6rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.btn-outline-premium:hover {
+    background: #1e3a8a;
+    color: white;
+    box-shadow: 0 8px 20px rgba(30, 58, 138, 0.3);
+}
+
+/* Link Hover Effects */
+.link-premium {
+    color: #1e3a8a;
+    text-decoration: none;
+    font-weight: 600;
+    position: relative;
+    padding-bottom: 4px;
+}
+
+.link-premium::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #1e3a8a, #0ea5e9);
+    transition: width 0.3s ease-in-out;
+}
+
+.link-premium:hover::after {
+    width: 100%;
+}
+
+.link-premium:hover {
+    color: #0ea5e9;
+}
+
+/* Gold Link */
+.link-gold {
+    color: #f59e0b;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.link-gold:hover {
+    color: #d97706;
+    text-decoration: underline;
+}
+
+/* Card Hover Effects */
+.card-premium {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.1);
+    border: 1px solid rgba(30, 58, 138, 0.1);
+}
+
+.card-premium:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(30, 58, 138, 0.2);
+    border-color: #0ea5e9;
+}
+
+/* Input Focus Effects */
+.input-premium {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.input-premium:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.02) 0%, rgba(14, 165, 233, 0.02) 100%);
+    transform: scale(1.01);
+}
+
+/* Icon Hover Effect */
+.icon-hover {
+    transition: all 0.3s ease-in-out;
+    display: inline-block;
+}
+
+.icon-hover:hover {
+    transform: scale(1.2) rotate(5deg);
+    filter: drop-shadow(0 4px 12px rgba(30, 58, 138, 0.3));
+}
+
+/* Text with hover underline */
+.text-hover-underline {
+    position: relative;
+    display: inline-block;
+}
+
+.text-hover-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #f59e0b, #0ea5e9);
+    transition: width 0.3s ease-in-out;
+}
+
+.text-hover-underline:hover::after {
+    width: 100%;
+}
+
+/* ===== PROFESSIONAL UTILITY CLASSES ===== */
+/* Shadow System */
+.shadow-sm-premium {
+    box-shadow: 0 2px 8px rgba(30, 58, 138, 0.1);
+}
+
+.shadow-md-premium {
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.15);
+}
+
+.shadow-lg-premium {
+    box-shadow: 0 8px 32px rgba(30, 58, 138, 0.2);
+}
+
+.shadow-xl-premium {
+    box-shadow: 0 12px 50px rgba(30, 58, 138, 0.25);
+}
+
+/* Border Accent */
+.border-accent-top {
+    border-top: 4px solid #f59e0b;
+}
+
+.border-accent-left {
+    border-left: 4px solid #0ea5e9;
+}
+
+.border-accent-bottom {
+    border-bottom: 4px solid #f59e0b;
+}
+
+/* Professional Spacing */
+.space-xl {
+    padding: 3rem;
+}
+
+.space-lg {
+    padding: 2rem;
+}
+
+.space-md {
+    padding: 1.5rem;
+}
+
+.space-sm {
+    padding: 1rem;
+}
+
+/* Professional Text Styles */
+.text-premium-lg {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #1e3a8a;
+}
+
+.text-premium-md {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.text-premium-sm {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.text-accent {
+    color: #f59e0b;
+}
+
+.text-navy {
+    color: #1e3a8a;
+}
+
+.text-sky {
+    color: #0ea5e9;
+}
+
+/* Responsive adjustments for premium styles */
+@media (max-width: 768px) {
+    .btn-primary-premium,
+    .btn-accent-premium,
+    .btn-outline-premium {
+        padding: 0.8rem 1.4rem;
+        font-size: 0.95rem;
+    }
+    
+    .text-premium-lg {
+        font-size: 1.8rem;
+    }
+    
+    .text-premium-md {
+        font-size: 1.2rem;
+    }
+    
+    .card-premium {
+        padding: 1.5rem;
+    }
+    
+    .space-xl {
+        padding: 2rem;
+    }
+    
+    .space-lg {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-primary-premium,
+    .btn-accent-premium,
+    .btn-outline-premium {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.9rem;
+        width: 100%;
+    }
+    
+    .text-premium-lg {
+        font-size: 1.5rem;
+    }
+    
+    .text-premium-md {
+        font-size: 1rem;
+    }
+    
+    .space-xl {
+        padding: 1.5rem;
+    }
+}

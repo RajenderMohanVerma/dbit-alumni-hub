@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <!-- Header -->
+            <div class="mb-5" style="text-align: center; animation: slideDown 0.6s ease-out;">
+                <h1 class="fw-bold mb-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    Edit Admin Profile
+                </h1>
+                <p class="text-muted">Update your administrator information</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden; animation: slideInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <div class="card-body p-5">
+                    <form method="POST" enctype="multipart/form-data">
+                        <!-- Profile Picture -->
+                        <div class="text-center mb-5">
+                            <div style="width: 150px; height: 150px; margin: 0 auto; border-radius: 50%; border: 4px solid #667eea; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 1.5rem;">
+                                {% if user['profile_pic'] and user['profile_pic'].startswith('/') %}
+                                    <img id="previewImg" src="{{ user['profile_pic'] }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                    <img id="previewImg" src="https://ui-avatars.com/api/?name={{ user['name'] }}&size=150&background=667eea&color=fff" alt="Avatar" style="width: 100%;">
+                                {% endif %}
+                            </div>
+
+                            <!-- Photo Upload -->
+                            <div class="mb-3">
+                                <label for="profile_pic" class="form-label fw-bold">Change Profile Picture</label>
+                                <input type="file" class="form-control" id="profile_pic" name="profile_pic" accept="image/*" onchange="previewProfilePic(event)" style="border-radius: 10px; padding: 0.75rem;">
+                                <small class="text-muted d-block mt-2">Accepted formats: PNG, JPG, JPEG, GIF (Max 16MB)</small>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Full Name -->
+                        <div class="mb-4">
+                            <label for="name" class="form-label fw-bold">
+                                <i class="fas fa-user me-2"></i> Full Name
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="name" 
+                                name="name" 
+                                value="{{ user['name'] }}" 
+                                required 
+                                style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e5e7eb; transition: all 0.3s ease;"
+                                onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)'"
+                                onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
+                            >
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-4">
+                            <label for="email" class="form-label fw-bold">
+                                <i class="fas fa-envelope me-2"></i> Email Address
+                            </label>
+                            <input 
+                                type="email" 
+                                class="form-control" 
+                                id="email" 
+                                name="email" 
+                                value="{{ user['email'] }}" 
+                                required 
+                                style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e5e7eb; transition: all 0.3s ease;"
+                                onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)'"
+                                onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
+                            >
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="mb-4">
+                            <label for="phone" class="form-label fw-bold">
+                                <i class="fas fa-phone me-2"></i> Phone Number
+                            </label>
+                            <input 
+                                type="tel" 
+                                class="form-control" 
+                                id="phone" 
+                                name="phone" 
+                                value="{{ user['phone'] }}" 
+                                required 
+                                style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e5e7eb; transition: all 0.3s ease;"
+                                onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)'"
+                                onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
+                            >
+                        </div>
+
+                        <!-- Admin Info (Read-only) -->
+                        <div class="alert alert-info alert-dismissible fade show" role="alert" style="border-radius: 10px; border: none; background: #f0f7ff; border-left: 4px solid #667eea;">
+                            <i class="fas fa-shield-alt me-2"></i> <strong>Admin Status:</strong> This account has full system administrator privileges.
+                        </div>
+
+                        <hr>
+
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary fw-bold py-3" style="border-radius: 10px; font-size: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; transition: all 0.3s ease;" 
+                                onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(102, 126, 234, 0.4)'"
+                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                            <a href="{{ url_for('admin_profile', user_id=user['id']) }}" class="btn btn-outline-secondary fw-bold py-3" style="border-radius: 10px; font-size: 1rem; border: 2px solid #e5e7eb; transition: all 0.3s ease;"
+                                onmouseover="this.style.borderColor='#667eea'; this.style.color='#667eea'"
+                                onmouseout="this.style.borderColor='#e5e7eb'; this.style.color='#6b7280'">
+                                <i class="fas fa-arrow-left me-2"></i> Cancel
+                            </a>
+                        </div>
+
+                        <!-- Help Text -->
+                        <div class="alert alert-light mt-4" style="border-radius: 10px; border: 1px solid #e5e7eb;">
+                            <small><i class="fas fa-info-circle me-2"></i> <strong>Note:</strong> To change your password, please visit the Change Password page.</small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-control {
+        font-size: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    }
+
+    .form-label {
+        color: #1f2937;
+        margin-bottom: 0.75rem;
+    }
+</style>
+
+<script>
+    function previewProfilePic(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImg').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+
+{% endblock %}

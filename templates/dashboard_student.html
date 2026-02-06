@@ -91,26 +91,60 @@
 
     <!-- Main Content -->
     <div class="container mb-5">
-        <!-- Alumni Network Section -->
-        <div class="section-header mb-4">
-            <h2 class="section-title">
-                <i class="fas fa-network-wired"></i> Alumni Network
-                <span class="badge bg-primary ms-2">{{ alumni | length }} Members</span>
-            </h2>
+        <!-- Pending Connection Requests Section -->
+        <div class="mb-5" id="pendingRequestsSection" style="display: none;">
+            <div class="section-header mb-4" style="animation: slideInLeft 0.6s ease;">
+                <h2 class="section-title">
+                    <i class="fas fa-hourglass-half me-2" style="color: #667eea;"></i> Pending Connection Requests
+                </h2>
+                <span class="badge bg-danger" id="requestCountBadge" style="font-size: 0.85rem; padding: 0.5rem 0.75rem;">0</span>
+            </div>
+
+            <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden; border: 2px solid #e9ecef; transition: all 0.3s ease;" onmouseover="this.style.boxShadow='0 20px 50px rgba(102,126,234,0.2)'" onmouseout="this.style.boxShadow='0 5px 15px rgba(0,0,0,0.08)'">
+                <div class="card-body p-5">
+                    <div id="pendingRequestsList" class="row g-4">
+                        <!-- Requests will be loaded here -->
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+        <!-- Alumni Network Section -->
+        <div class="section-header mb-4" style="animation: slideInLeft 0.7s ease;">
+            <h2 class="section-title">
+                <i class="fas fa-network-wired me-2" style="color: #667eea;"></i> Alumni Network
+                <span class="badge bg-primary ms-2" id="alumniCountBadge">{{ alumni | length }} Members</span>
+            </h2>
+            <div style="margin-left: auto; display: flex; gap: 10px;">
+                <button class="btn btn-sm btn-outline-primary" id="sortBtn" style="border-radius: 8px; font-weight: 600;" onclick="toggleSort()">
+                    <i class="fas fa-sort"></i> Sort
+                </button>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-lg alumni-network-card" style="border-radius: 20px; overflow: hidden; border: 2px solid #e9ecef; transition: all 0.3s ease;" onmouseover="this.style.boxShadow='0 20px 50px rgba(102,126,234,0.2)'" onmouseout="this.style.boxShadow='0 5px 15px rgba(0,0,0,0.08)'">
             <!-- Filter & Search -->
-            <div class="filter-section p-4" style="background: #f8f9fa; border-bottom: 2px solid #e9ecef;">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-5">
-                        <label class="form-label fw-bold mb-2"><i class="fas fa-search"></i> Search</label>
-                        <input type="text" class="form-control form-control-lg" id="searchAlumni" 
-                               placeholder="Search by name, company...">
+            <div class="filter-section p-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-bottom: 3px solid #e0e7ff;">
+                <!-- Title -->
+                <h6 class="fw-bold mb-4" style="color: #667eea; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fas fa-sliders-h me-2"></i> Filter & Search
+                </h6>
+
+                <!-- Main Filter Row -->
+                <div class="row g-3 align-items-end mb-4">
+                    <div class="col-lg-5">
+                        <label class="form-label fw-bold mb-3" style="color: #1a1a1a; font-size: 0.95rem;"><i class="fas fa-search me-2" style="color: #667eea;"></i> Search Alumni</label>
+                        <div style="position: relative;">
+                            <input type="text" class="form-control form-control-lg" id="searchAlumni" 
+                                   placeholder="Name, company, location..." style="border-radius: 12px; border: 2px solid #e0e7ff; transition: all 0.3s ease; padding: 0.9rem 1rem 0.9rem 1rem; font-size: 1rem; background: white;">
+                            <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #667eea; font-size: 1.2rem; pointer-events: none;">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold mb-2"><i class="fas fa-calendar"></i> Year</label>
-                        <select class="form-select form-select-lg" id="filterYear">
+                    <div class="col-lg-3">
+                        <label class="form-label fw-bold mb-3" style="color: #1a1a1a; font-size: 0.95rem;"><i class="fas fa-graduation-cap me-2" style="color: #667eea;"></i> Batch Year</label>
+                        <select class="form-select form-select-lg" id="filterYear" style="border-radius: 12px; border: 2px solid #e0e7ff; transition: all 0.3s ease; padding: 0.9rem 1rem; font-size: 1rem; background: white; cursor: pointer;">
                             <option value="">All Years</option>
                             {% set years = [] %}
                             {% for alum in alumni %}
@@ -123,19 +157,48 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold mb-2"><i class="fas fa-briefcase"></i> Status</label>
-                        <select class="form-select form-select-lg" id="filterStatus">
-                            <option value="">All</option>
-                            <option value="employed">Employed</option>
-                            <option value="unemployed">Not Employed</option>
+                    <div class="col-lg-2">
+                        <label class="form-label fw-bold mb-3" style="color: #1a1a1a; font-size: 0.95rem;"><i class="fas fa-briefcase me-2" style="color: #667eea;"></i> Employment</label>
+                        <select class="form-select form-select-lg" id="filterStatus" style="border-radius: 12px; border: 2px solid #e0e7ff; transition: all 0.3s ease; padding: 0.9rem 1rem; font-size: 1rem; background: white; cursor: pointer;">
+                            <option value="">All Status</option>
+                            <option value="employed">✓ Employed</option>
+                            <option value="unemployed">⊙ Exploring</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-primary btn-lg w-100" onclick="document.getElementById('filterYear').value=''; document.getElementById('filterStatus').value=''; applyFilters();">
-                            <i class="fas fa-redo"></i> Reset
+                    <div class="col-lg-2">
+                        <button type="button" class="btn btn-primary btn-lg w-100 transition-all fw-bold" style="border-radius: 12px; padding: 0.9rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; transition: all 0.3s ease;" onclick="resetFilters()" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(102,126,234,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                            <i class="fas fa-redo me-2"></i> Reset
                         </button>
                     </div>
+                </div>
+
+                <!-- Quick Filter Buttons -->
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <small class="text-muted fw-bold" style="font-size: 0.9rem;"><i class="fas fa-lightning me-1" style="color: #f59e0b;"></i> Quick Filters:</small>
+                    <button class="btn btn-sm" style="border: 2px solid #10b981; background: white; color: #10b981; border-radius: 20px; font-weight: 600; padding: 0.5rem 1.2rem; transition: all 0.3s ease; font-size: 0.9rem;" onclick="filterByStatus('employed')" onmouseover="this.style.backgroundColor='rgba(16,185,129,0.1)'; this.style.transform='scale(1.05)'" onmouseout="this.style.backgroundColor='white'; this.style.transform='scale(1)'">
+                        <i class="fas fa-briefcase me-1"></i> Employed
+                    </button>
+                    <button class="btn btn-sm" style="border: 2px solid #f59e0b; background: white; color: #f59e0b; border-radius: 20px; font-weight: 600; padding: 0.5rem 1.2rem; transition: all 0.3s ease; font-size: 0.9rem;" onclick="filterByStatus('unemployed')" onmouseover="this.style.backgroundColor='rgba(245,158,11,0.1)'; this.style.transform='scale(1.05)'" onmouseout="this.style.backgroundColor='white'; this.style.transform='scale(1)'">
+                        <i class="fas fa-star me-1"></i> Exploring
+                    </button>
+                    <button class="btn btn-sm" style="border: 2px solid #667eea; background: white; color: #667eea; border-radius: 20px; font-weight: 600; padding: 0.5rem 1.2rem; transition: all 0.3s ease; font-size: 0.9rem;" onclick="resetFilters()" onmouseover="this.style.backgroundColor='rgba(102,126,234,0.1)'; this.style.transform='scale(1.05)'" onmouseout="this.style.backgroundColor='white'; this.style.transform='scale(1)'">
+                        <i class="fas fa-redo me-1"></i> All
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result Info - Enhanced Visibility -->
+            <div class="result-info-banner" style="padding: 1.2rem 1.5rem; background: linear-gradient(135deg, #eff6ff 0%, #f0e7fe 100%); border-bottom: 2px solid #e0e7ff; display: none; animation: slideDown 0.3s ease;" id="resultInfo">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-check-circle" style="font-size: 1.2rem; color: #667eea;"></i>
+                        <span class="fw-bold" style="color: #1a1a1a; font-size: 1rem;">
+                            <span id="resultCount">0</span> <span id="resultText">alumni</span> found matching your criteria
+                        </span>
+                    </div>
+                    <button class="btn btn-sm btn-link" style="color: #667eea; text-decoration: none; font-weight: 600;" onclick="resetFilters()">
+                        Clear Filters <i class="fas fa-times ms-1"></i>
+                    </button>
                 </div>
             </div>
 
@@ -151,56 +214,74 @@
                              data-employed="{{ 'yes' if alum['company_name'] else 'no' }}"
                              data-alumid="{{ alum['id'] }}"
                              style="animation: fadeIn 0.6s ease;">
-                            <div class="alumni-card-wrapper" onclick="showAlumniModal({{ alum['id'] }})" style="cursor: pointer;">
+                            <div class="alumni-card-wrapper" style="cursor: pointer; position: relative;">
+                                <!-- Badge - Top Right -->
+                                {% if alum['company_name'] %}
+                                <div style="position: absolute; top: 15px; right: 15px; z-index: 15; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+                                    <i class="fas fa-briefcase me-1"></i> Employed
+                                </div>
+                                {% else %}
+                                <div style="position: absolute; top: 15px; right: 15px; z-index: 15; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; box-shadow: 0 4px 12px rgba(245,158,11,0.3);">
+                                    <i class="fas fa-star me-1"></i> Exploring
+                                </div>
+                                {% endif %}
+
                                 <!-- Cover -->
-                                <div class="alumni-cover" style="height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative;"></div>
+                                <div class="alumni-cover" style="height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; overflow: hidden;">
+                                    <div class="animated-bg" style="position: absolute; width: 100%; height: 100%; background: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 120%22><path d=%22M0,50 Q300,0 600,50 T1200,50 L1200,120 L0,120 Z%22 fill=%22rgba(255,255,255,0.1)%22></path></svg>') repeat-x; animation: wave 3s linear infinite;"></div>
+                                </div>
                                 
                                 <!-- Card Body -->
-                                <div class="alumni-body" style="padding: 2rem 1.5rem;">
+                                <div class="alumni-body" style="padding: 3.5rem 1.5rem 1.5rem 1.5rem; position: relative;">
                                     <!-- Avatar -->
-                                    <div class="text-center mb-3">
-                                        <div style="width: 90px; height: 90px; margin: 0 auto -45px; border-radius: 50%; border: 5px solid white; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10;">
+                                    <div class="text-center" style="margin-bottom: 1.5rem;">
+                                        <div class="avatar-container" style="width: 110px; height: 110px; margin: 0 auto; border-radius: 50%; border: 6px solid white; box-shadow: 0 12px 35px rgba(102,126,234,0.35); overflow: hidden; background: linear-gradient(135deg, #f0f0f0 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; transition: all 0.3s ease; cursor: pointer;" onclick="event.stopPropagation(); showAlumniModal({{ alum['id'] }})" onmouseover="this.style.transform='scale(1.08)'; this.style.boxShadow='0 16px 40px rgba(102,126,234,0.4)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 12px 35px rgba(102,126,234,0.35)'">
                                             {% if alum['profile_pic'] and alum['profile_pic'].startswith('/') %}
                                                 <img src="{{ alum['profile_pic'] }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
                                             {% else %}
-                                                <img src="https://ui-avatars.com/api/?name={{ alum['name'] }}&size=90&background=28A745&color=fff" alt="Avatar" style="width: 100%;">
+                                                <img src="https://ui-avatars.com/api/?name={{ alum['name'] }}&size=110&background=667eea&color=fff" alt="Avatar" style="width: 100%;">
                                             {% endif %}
                                         </div>
                                     </div>
 
                                     <!-- Name & Year -->
-                                    <h6 class="fw-bold text-center mb-1" style="font-size: 1.1rem;">{{ alum['name'] }}</h6>
-                                    <p class="text-center text-muted small mb-3"><i class="fas fa-calendar-alt"></i> Batch {{ alum['pass_year'] }}</p>
+                                    <h6 class="fw-bold text-center mb-2" style="font-size: 1.25rem; color: #1a1a1a; margin-top: 1rem; line-height: 1.4;">{{ alum['name'] }}</h6>
+                                    <p class="text-center text-muted small mb-4" style="font-size: 0.95rem; color: #667eea; font-weight: 600;"><i class="fas fa-graduation-cap me-1"></i> Batch {{ alum['pass_year'] }}</p>
 
-                                    <hr class="my-3">
+                                    <hr class="my-3" style="border-color: #e9ecef;">
 
                                     <!-- Company Info -->
                                     {% if alum['company_name'] %}
                                     <div class="mb-3 pb-3" style="border-bottom: 1px solid #e9ecef;">
-                                        <small class="text-muted d-block mb-1"><i class="fas fa-building"></i> Company</small>
-                                        <p class="mb-0 fw-bold text-truncate" title="{{ alum['company_name'] }}">{{ alum['company_name'] }}</p>
-                                        <small class="text-muted">{{ alum['designation'] or 'Position not set' }}</small>
+                                        <small class="text-muted d-block mb-1"><i class="fas fa-building me-1" style="color: #10b981;"></i> Company</small>
+                                        <p class="mb-0 fw-bold text-truncate" title="{{ alum['company_name'] }}" style="color: #667eea; font-size: 0.95rem;">{{ alum['company_name'] }}</p>
+                                        <small class="text-muted"><i class="fas fa-briefcase me-1"></i>{{ alum['designation'] or 'Position not set' }}</small>
                                     </div>
                                     {% else %}
                                     <div class="mb-3 pb-3" style="border-bottom: 1px solid #e9ecef;">
-                                        <small class="badge bg-warning text-dark"><i class="fas fa-briefcase"></i> Exploring</small>
+                                        <small class="badge bg-warning text-dark" style="font-size: 0.85rem;"><i class="fas fa-search me-1"></i> Actively Exploring</small>
                                     </div>
                                     {% endif %}
 
                                     <!-- Experience & Location -->
                                     <div class="mb-3 pb-3" style="border-bottom: 1px solid #e9ecef;">
                                         {% if alum['experience_years'] %}
-                                        <small class="text-muted"><i class="fas fa-hourglass-end"></i> {{ alum['experience_years'] }}+ yrs experience</small>
+                                        <small class="text-muted d-block mb-1"><i class="fas fa-hourglass-end me-1" style="color: #f59e0b;"></i> <strong>{{ alum['experience_years'] }}+ yrs</strong> experience</small>
                                         {% endif %}
                                         {% if alum['work_location'] %}
-                                        <div class="small text-muted"><i class="fas fa-map-marker-alt"></i> {{ alum['work_location'] }}</div>
+                                        <div class="small text-muted"><i class="fas fa-map-marker-alt me-1" style="color: #ef4444;"></i> {{ alum['work_location'] }}</div>
                                         {% endif %}
                                     </div>
 
-                                    <!-- Action -->
-                                    <a href="{{ url_for('alumni_profile', user_id=alum['id']) }}" class="btn btn-primary btn-sm w-100" style="border-radius: 10px;">
-                                        <i class="fas fa-arrow-right"></i> View Profile
-                                    </a>
+                                    <!-- Action Buttons -->
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ url_for('alumni_profile', user_id=alum['id']) }}" class="btn btn-primary btn-sm" style="border-radius: 10px; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(102,126,234,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                            <i class="fas fa-user-circle me-1"></i> View Full Profile
+                                        </a>
+                                        <button class="btn btn-outline-primary btn-sm" style="border-radius: 10px; font-weight: 600; transition: all 0.3s ease;" onclick="event.stopPropagation(); showAlumniModal({{ alum['id'] }})" onmouseover="this.style.backgroundColor='#f0f7ff'" onmouseout="this.style.backgroundColor='white'">
+                                            <i class="fas fa-info-circle me-1"></i> Quick View
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -217,46 +298,47 @@
 
         <!-- Faculty Section -->
         {% if faculty | length > 0 %}
-        <div class="section-header mb-4 mt-5">
+        <div class="section-header mb-4 mt-5" style="animation: slideInLeft 0.8s ease;">
             <h2 class="section-title">
-                <i class="fas fa-chalkboard-user"></i> Faculty Directory
+                <i class="fas fa-chalkboard-user me-2" style="color: #f093fb;"></i> Faculty Directory
                 <span class="badge bg-info ms-2">{{ faculty | length }} Members</span>
             </h2>
         </div>
 
         <div class="row g-4">
             {% for prof in faculty %}
-            <div class="col-lg-4 col-md-6">
-                <div class="faculty-card" style="animation: fadeIn 0.6s ease; cursor: pointer;" onclick="location.href='{{ url_for('faculty_profile', user_id=prof['id']) }}'">
+            <div class="col-lg-4 col-md-6" style="animation: fadeIn 0.6s ease;">
+                <div class="faculty-card faculty-interactive" style="cursor: pointer;" onclick="location.href='{{ url_for('faculty_profile', user_id=prof['id']) }}'">
                     <!-- Header -->
-                    <div class="faculty-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.5rem;">
-                        <div class="d-flex align-items-center">
-                            <div style="width: 70px; height: 70px; border-radius: 50%; border: 3px solid white; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                    <div class="faculty-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.5rem; position: relative; overflow: hidden;">
+                        <div class="faculty-header-bg" style="position: absolute; width: 100%; height: 100%; opacity: 0.1; background: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 120%22><path d=%22M0,50 Q300,0 600,50 T1200,50 L1200,120 L0,120 Z%22 fill=%22white%22></path></svg>') repeat-x; animation: wave 3s linear infinite;"></div>
+                        <div class="d-flex align-items-center" style="position: relative; z-index: 2;">
+                            <div class="faculty-avatar" style="width: 80px; height: 80px; border-radius: 50%; border: 4px solid white; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-right: 1rem; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(245,87,108,0.3);">
                                 {% if prof['profile_pic'] and prof['profile_pic'].startswith('/') %}
                                     <img src="{{ prof['profile_pic'] }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
                                 {% else %}
-                                    <img src="https://ui-avatars.com/api/?name={{ prof['name'] }}&size=70&background=FFC107&color=000" alt="Avatar" style="width: 100%;">
+                                    <img src="https://ui-avatars.com/api/?name={{ prof['name'] }}&size=80&background=FFC107&color=000" alt="Avatar" style="width: 100%;">
                                 {% endif %}
                             </div>
                             <div class="text-white">
                                 <h6 class="fw-bold mb-0">{{ prof['name'] }}</h6>
-                                <small>{{ prof['designation'] }}</small>
+                                <small style="opacity: 0.95;">{{ prof['designation'] }}</small>
                             </div>
                         </div>
                     </div>
 
                     <!-- Body -->
-                    <div class="faculty-body p-3">
-                        <div class="mb-2">
-                            <small class="text-muted"><i class="fas fa-building"></i> Department</small>
-                            <p class="mb-0 fw-bold">{{ prof['department'] }}</p>
+                    <div class="faculty-body p-4" style="transition: all 0.3s ease;">
+                        <div class="mb-3 pb-3" style="border-bottom: 2px solid #f8f9fa;">
+                            <small class="text-muted d-block mb-1"><i class="fas fa-building me-1" style="color: #f093fb;"></i> Department</small>
+                            <p class="mb-0 fw-bold" style="color: #1a1a1a;">{{ prof['department'] }}</p>
                         </div>
                         <div class="mb-3">
-                            <small class="text-muted"><i class="fas fa-envelope"></i> Email</small>
-                            <p class="mb-0 text-break small">{{ prof['email'] }}</p>
+                            <small class="text-muted d-block mb-1"><i class="fas fa-envelope me-1" style="color: #f5576c;"></i> Email</small>
+                            <p class="mb-0 text-break small" style="color: #667eea; word-break: break-all;">{{ prof['email'] }}</p>
                         </div>
-                        <a href="{{ url_for('faculty_profile', user_id=prof['id']) }}" class="btn btn-outline-primary btn-sm w-100">
-                            <i class="fas fa-eye"></i> View Profile
+                        <a href="{{ url_for('faculty_profile', user_id=prof['id']) }}" class="btn btn-outline-primary btn-sm w-100" style="border-radius: 10px; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                            <i class="fas fa-eye me-1"></i> View Profile
                         </a>
                     </div>
                 </div>
@@ -265,17 +347,41 @@
         </div>
         {% endif %}
 
-        <!-- Action Buttons -->
-        <div class="action-buttons mt-5 mb-4">
-            <div class="text-center">
-                <a href="{{ url_for('edit_student_profile', user_id=current_user.id) }}" class="btn btn-primary btn-lg me-2" style="border-radius: 12px; padding: 0.8rem 2rem;">
-                    <i class="fas fa-edit"></i> Edit Profile
+        <!-- Mentorship Section -->
+        <div class="section-header mb-4 mt-5" style="animation: slideInLeft 0.9s ease;">
+            <h2 class="section-title">
+                <i class="fas fa-graduation-cap me-2" style="color: #667eea;"></i> Mentorship Opportunities
+            </h2>
+        </div>
+
+        <div class="card border-0 shadow-lg mentorship-card" style="border-radius: 20px; overflow: hidden; background: linear-gradient(135deg, #e0f2fe 0%, #f0e7fe 100%); border-left: 5px solid #667eea; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 25px 60px rgba(102,126,234,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.08)'">
+            <div class="card-body p-5" style="text-align: center;">
+                <div style="font-size: 3.5rem; color: #667eea; margin-bottom: 20px; animation: float 3s ease-in-out infinite;">
+                    <i class="fas fa-hands-helping"></i>
+                </div>
+                <h5 style="font-weight: 700; color: #333; margin-bottom: 12px; font-size: 1.6rem;">
+                    Get Mentored!
+                </h5>
+                <p style="color: #666; font-size: 1.05rem; line-height: 1.8; margin-bottom: 25px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                    🎯 Connect with experienced alumni mentors who can guide you through your academic journey and career development. Learn from their real-world experiences and accelerate your professional growth.
+                </p>
+                <a href="{{ url_for('search_network') }}" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-weight: 600; padding: 14px 35px; font-size: 1rem; transition: all 0.3s ease; display: inline-block;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(102,126,234,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <i class="fas fa-search me-2"></i>Find Mentors
                 </a>
-                <button class="btn btn-warning btn-lg me-2" data-bs-toggle="modal" data-bs-target="#upgradeModal" style="border-radius: 12px; padding: 0.8rem 2rem;">
-                    <i class="fas fa-arrow-up"></i> Upgrade to Alumni
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons mt-5 mb-5">
+            <div class="text-center">
+                <a href="{{ url_for('edit_student_profile', user_id=current_user.id) }}" class="btn btn-primary btn-lg me-2" style="border-radius: 12px; padding: 0.9rem 2.5rem; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(102,126,234,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <i class="fas fa-edit me-2"></i> Edit Profile
+                </a>
+                <button class="btn btn-warning btn-lg me-2" data-bs-toggle="modal" data-bs-target="#upgradeModal" style="border-radius: 12px; padding: 0.9rem 2.5rem; font-weight: 600; background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); border: none; color: white; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(245,158,11,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <i class="fas fa-arrow-up me-2"></i> Upgrade to Alumni
                 </button>
-                <a href="{{ url_for('logout') }}" class="btn btn-danger btn-lg" style="border-radius: 12px; padding: 0.8rem 2rem;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                <a href="{{ url_for('logout') }}" class="btn btn-danger btn-lg" style="border-radius: 12px; padding: 0.9rem 2.5rem; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(239,68,68,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
                 </a>
             </div>
         </div>
@@ -339,6 +445,16 @@
         50% { transform: translateY(-20px); }
     }
 
+    @keyframes wave {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(100%); }
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     @keyframes fadeInLeft {
         from { opacity: 0; transform: translateX(-30px); }
         to { opacity: 1; transform: translateX(0); }
@@ -354,9 +470,24 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
+    @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 10px rgba(102, 126, 234, 0.5); }
+        50% { box-shadow: 0 0 25px rgba(102, 126, 234, 0.8); }
+    }
+
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
     }
 
     /* Stat Card */
@@ -367,14 +498,31 @@
         box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         display: flex;
         gap: 1rem;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .stat-card:hover::before {
+        left: 100%;
     }
 
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        border-color: #e9ecef;
+        transform: translateY(-8px);
+        box-shadow: 0 20px 45px rgba(0,0,0,0.15);
+        border-color: #667eea;
     }
 
     .stat-icon {
@@ -387,12 +535,14 @@
         color: white;
         font-size: 1.5rem;
         flex-shrink: 0;
+        transition: all 0.3s ease;
     }
 
     .stat-number {
         font-size: 1.8rem;
         font-weight: 700;
         margin: 0;
+        color: #1a1a1a;
     }
 
     .stat-label {
@@ -421,14 +571,36 @@
         border-radius: 15px;
         overflow: hidden;
         box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         border: 2px solid transparent;
+        position: relative;
+    }
+
+    .alumni-card-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+        transform-origin: left;
+    }
+
+    .alumni-card-wrapper:hover::before {
+        transform: scaleX(1);
     }
 
     .alumni-card-wrapper:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        border-color: #e9ecef;
+        transform: translateY(-12px);
+        box-shadow: 0 25px 50px rgba(102,126,234,0.2);
+        border-color: #667eea;
+    }
+
+    .avatar-container {
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }
 
     /* Faculty Card */
@@ -437,17 +609,28 @@
         border-radius: 15px;
         overflow: hidden;
         box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        border: 2px solid transparent;
     }
 
-    .faculty-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    .faculty-interactive:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 25px 50px rgba(240,147,251,0.2);
+        border-color: #f093fb;
+    }
+
+    .faculty-interactive:hover .faculty-avatar {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(245,87,108,0.4) !important;
+    }
+
+    .faculty-body {
+        transition: all 0.3s ease;
     }
 
     /* Filter Section */
     .filter-section {
-        background: #f8f9fa;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     }
 
     .form-control-lg, .form-select-lg {
@@ -460,23 +643,101 @@
 
     .form-control-lg:focus, .form-select-lg:focus {
         border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        outline: none;
+    }
+
+    .form-control-lg:hover, .form-select-lg:hover {
+        border-color: #667eea;
     }
 
     /* Button Styles */
     .btn-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        color: white;
+        font-weight: 600;
     }
 
     .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        transform: translateY(-4px);
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        color: white;
     }
 
     .btn-lg {
         font-weight: 600;
+        border-radius: 12px;
+    }
+
+    /* Mentorship Card */
+    .mentorship-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .mentorship-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: moveGradient 15s linear infinite;
+    }
+
+    @keyframes moveGradient {
+        0% { transform: translate(0, 0); }
+        100% { transform: translate(50px, 50px); }
+    }
+
+    /* Transition Utility */
+    .transition-all {
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+
+    /* Modal Enhancement */
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+        backdrop-filter: blur(10px);
+    }
+
+    .modal-header {
+        border-radius: 20px 20px 0 0;
+        border: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .stat-card {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .stat-icon {
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+        }
+
+        .alumni-card-wrapper:hover {
+            transform: translateY(-8px);
+        }
+
+        .faculty-interactive:hover {
+            transform: translateY(-8px);
+        }
+
+        .action-buttons .btn {
+            width: 100%;
+            margin-bottom: 0.5rem !important;
+        }
     }
 </style>
 
@@ -500,29 +761,29 @@ function showAlumniModal(alumniId) {
             const profile = data.profile;
             
             const html = `
-                <div class="text-center mb-4">
-                    <div style="width: 120px; height: 120px; margin: 0 auto; border-radius: 50%; border: 4px solid #28A745; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <div class="text-center mb-4" style="animation: slideInUp 0.4s ease;">
+                    <div style="width: 130px; height: 130px; margin: 0 auto; border-radius: 50%; border: 5px solid #667eea; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 35px rgba(102,126,234,0.3); position: relative;">
                         ${user.profile_pic && user.profile_pic.startsWith('/') 
                             ? `<img src="${user.profile_pic}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">` 
-                            : `<img src="https://ui-avatars.com/api/?name=${user.name}&size=120&background=28A745&color=fff" alt="Avatar" style="width: 100%;">`
+                            : `<img src="https://ui-avatars.com/api/?name=${user.name}&size=130&background=28A745&color=fff" alt="Avatar" style="width: 100%;">`
                         }
                     </div>
-                    <h4 class="mt-3 mb-1 fw-bold">${user.name}</h4>
-                    <p class="text-success fw-bold mb-0"><i class="fas fa-calendar"></i> Batch ${profile.pass_year}</p>
+                    <h4 class="mt-4 mb-1 fw-bold" style="color: #1a1a1a; font-size: 1.5rem;">${user.name}</h4>
+                    <p class="text-success fw-bold mb-0" style="font-size: 1.1rem;"><i class="fas fa-calendar me-2"></i> Batch ${profile.pass_year}</p>
                 </div>
 
-                <div class="info-section mb-4 p-3" style="background: #f8f9fa; border-radius: 12px; border-left: 4px solid #28A745;">
-                    <h6 class="fw-bold mb-3"><i class="fas fa-briefcase"></i> Professional</h6>
-                    <p class="mb-1"><strong>Company:</strong> ${profile.company_name || 'N/A'}</p>
-                    <p class="mb-1"><strong>Position:</strong> ${profile.designation || 'N/A'}</p>
-                    <p class="mb-0"><strong>Experience:</strong> ${profile.experience_years || 0} years</p>
+                <div class="info-section mb-4 p-4" style="background: linear-gradient(135deg, #f0e7fe 0%, #e0f2fe 100%); border-radius: 15px; border-left: 5px solid #28A745;">
+                    <h6 class="fw-bold mb-3" style="color: #667eea; font-size: 1.1rem;"><i class="fas fa-briefcase me-2"></i> Professional</h6>
+                    <p class="mb-2"><strong style="color: #333;">Company:</strong> <span style="color: #667eea;">${profile.company_name || 'N/A'}</span></p>
+                    <p class="mb-2"><strong style="color: #333;">Position:</strong> <span style="color: #667eea;">${profile.designation || 'N/A'}</span></p>
+                    <p class="mb-0"><strong style="color: #333;">Experience:</strong> <span style="color: #667eea;">${profile.experience_years || 0} years</span></p>
                 </div>
 
-                <div class="info-section p-3" style="background: #f8f9fa; border-radius: 12px; border-left: 4px solid #0D6EFD;">
-                    <h6 class="fw-bold mb-3"><i class="fas fa-graduation-cap"></i> Academic</h6>
-                    <p class="mb-1"><strong>Department:</strong> ${profile.department}</p>
-                    <p class="mb-1"><strong>Degree:</strong> ${profile.degree}</p>
-                    <p class="mb-0"><strong>Contact:</strong> ${user.email}</p>
+                <div class="info-section p-4" style="background: linear-gradient(135deg, #fee 0%, #efe 100%); border-radius: 15px; border-left: 5px solid #0D6EFD;">
+                    <h6 class="fw-bold mb-3" style="color: #667eea; font-size: 1.1rem;"><i class="fas fa-graduation-cap me-2"></i> Academic</h6>
+                    <p class="mb-2"><strong style="color: #333;">Department:</strong> <span style="color: #667eea;">${profile.department}</span></p>
+                    <p class="mb-2"><strong style="color: #333;">Degree:</strong> <span style="color: #667eea;">${profile.degree}</span></p>
+                    <p class="mb-0"><strong style="color: #333;">Contact:</strong> <span style="color: #667eea; word-break: break-all;">${user.email}</span></p>
                 </div>
             `;
             
@@ -530,14 +791,17 @@ function showAlumniModal(alumniId) {
             document.getElementById('viewFullProfileBtn').href = `/alumni/profile/${alumniId}`;
         })
         .catch(error => {
-            contentDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Error loading details</div>`;
+            contentDiv.innerHTML = `<div class="alert alert-danger" style="border-radius: 12px;"><i class="fas fa-exclamation-circle me-2"></i> Error loading details</div>`;
         });
     
     modal.show();
 }
 
-// Search & Filter
-document.getElementById('searchAlumni').addEventListener('keyup', function() {
+// Search & Filter Functions
+let currentSort = 'none';
+
+document.getElementById('searchAlumni').addEventListener('keyup', function(e) {
+    e.target.style.borderColor = this.value ? '#667eea' : 'transparent';
     applyFilters();
 });
 
@@ -550,7 +814,9 @@ function applyFilters() {
     const status = document.getElementById('filterStatus').value;
     const cards = document.querySelectorAll('.alumni-card');
     
-    cards.forEach(card => {
+    let visibleCount = 0;
+    
+    cards.forEach((card, index) => {
         let show = true;
         const name = (card.dataset.name || '').toLowerCase();
         const company = (card.dataset.company || '').toLowerCase();
@@ -562,8 +828,228 @@ function applyFilters() {
         if (status === 'employed' && employed !== 'yes') show = false;
         if (status === 'unemployed' && employed !== 'no') show = false;
         
-        card.style.display = show ? '' : 'none';
+        if (show) {
+            card.style.display = '';
+            card.style.animation = `fadeIn 0.3s ease ${visibleCount * 0.05}s both`;
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    updateResultInfo(visibleCount);
+}
+
+function filterByStatus(status) {
+    document.getElementById('filterStatus').value = status;
+    applyFilters();
+    document.getElementById('filterStatus').style.borderColor = '#667eea';
+    setTimeout(() => {
+        document.getElementById('filterStatus').style.borderColor = 'transparent';
+    }, 1000);
+}
+
+function resetFilters() {
+    document.getElementById('searchAlumni').value = '';
+    document.getElementById('filterYear').value = '';
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('searchAlumni').style.borderColor = 'transparent';
+    applyFilters();
+}
+
+function updateResultInfo(count) {
+    const resultInfo = document.getElementById('resultInfo');
+    const totalCards = document.querySelectorAll('.alumni-card').length;
+    
+    if (count < totalCards) {
+        document.getElementById('resultCount').textContent = count;
+        document.getElementById('resultText').textContent = count === 1 ? 'alumni' : 'alumni';
+        resultInfo.style.display = 'block';
+        resultInfo.style.animation = 'slideDown 0.3s ease';
+    } else {
+        resultInfo.style.display = 'none';
+    }
+}
+
+function toggleSort() {
+    const sortBtn = document.getElementById('sortBtn');
+    const options = ['none', 'name-asc', 'name-desc', 'year-desc', 'year-asc'];
+    const sortLabels = ['No Sort', 'Name (A-Z)', 'Name (Z-A)', 'Latest First', 'Oldest First'];
+    
+    const currentIndex = options.indexOf(currentSort);
+    currentSort = options[(currentIndex + 1) % options.length];
+    
+    sortBtn.innerHTML = `<i class="fas fa-sort"></i> ${sortLabels[options.indexOf(currentSort)]}`;
+    sortAlumni();
+}
+
+function sortAlumni() {
+    const grid = document.getElementById('alumniGrid');
+    const cards = Array.from(document.querySelectorAll('.alumni-card'));
+    
+    cards.sort((a, b) => {
+        switch(currentSort) {
+            case 'name-asc':
+                return a.dataset.name.localeCompare(b.dataset.name);
+            case 'name-desc':
+                return b.dataset.name.localeCompare(a.dataset.name);
+            case 'year-desc':
+                return parseInt(b.dataset.year) - parseInt(a.dataset.year);
+            case 'year-asc':
+                return parseInt(a.dataset.year) - parseInt(b.dataset.year);
+            default:
+                return 0;
+        }
+    });
+    
+    cards.forEach((card, index) => {
+        card.style.animation = `fadeIn 0.3s ease ${index * 0.05}s both`;
+        grid.appendChild(card);
     });
 }
+
+// Load pending connection requests
+async function loadPendingRequests() {
+    try {
+        const response = await fetch('/api/connection-request/pending');
+        const data = await response.json();
+        
+        if (data.success && data.requests.length > 0) {
+            const requestsList = document.getElementById('pendingRequestsList');
+            const section = document.getElementById('pendingRequestsSection');
+            
+            requestsList.innerHTML = '';
+            
+            data.requests.forEach((req, index) => {
+                const html = `
+                    <div class="col-lg-4 col-md-6" style="animation: slideUp 0.4s ease ${index * 0.08}s both;">
+                        <div class="card border-0 shadow-md h-100" style="border-radius: 15px; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); border: 2px solid transparent; background: linear-gradient(135deg, #f8f9fa 0%, white 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 45px rgba(102,126,234,0.15)'; this.style.borderColor='#667eea'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'; this.style.borderColor='transparent'">
+                            <div class="card-body text-center p-4">
+                                <div style="width: 90px; height: 90px; margin: 0 auto 1.5rem; border-radius: 50%; border: 4px solid #667eea; overflow: hidden; display: flex; align-items: center; justify-content: center; background: white; box-shadow: 0 5px 15px rgba(102,126,234,0.2); transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                    ${req.sender_pic && req.sender_pic.startsWith('/') 
+                                        ? `<img src="${req.sender_pic}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">` 
+                                        : `<img src="https://ui-avatars.com/api/?name=${req.sender_name}&size=90&background=667eea&color=fff" alt="Avatar" style="width: 100%;">`
+                                    }
+                                </div>
+                                <h6 class="card-title fw-bold mb-1" style="color: #1a1a1a; font-size: 1.1rem;">${req.sender_name}</h6>
+                                <small class="text-muted d-block mb-4" style="font-size: 0.9rem; word-break: break-all;">${req.sender_email}</small>
+                                
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-success btn-sm fw-bold" style="border-radius: 10px; padding: 0.7rem; transition: all 0.3s ease;" onclick="acceptRequest(${req.id})" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 15px rgba(16,185,129,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                        <i class="fas fa-check me-1"></i> Accept
+                                    </button>
+                                    <button class="btn btn-danger btn-sm fw-bold" style="border-radius: 10px; padding: 0.7rem; transition: all 0.3s ease;" onclick="rejectRequest(${req.id})" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 15px rgba(239,68,68,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                        <i class="fas fa-times me-1"></i> Reject
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                requestsList.innerHTML += html;
+            });
+            
+            document.getElementById('requestCountBadge').textContent = data.requests.length;
+            section.style.display = 'block';
+        }
+    } catch(error) {
+        console.error('Error loading pending requests:', error);
+    }
+}
+
+async function acceptRequest(requestId) {
+    try {
+        const response = await fetch(`/api/connection-request/accept/${requestId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('✓ Connection request accepted!', 'success');
+            setTimeout(() => loadPendingRequests(), 500);
+        } else {
+            showToast('✗ ' + (data.error || 'Error accepting request'), 'danger');
+        }
+    } catch(error) {
+        console.error('Error:', error);
+        showToast('Error: ' + error.message, 'danger');
+    }
+}
+
+async function rejectRequest(requestId) {
+    try {
+        const response = await fetch(`/api/connection-request/reject/${requestId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('⊗ Connection request rejected', 'warning');
+            setTimeout(() => loadPendingRequests(), 500);
+        } else {
+            showToast('✗ ' + (data.error || 'Error rejecting request'), 'danger');
+        }
+    } catch(error) {
+        console.error('Error:', error);
+        showToast('Error: ' + error.message, 'danger');
+    }
+}
+
+function showToast(message, type = 'info') {
+    const bgColor = {
+        'success': '#10b981',
+        'danger': '#ef4444',
+        'warning': '#f59e0b',
+        'info': '#0D6EFD'
+    }[type] || '#0D6EFD';
+
+    const toast = document.createElement('div');
+    toast.className = `position-fixed bottom-0 end-0 m-3`;
+    toast.style.zIndex = '9999';
+    toast.style.animation = 'slideInToast 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    toast.innerHTML = `
+        <div style="background: ${bgColor}; color: white; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); font-weight: 500; min-width: 300px;">
+            ${message}
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOutToast 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Add slideOutToast animation
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
+    @keyframes slideInToast {
+        from { opacity: 0; transform: translateX(400px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes slideOutToast {
+        from { opacity: 1; transform: translateX(0); }
+        to { opacity: 0; transform: translateX(400px); }
+    }
+
+    @keyframes slideInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+`;
+document.head.appendChild(styleSheet);
+
+// Load pending requests on page load
+loadPendingRequests();
 </script>
 {% endblock %}

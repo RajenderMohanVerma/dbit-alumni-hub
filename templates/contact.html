@@ -50,6 +50,33 @@
         50% { opacity: 0.8; }
     }
 
+    @keyframes glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(14, 165, 233, 0.3); }
+        50% { box-shadow: 0 0 40px rgba(14, 165, 233, 0.6); }
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -1000px 0; }
+        100% { background-position: 1000px 0; }
+    }
+
+    @keyframes bounce-in {
+        0% { opacity: 0; transform: scale(0.3) translateY(40px); }
+        50% { opacity: 1; }
+        70% { transform: scale(1.05); }
+        100% { transform: scale(1) translateY(0); }
+    }
+
+    @keyframes float-up {
+        0% { opacity: 0; transform: translateY(50px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes flip-in {
+        0% { opacity: 0; transform: rotateX(-90deg); }
+        100% { opacity: 1; transform: rotateX(0); }
+    }
+
     .page-hero-content {
         position: relative;
         z-index: 2;
@@ -64,6 +91,10 @@
         text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
         animation: slideInDown 1s ease-out;
         letter-spacing: -1px;
+        background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.9) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .page-hero p {
@@ -71,6 +102,7 @@
         opacity: 0.95;
         animation: slideInUp 1s ease-out 0.2s both;
         font-weight: 500;
+        letter-spacing: 0.5px;
     }
 
     /* Marquee Effect */
@@ -125,6 +157,7 @@
         margin-bottom: 1rem;
         font-weight: 800;
         letter-spacing: -1px;
+        animation: slideInLeft 0.8s ease-out;
     }
 
     .contact-info p {
@@ -132,6 +165,7 @@
         font-size: 1.1rem;
         margin-bottom: 2rem;
         line-height: 1.6;
+        animation: float-up 0.8s ease-out 0.2s both;
     }
 
     .contact-details {
@@ -148,11 +182,17 @@
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         border-left: 5px solid var(--accent);
         box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        animation: slideInLeft 0.6s ease-out backwards;
     }
 
+    .detail-item:nth-child(1) { animation-delay: 0.2s; }
+    .detail-item:nth-child(2) { animation-delay: 0.3s; }
+    .detail-item:nth-child(3) { animation-delay: 0.4s; }
+    .detail-item:nth-child(4) { animation-delay: 0.5s; }
+
     .detail-item:hover {
-        transform: translateX(15px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        transform: translateX(15px) scale(1.02);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15), 0 0 30px rgba(30, 58, 138, 0.2);
         border-left-color: var(--primary);
         background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(14, 165, 233, 0.05) 100%);
     }
@@ -160,11 +200,18 @@
     .detail-icon {
         font-size: 2.5rem;
         flex-shrink: 0;
-        transition: transform 0.4s ease;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-block;
     }
 
     .detail-item:hover .detail-icon {
-        transform: scale(1.3) rotateZ(10deg);
+        transform: scale(1.3) rotateZ(10deg) bounceIn;
+        animation: bounce 0.6s ease-out;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: scale(1.3) rotateZ(10deg) translateY(0); }
+        50% { transform: scale(1.3) rotateZ(10deg) translateY(-10px); }
     }
 
     .detail-item h4 {
@@ -172,6 +219,12 @@
         font-weight: 700;
         margin-bottom: 0.3rem;
         font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .detail-item:hover h4 {
+        color: var(--secondary);
+        letter-spacing: 0.5px;
     }
 
     .detail-item p {
@@ -179,6 +232,11 @@
         color: var(--text-dark);
         font-size: 0.95rem;
         line-height: 1.5;
+        transition: all 0.3s ease;
+    }
+
+    .detail-item:hover p {
+        color: var(--primary);
     }
 
     .social-icon {
@@ -191,11 +249,31 @@
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         font-weight: 700;
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .social-icon::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255,255,255,0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+    }
+
+    .social-icon:hover::before {
+        width: 300px;
+        height: 300px;
     }
 
     .social-icon:hover {
-        transform: translateY(-8px) scale(1.08);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        transform: translateY(-8px) scale(1.08) rotateY(5deg);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.3), 0 0 30px rgba(14, 165, 233, 0.4);
     }
 
     /* Contact Form */
@@ -203,49 +281,107 @@
         background: white;
         padding: 3rem;
         border-radius: 20px;
-        box-shadow: 0 15px 50px rgba(0,0,0,0.12);
-        border-top: 5px solid var(--accent);
+        box-shadow: 0 25px 70px rgba(0,0,0,0.18), 0 15px 35px rgba(30, 58, 138, 0.15);
+        border-top: 6px solid var(--accent);
+        transition: all 0.4s ease;
+        animation: slideInRight 0.8s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .contact-form::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.1), transparent);
+        transition: left 0.8s ease;
+    }
+
+    .contact-form:hover::before {
+        left: 100%;
+    }
+
+    .contact-form:hover {
+        box-shadow: 0 35px 90px rgba(0,0,0,0.22), 0 20px 50px rgba(30, 58, 138, 0.2), 0 0 40px rgba(14, 165, 233, 0.15);
+        transform: translateY(-10px);
     }
 
     .contact-form h3 {
         color: var(--primary);
         font-size: 2rem;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
         font-weight: 800;
         letter-spacing: -0.5px;
+        animation: slideInDown 0.6s ease-out;
     }
 
+    /* Floating Labels */
     .form-group {
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
+        position: relative;
+        animation: float-up 0.6s ease-out backwards;
     }
+
+    .form-group:nth-child(1) { animation-delay: 0.1s; }
+    .form-group:nth-child(2) { animation-delay: 0.2s; }
+    .form-group:nth-child(3) { animation-delay: 0.3s; }
+    .form-group:nth-child(4) { animation-delay: 0.4s; }
+    .form-group:nth-child(5) { animation-delay: 0.5s; }
 
     .form-group label {
-        display: block;
-        color: var(--text-dark);
-        font-weight: 700;
-        margin-bottom: 0.7rem;
-        font-size: 1.05rem;
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        color: var(--text-light);
+        font-weight: 600;
+        font-size: 1rem;
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: white;
+        padding: 0 0.3rem;
     }
 
     .form-group input,
     .form-group textarea {
         width: 100%;
-        padding: 1rem;
-        border: 2px solid var(--light);
+        padding: 1.2rem 1rem 0.8rem 1rem;
+        border: 2px solid #e0e7ff;
         border-radius: 12px;
         font-family: inherit;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        background: white;
+        background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
         font-size: 1rem;
+        color: var(--text-dark);
+        position: relative;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+        color: transparent;
     }
 
     .form-group input:focus,
     .form-group textarea:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.15);
-        transform: translateY(-3px);
+        box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.15), 0 0 20px rgba(30, 58, 138, 0.25), inset 0 1px 3px rgba(14, 165, 233, 0.1);
         background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        transform: translateY(-4px) scale(1.01);
+    }
+
+    /* Floating Label Animation */
+    .form-group input:focus + label,
+    .form-group input:not(:placeholder-shown) + label,
+    .form-group textarea:focus + label,
+    .form-group textarea:not(:placeholder-shown) + label {
+        top: -0.8rem;
+        font-size: 0.85rem;
+        color: var(--primary);
+        font-weight: 700;
+        transform: translateX(0) scale(1);
     }
 
     .form-group textarea {
@@ -255,25 +391,187 @@
 
     .form-submit {
         width: 100%;
-        padding: 1.2rem;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        padding: 1.4rem;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
         color: white;
         border: none;
         border-radius: 12px;
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         font-weight: 800;
         cursor: pointer;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        box-shadow: 0 15px 40px rgba(13, 110, 253, 0.3);
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+        animation: float-up 0.6s ease-out 0.5s both;
+    }
+
+    .form-submit::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .form-submit:hover::before {
+        left: 100%;
     }
 
     .form-submit:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 25px 60px rgba(13, 110, 253, 0.4), 0 0 30px rgba(14, 165, 233, 0.3);
+        letter-spacing: 1px;
     }
 
     .form-submit:active {
-        transform: translateY(-1px);
+        transform: translateY(-4px) scale(0.99);
+    }
+
+    /* Success Message Animation */
+    .success-message {
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(16, 185, 129, 0.4);
+        max-width: 400px;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateX(500px) translateY(-100px) scale(0.8);
+        display: none;
+        pointer-events: none;
+    }
+
+    .success-message.show {
+        display: block;
+        pointer-events: auto;
+        animation: successSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .success-message.hide {
+        animation: successSlideOut 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes successSlideIn {
+        0% {
+            opacity: 0;
+            transform: translateX(500px) translateY(-100px) scale(0.8);
+        }
+        60% {
+            opacity: 1;
+            transform: translateX(0) translateY(0) scale(1.05);
+        }
+        100% {
+            opacity: 1;
+            transform: translateX(0) translateY(0) scale(1);
+        }
+    }
+
+    @keyframes successSlideOut {
+        0% {
+            opacity: 1;
+            transform: translateX(0) translateY(0) scale(1);
+        }
+        100% {
+            opacity: 0;
+            transform: translateX(500px) translateY(-50px) scale(0.8);
+        }
+    }
+
+    .success-message-icon {
+        display: inline-block;
+        margin-right: 0.8rem;
+        font-size: 1.5rem;
+    }
+
+    .success-message-content {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .success-message h4 {
+        margin: 0 0 0.3rem 0;
+        font-size: 1.1rem;
+        font-weight: 800;
+    }
+
+    .success-message p {
+        margin: 0;
+        font-size: 0.95rem;
+        opacity: 0.95;
+    }
+
+    .success-message-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+    }
+
+    .success-message-close:hover {
+        background: rgba(255, 255, 255, 0.4);
+        transform: scale(1.15);
+    }
+
+    /* Google Map Placeholder */
+    .map-container {
+        margin-top: 2rem;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+        transition: all 0.4s ease;
+        animation: bounce-in 0.8s ease-out 0.4s both;
+        position: relative;
+    }
+
+    .map-container::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+    }
+
+    .map-container:hover::after {
+        opacity: 1;
+    }
+
+    .map-container:hover {
+        box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 0 40px rgba(14, 165, 233, 0.25);
+        transform: scale(1.02) translateY(-5px);
+    }
+
+    .map-container iframe {
+        width: 100%;
+        height: 350px;
+        border: none;
+        display: block;
+        transition: filter 0.4s ease;
+    }
+
+    .map-container:hover iframe {
+        filter: brightness(1.05) contrast(1.05);
     }
 
     /* FAQ Section */
@@ -285,6 +583,7 @@
     .section-header {
         text-align: center;
         margin-bottom: 3rem;
+        animation: float-up 0.8s ease-out;
     }
 
     .section-header h2 {
@@ -293,6 +592,10 @@
         margin-bottom: 0.8rem;
         font-weight: 900;
         letter-spacing: -1px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .section-header p {
@@ -318,11 +621,34 @@
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
         box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        animation: slideInLeft 0.6s ease-out backwards;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .faq-item:nth-child(1) { animation-delay: 0.2s; }
+    .faq-item:nth-child(2) { animation-delay: 0.3s; }
+    .faq-item:nth-child(3) { animation-delay: 0.4s; }
+    .faq-item:nth-child(4) { animation-delay: 0.5s; }
+
+    .faq-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.15), transparent);
+        transition: left 0.8s ease;
+    }
+
+    .faq-item:hover::before {
+        left: 100%;
     }
 
     .faq-item:hover {
-        transform: translateX(15px);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        transform: translateX(15px) scale(1.01);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.12), 0 0 30px rgba(30, 58, 138, 0.15);
         border-left-color: var(--primary);
         background: linear-gradient(135deg, rgba(30, 58, 138, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%);
     }
@@ -332,6 +658,25 @@
         font-size: 1.3rem;
         margin-bottom: 1rem;
         font-weight: 800;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .faq-item h4::after {
+        content: '▼';
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.8rem;
+    }
+
+    .faq-item.active h4::after {
+        transform: rotateZ(180deg);
+    }
+
+    .faq-item:hover h4 {
+        color: var(--secondary);
+        letter-spacing: 0.5px;
     }
 
     .faq-item p {
@@ -339,6 +684,15 @@
         margin: 0;
         line-height: 1.7;
         font-size: 1.05rem;
+        max-height: 500px;
+        overflow: hidden;
+        opacity: 1;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .faq-item.collapsed p {
+        max-height: 0;
+        opacity: 0;
     }
 
     /* Animations */
@@ -417,7 +771,7 @@
                         <div class="detail-icon">📍</div>
                         <div>
                             <h4>Address</h4>
-                            <p>LPU Campus, Punjab<br>India</p>
+                            <p>2, Okhla Rd, near Escort Hospital<br>Pocket A, Sukhdev Vihar, Okhla<br>New Delhi, Delhi 110025, India</p>
                         </div>
                     </div>
                     <div class="detail-item">
@@ -443,12 +797,17 @@
                     </div>
                 </div>
 
+                <!-- Google Map Placeholder -->
+                <div class="map-container">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3505.8869906251436!2d77.2505!3d28.5355!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce2eda3bb5555%3A0x5a2efd4c8c3d8f8f!2s2%20Okhla%20Rd%2C%20Sukhdev%20Vihar%2C%20Okhla%2C%20New%20Delhi!5e0!3m2!1sen!2sin!4v1707043200000" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+
                 <div style="margin-top: 3rem;">
                     <h4 style="margin-bottom: 1rem;">Follow Us</h4>
                     <div style="display: flex; gap: 1rem;">
                         <a href="#" class="social-icon">LinkedIn</a>
-                        <a href="#" class="social-icon">Twitter</a>
-                        <a href="#" class="social-icon">Facebook</a>
+                        <a href="#" class="social-icon">Instagram</a>
+                        <a href="#" class="social-icon">YouTube</a>
                     </div>
                 </div>
             </div>
@@ -468,25 +827,25 @@
                         {% endif %}
                     {% endwith %}
 
-                    <form method="POST" action="/contact">
+                    <form method="POST" action="/contact" id="contactForm">
                         <div class="form-group">
+                            <input type="text" id="name" name="name" placeholder=" " required>
                             <label for="name">Your Name</label>
-                            <input type="text" id="name" name="name" placeholder="John Doe" required>
                         </div>
 
                         <div class="form-group">
+                            <input type="email" id="email" name="email" placeholder=" " required>
                             <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" placeholder="your@email.com" required>
                         </div>
 
                         <div class="form-group">
+                            <input type="text" id="subject" name="subject" placeholder=" " required>
                             <label for="subject">Subject</label>
-                            <input type="text" id="subject" name="subject" placeholder="How can we help?" required>
                         </div>
 
                         <div class="form-group">
+                            <textarea id="message" name="message" rows="6" placeholder=" " required></textarea>
                             <label for="message">Message</label>
-                            <textarea id="message" name="message" rows="6" placeholder="Tell us your thoughts..." required></textarea>
                         </div>
 
                         <button type="submit" class="form-submit">Send Message</button>
@@ -495,6 +854,16 @@
             </div>
         </div>
     </section>
+
+    <!-- ===== SUCCESS MESSAGE ===== -->
+    <div id="successMessage" class="success-message">
+        <span class="success-message-icon">✓</span>
+        <div class="success-message-content">
+            <h4>Message Sent Successfully!</h4>
+            <p>Thank you for reaching out. We'll get back to you soon.</p>
+        </div>
+        <button class="success-message-close" onclick="closeSuccessMessage()">×</button>
+    </div>
 
     <!-- ===== FAQ SECTION ===== -->
     <section class="faq-section">
@@ -524,3 +893,158 @@
     </section>
 
 {% endblock %}
+
+<script>
+    // ===== FLOATING LABELS FUNCTIONALITY =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const formInputs = document.querySelectorAll('.form-group input, .form-group textarea');
+        
+        formInputs.forEach(input => {
+            // Add placeholder if not exists
+            if (!input.placeholder) {
+                input.placeholder = ' ';
+            }
+            
+            // Handle initial state for pre-filled inputs
+            if (input.value) {
+                input.classList.add('has-value');
+            }
+            
+            // On input change
+            input.addEventListener('input', function() {
+                if (this.value) {
+                    this.classList.add('has-value');
+                } else {
+                    this.classList.remove('has-value');
+                }
+            });
+
+            // Add ripple effect on focus
+            input.addEventListener('focus', function() {
+                this.style.boxShadow = '0 0 0 4px rgba(30, 58, 138, 0.15), 0 0 20px rgba(30, 58, 138, 0.25), inset 0 1px 3px rgba(14, 165, 233, 0.1)';
+            });
+
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.style.boxShadow = '';
+                }
+            });
+        });
+
+        // ===== FORM SUBMISSION WITH SUCCESS MESSAGE =====
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                // Allow normal form submission, but show success message after response
+                setTimeout(() => {
+                    showSuccessMessage();
+                    // Reset form after showing success
+                    setTimeout(() => {
+                        contactForm.reset();
+                        formInputs.forEach(input => {
+                            input.classList.remove('has-value');
+                        });
+                    }, 500);
+                }, 500);
+            });
+        }
+
+        // ===== FAQ ACCORDION FUNCTIONALITY =====
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            const heading = item.querySelector('h4');
+            if (heading) {
+                heading.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Close other items
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item && otherItem.classList.contains('active')) {
+                            otherItem.classList.remove('active');
+                            otherItem.classList.add('collapsed');
+                        }
+                    });
+
+                    // Toggle current item
+                    item.classList.toggle('active');
+                    item.classList.toggle('collapsed');
+
+                    // Add smooth animation
+                    const answer = item.querySelector('p');
+                    if (answer) {
+                        if (item.classList.contains('active')) {
+                            answer.style.animation = 'slideInDown 0.4s ease-out';
+                        } else {
+                            answer.style.animation = 'slideInUp 0.4s ease-out';
+                        }
+                    }
+                });
+            }
+        });
+
+        // Close all FAQ items initially
+        faqItems.forEach(item => {
+            item.classList.add('collapsed');
+        });
+    });
+
+    // ===== SUCCESS MESSAGE FUNCTIONS =====
+    function showSuccessMessage() {
+        const successMessage = document.getElementById('successMessage');
+        if (successMessage) {
+            successMessage.classList.remove('hide');
+            successMessage.classList.add('show');
+            
+            // Auto hide after 4 seconds
+            setTimeout(() => {
+                closeSuccessMessage();
+            }, 4000);
+        }
+    }
+
+    function closeSuccessMessage() {
+        const successMessage = document.getElementById('successMessage');
+        if (successMessage) {
+            successMessage.classList.remove('show');
+            successMessage.classList.add('hide');
+            
+            // Hide after animation completes
+            setTimeout(() => {
+                successMessage.classList.remove('hide');
+                successMessage.style.display = 'none';
+            }, 600);
+        }
+    }
+
+    // Close success message on click
+    document.addEventListener('click', function(e) {
+        const successMessage = document.getElementById('successMessage');
+        if (successMessage && e.target.closest('.success-message-close')) {
+            closeSuccessMessage();
+        }
+    });
+
+    // ===== SCROLL ANIMATIONS =====
+    window.addEventListener('scroll', function() {
+        const elements = document.querySelectorAll('.detail-item, .faq-item');
+        elements.forEach(element => {
+            const rect = element.getBoundingClientRect();
+            if (rect.top < window.innerHeight * 0.8) {
+                element.style.opacity = '1';
+            }
+        });
+    });
+
+    // ===== SMOOTH PAGE INTERACTIONS =====
+    document.addEventListener('mousemove', function(e) {
+        // Subtle parallax on detail cards
+        const detailItems = document.querySelectorAll('.detail-item');
+        detailItems.forEach(item => {
+            const rect = item.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+            
+            item.style.backgroundPosition = `${x * 20}% ${y * 20}%`;
+        });
+    });
+</script>

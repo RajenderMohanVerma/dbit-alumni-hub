@@ -66,6 +66,13 @@
                             <i class="fas fa-lock"></i> Change Password
                         </a>
                     </div>
+                    {% else %}
+                    <!-- Connection Request Button -->
+                    <div class="d-grid gap-2">
+                        <button id="connection-btn" class="btn btn-success" onclick="sendConnectionRequest({{ user['id'] }})">
+                            <i class="fas fa-user-plus"></i> Send Connection Request
+                        </button>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -209,4 +216,56 @@
         box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
     }
 </style>
+
+<script>
+async function sendConnectionRequest(receiverId) {
+    const btn = document.getElementById('connection-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    
+    try {
+        const response = await fetch('/api/connection-request/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ receiver_id: receiverId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-secondary');
+            btn.innerHTML = '<i class="fas fa-check"></i> Request Sent';
+            btn.disabled = true;
+            showToast('Connection request sent! ✓', 'success');
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-user-plus"></i> Send Connection Request';
+            showToast(data.error || 'Error sending request', 'danger');
+        }
+    } catch(error) {
+        console.error('Error:', error);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-user-plus"></i> Send Connection Request';
+        showToast('Error: ' + error.message, 'danger');
+    }
+}
+
+function showToast(message, type = 'info') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed bottom-0 end-0 m-3`;
+    toast.style.zIndex = '9999';
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+</script>
 {% endblock %}

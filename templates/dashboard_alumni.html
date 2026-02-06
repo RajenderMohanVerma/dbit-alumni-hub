@@ -1,34 +1,756 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="row">
-    <div class="col-md-4">
-        <div class="card glass-card p-4 text-center">
-            <img src="{{ current_user.profile_pic }}" class="rounded-circle mb-3" width="120">
-            <h3>{{ current_user.name }}</h3>
-            <span class="badge bg-warning text-dark">{{ current_user.role }}</span>
-            <p class="mt-3 text-white-50">{{ current_user.email }}</p>
-            <button class="btn btn-sm btn-outline-warning">Edit Profile</button>
-        </div>
-    </div>
-    <div class="col-md-8">
-        <div class="card glass-card p-4">
-            <h4>My Mentorship Requests</h4>
-            <div class="alert alert-info bg-transparent border-info text-white mt-3">
-                <i class="fas fa-info-circle"></i> No new requests from students yet.
+<style>
+    .alumni-dashboard-wrapper {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .alumni-dashboard-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .dashboard-container {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Profile Card Styling */
+    .profile-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        animation: slideInLeft 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: all 0.3s ease;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+    }
+
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 30px 20px;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .profile-avatar {
+        width: 140px;
+        height: 140px;
+        border: 5px solid white;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        overflow: hidden;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        animation: zoomIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-role {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-top: 10px;
+        backdrop-filter: blur(10px);
+    }
+
+    .profile-body {
+        padding: 30px;
+    }
+
+    .profile-email {
+        color: #667eea;
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .profile-email i {
+        color: #764ba2;
+        font-size: 1.1rem;
+    }
+
+    .profile-actions {
+        display: grid;
+        gap: 10px;
+    }
+
+    .profile-actions .btn {
+        border-radius: 12px;
+        font-weight: 600;
+        padding: 12px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .profile-actions .btn-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%);
+        color: white;
+        border: none;
+    }
+
+    .profile-actions .btn-warning:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+        color: white;
+    }
+
+    .profile-actions .btn-info {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        border: none;
+    }
+
+    .profile-actions .btn-info:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        color: white;
+    }
+
+    .profile-actions .btn-outline-secondary {
+        border: 2px solid #6b7280;
+        color: #374151;
+        font-weight: 600;
+    }
+
+    .profile-actions .btn-outline-secondary:hover {
+        background: #6b7280;
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    /* Section Cards */
+    .dashboard-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        animation: slideInRight 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-section:hover {
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #667eea;
+    }
+
+    .section-title i {
+        color: #667eea;
+        font-size: 1.7rem;
+    }
+
+    /* Pending Requests */
+    .pending-request-card {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border: 2px solid #667eea;
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    .pending-request-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
+        border-color: #764ba2;
+    }
+
+    .request-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        margin: 0 auto 15px;
+        border: 4px solid #667eea;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .pending-request-card:hover .request-avatar {
+        border-color: #764ba2;
+        box-shadow: 0 15px 40px rgba(118, 75, 162, 0.3);
+        transform: scale(1.1);
+    }
+
+    .request-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .request-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .request-email {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 15px;
+    }
+
+    .request-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .request-actions .btn {
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 10px;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .request-actions .btn-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .request-actions .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        color: white;
+    }
+
+    .request-actions .btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .request-actions .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        color: white;
+    }
+
+    /* Mentorship Section */
+    .mentorship-card {
+        background: linear-gradient(135deg, #e0f2fe 0%, #f0e7fe 100%);
+        border-radius: 16px;
+        padding: 25px;
+        border-left: 5px solid #667eea;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .mentorship-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+    }
+
+    .mentorship-icon {
+        font-size: 3rem;
+        color: #667eea;
+        margin-bottom: 15px;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .mentorship-text {
+        color: #333;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    /* Alumni Meet Section */
+    .alumni-meet-card {
+        background: linear-gradient(135deg, #fef3c7 0%, #ffe4b5 100%);
+        border-radius: 16px;
+        padding: 30px;
+        border-top: 5px solid #f59e0b;
+        transition: all 0.3s ease;
+    }
+
+    .alumni-meet-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(245, 158, 11, 0.2);
+    }
+
+    .meet-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #92400e;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .meet-title i {
+        font-size: 1.5rem;
+    }
+
+    .meet-description {
+        color: #78350f;
+        margin-bottom: 20px;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .meet-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .meet-actions .btn {
+        border-radius: 12px;
+        font-weight: 600;
+        padding: 12px;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .meet-actions .btn-info {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+
+    .meet-actions .btn-info:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+        color: white;
+    }
+
+    .meet-actions .btn-outline-info {
+        border: 2px solid #f59e0b;
+        color: #92400e;
+        font-weight: 600;
+    }
+
+    .meet-actions .btn-outline-info:hover {
+        background: #f59e0b;
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    /* Animations */
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes zoomIn {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% {
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        50% {
+            box-shadow: 0 15px 50px rgba(102, 126, 234, 0.5);
+        }
+    }
+
+    /* Toast Styling */
+    .toast-notification {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        padding: 16px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        color: white;
+        z-index: 9999;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        animation: slideInToast 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .toast-notification.success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .toast-notification.danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .toast-notification.warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    @keyframes slideInToast {
+        from {
+            opacity: 0;
+            transform: translateX(400px) translateY(100px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0) translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-section,
+        .profile-card {
+            margin-bottom: 20px;
+        }
+
+        .pending-request-card {
+            margin-bottom: 15px;
+        }
+
+        .meet-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="alumni-dashboard-wrapper">
+    <div class="container dashboard-container">
+        <!-- Profile and Quick Actions Row -->
+        <div class="row g-4 mb-4">
+            <!-- Left: Profile Card -->
+            <div class="col-lg-4">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            {% if current_user.profile_pic and current_user.profile_pic.startswith('/') %}
+                                <img src="{{ current_user.profile_pic }}" alt="Profile">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ current_user.name }}&size=140&background=667eea&color=fff" alt="Profile">
+                            {% endif %}
+                        </div>
+                        <h2 class="profile-name">{{ current_user.name }}</h2>
+                        <span class="profile-role">
+                            <i class="fas fa-user-tie me-2"></i>{{ current_user.role | capitalize }}
+                        </span>
+                    </div>
+                    <div class="profile-body">
+                        <p class="profile-email">
+                            <i class="fas fa-envelope"></i>
+                            {{ current_user.email }}
+                        </p>
+                        <div class="profile-actions">
+                            <a href="{{ url_for('alumni_profile', user_id=current_user.id) }}" class="btn btn-warning">
+                                <i class="fas fa-eye me-2"></i>View Profile
+                            </a>
+                            <a href="{{ url_for('edit_alumni_profile', user_id=current_user.id) }}" class="btn btn-info">
+                                <i class="fas fa-edit me-2"></i>Edit Profile
+                            </a>
+                            <a href="{{ url_for('change_password') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-lock me-2"></i>Change Password
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Pending Connection Requests -->
+            <div class="col-lg-8">
+                <div class="dashboard-section" id="pendingRequestsSection" style="display: none;">
+                    <h3 class="section-title">
+                        <i class="fas fa-hourglass-half"></i> Pending Connection Requests
+                    </h3>
+                    <div id="pendingRequestsList" class="row g-3">
+                        <!-- Requests will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="dashboard-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-graduation-cap"></i> Mentorship Opportunities
+                    </h3>
+                    <div class="mentorship-card">
+                        <div class="mentorship-icon">
+                            {% if current_user.role == 'alumni' %}
+                                <i class="fas fa-heart"></i>
+                            {% else %}
+                                <i class="fas fa-hands-helping"></i>
+                            {% endif %}
+                        </div>
+                        <p class="mentorship-text">
+                            {% if current_user.role == 'alumni' %}
+                                <strong>Be a Mentor!</strong> Guide and inspire the next generation of students. Share your knowledge, experiences, and help them navigate their career path.
+                            {% else %}
+                                <strong>Get Mentored!</strong> Connect with experienced alumni mentors who can guide you through your academic journey and career development. Learn from their real-world experiences.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <div class="card border-info">
-            <div class="card-body">
-                <h5 class="card-title">Alumni Meet Registration</h5>
-                <p class="card-text">Register for the upcoming Alumni Meet in January and stay connected with your batch mates.</p>
-                <a href="{{ url_for('alumni_meet_register') }}" class="btn btn-info">Register Now</a>
-                <a href="{{ url_for('alumni_meet_view') }}" class="btn btn-outline-info">View Registration</a>
+
+        <!-- Alumni Meet Section -->
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="dashboard-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-calendar-check"></i> Alumni Meet Registration
+                    </h3>
+                    <div class="alumni-meet-card">
+                        <div class="meet-title">
+                            <i class="fas fa-star"></i> Upcoming Alumni Meet - January 2025
+                        </div>
+                        <p class="meet-description">
+                            Join us for an exciting alumni meet to reconnect with your batch mates, network with professionals, and celebrate your achievements together. This is a great opportunity to strengthen your bonds and explore career opportunities.
+                        </p>
+                        <div class="meet-actions">
+                            <a href="{{ url_for('alumni_meet_register') }}" class="btn btn-info">
+                                <i class="fas fa-plus me-2"></i>Register Now
+                            </a>
+                            <a href="{{ url_for('alumni_meet_view') }}" class="btn btn-outline-info">
+                                <i class="fas fa-eye me-2"></i>View Registrations
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="col-lg-4">
+                <div class="dashboard-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-chart-bar"></i> Your Network
+                    </h3>
+                    <div style="text-align: center;">
+                        <div style="padding: 20px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border-radius: 12px; margin-bottom: 15px;">
+                            <div style="font-size: 2.5rem; font-weight: 700; color: #667eea;">0</div>
+                            <p style="color: #666; margin: 0; font-weight: 600;">Active Connections</p>
+                        </div>
+                        <div style="padding: 20px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%); border-radius: 12px;">
+                            <div style="font-size: 2.5rem; font-weight: 700; color: #f59e0b;">0</div>
+                            <p style="color: #666; margin: 0; font-weight: 600;">Pending Requests</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
+
+<script>
+// Load pending connection requests
+async function loadPendingRequests() {
+    try {
+        const response = await fetch('/api/connection-request/pending');
+        const data = await response.json();
+        
+        if (data.success && data.requests.length > 0) {
+            const requestsList = document.getElementById('pendingRequestsList');
+            const section = document.getElementById('pendingRequestsSection');
+            
+            requestsList.innerHTML = '';
+            
+            data.requests.forEach((req, index) => {
+                const html = `
+                    <div class="col-md-6" style="animation: fadeIn 0.6s ease-out ${index * 0.1}s both;">
+                        <div class="pending-request-card">
+                            <div class="request-avatar">
+                                ${req.sender_pic && req.sender_pic.startsWith('/') 
+                                    ? `<img src="${req.sender_pic}" alt="Avatar">` 
+                                    : `<img src="https://ui-avatars.com/api/?name=${req.sender_name}&size=90&background=667eea&color=fff" alt="Avatar">`
+                                }
+                            </div>
+                            <h5 class="request-name">${req.sender_name}</h5>
+                            <p class="request-email">${req.sender_email}</p>
+                            
+                            <div class="request-actions">
+                                <button class="btn btn-success" onclick="acceptRequest(${req.id})">
+                                    <i class="fas fa-check"></i> Accept
+                                </button>
+                                <button class="btn btn-danger" onclick="rejectRequest(${req.id})">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                requestsList.innerHTML += html;
+            });
+            
+            section.style.display = 'block';
+        }
+    } catch(error) {
+        console.error('Error loading pending requests:', error);
+    }
+}
+
+async function acceptRequest(requestId) {
+    try {
+        const response = await fetch(`/api/connection-request/accept/${requestId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Connection request accepted! ✓', 'success');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            loadPendingRequests();
+        } else {
+            showToast(data.error || 'Error accepting request', 'danger');
+        }
+    } catch(error) {
+        console.error('Error:', error);
+        showToast('Error: ' + error.message, 'danger');
+    }
+}
+
+async function rejectRequest(requestId) {
+    try {
+        const response = await fetch(`/api/connection-request/reject/${requestId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Connection request rejected', 'warning');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            loadPendingRequests();
+        } else {
+            showToast(data.error || 'Error rejecting request', 'danger');
+        }
+    } catch(error) {
+        console.error('Error:', error);
+        showToast('Error: ' + error.message, 'danger');
+    }
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            ${type === 'success' ? '<i class="fas fa-check-circle"></i>' : ''}
+            ${type === 'danger' ? '<i class="fas fa-exclamation-circle"></i>' : ''}
+            ${type === 'warning' ? '<i class="fas fa-info-circle"></i>' : ''}
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideInToast 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) reverse';
+        setTimeout(() => toast.remove(), 400);
+    }, 3000);
+}
+
+// Load pending requests on page load
+document.addEventListener('DOMContentLoaded', loadPendingRequests);
+</script>
