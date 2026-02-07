@@ -790,10 +790,21 @@ def dashboard_student():
             ORDER BY cr.created_at DESC
         """, (current_user.id,)).fetchall()
 
+        # Fetch other students for the directory
+        other_students = conn.execute("""
+            SELECT u.id, u.name, u.email, u.phone, u.profile_pic,
+                   s.department, s.degree, s.semester
+            FROM users u
+            JOIN student_profile s ON u.id = s.user_id
+            WHERE u.role='student' AND u.id != ?
+            ORDER BY u.name ASC
+        """, (current_user.id,)).fetchall()
+
         return render_template('dashboard_student.html',
                              alumni=alumni,
                              faculty=faculty,
                              student=student,
+                             other_students=other_students,
                              pending_requests=pending_requests,
                              pending_count=len(pending_requests))
     finally:
@@ -2053,11 +2064,32 @@ def get_alumni_details(user_id):
     conn = None
     try:
         conn = get_db_connection()
-        user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+        user = conn.execute('SELECT id, name, email, profile_pic FROM users WHERE id = ?', (user_id,)).fetchone()
         profile = conn.execute('SELECT * FROM alumni_profile WHERE user_id = ?', (user_id,)).fetchone()
 
         if not user or not profile:
             return jsonify({'error': 'Alumni not found'}), 404
+
+        return jsonify({
+            'user': dict(user),
+            'profile': dict(profile)
+        })
+    finally:
+        if conn:
+            conn.close()
+
+@app.route('/api/student/<int:user_id>')
+@login_required
+def get_student_details(user_id):
+    """Get student details for modal display"""
+    conn = None
+    try:
+        conn = get_db_connection()
+        user = conn.execute('SELECT id, name, email, profile_pic FROM users WHERE id = ?', (user_id,)).fetchone()
+        profile = conn.execute('SELECT department, degree, semester FROM student_profile WHERE user_id = ?', (user_id,)).fetchone()
+
+        if not user or not profile:
+            return jsonify({'error': 'Student not found'}), 404
 
         return jsonify({
             'user': dict(user),
