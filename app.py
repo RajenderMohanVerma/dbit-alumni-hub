@@ -828,9 +828,13 @@ def dashboard_alumni():
             ORDER BY cr.created_at DESC
         """, (current_user.id,)).fetchall()
 
+        # Get alumni profile for completeness tracking
+        alumni_profile = conn.execute('SELECT * FROM alumni_profile WHERE user_id = ?', (current_user.id,)).fetchone()
+
         return render_template('dashboard_alumni.html',
                              pending_requests=pending_requests,
-                             pending_count=len(pending_requests))
+                             pending_count=len(pending_requests),
+                             alumni=alumni_profile)
     finally:
         if conn:
             conn.close()
