@@ -1,33 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Alumni Management System{% endblock %}</title>
-    
+
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Animate.css -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
     <!-- AOS (Animate On Scroll) -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/social_pages.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ui-enhancements.css') }}">
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+
     <style>
         .map-container {
             position: relative;
@@ -38,18 +42,18 @@
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
+
         .map-container:hover {
             transform: scale(1.02);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
-        
+
         .map-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        
+
         .map-overlay {
             position: absolute;
             top: 0;
@@ -63,11 +67,11 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        
+
         .map-container:hover .map-overlay {
             opacity: 1;
         }
-        
+
         .map-overlay-text {
             background: rgba(255, 255, 255, 0.9);
             padding: 10px 20px;
@@ -80,6 +84,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- ===== NAVBAR ===== -->
     <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
@@ -87,11 +92,12 @@
             <a class="navbar-brand brand-animated" href="/">
                 <i class="fas fa-graduation-cap"></i> Alumni Hub
             </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
@@ -114,41 +120,53 @@
                             <i class="fas fa-envelope"></i> Contact
                         </a>
                     </li>
-                    
+
                     {% if current_user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle nav-item-custom" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user-circle"></i> 
-                                <span class="d-none d-sm-inline">{{ current_user.name }}</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                {% if current_user.role == 'admin' %}
-                                    <li><a class="dropdown-item" href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Admin Dashboard</a></li>
-                                {% elif current_user.role == 'alumni' %}
-                                    <li><a class="dropdown-item" href="/alumni/dashboard"><i class="fas fa-user-tie"></i> Alumni Dashboard</a></li>
-                                {% elif current_user.role == 'student' %}
-                                    <li><a class="dropdown-item" href="/student/dashboard"><i class="fas fa-search"></i> Find Mentors</a></li>
-                                {% elif current_user.role == 'faculty' %}
-                                    <li><a class="dropdown-item" href="/faculty/dashboard"><i class="fas fa-chalkboard-user"></i> Faculty Dashboard</a></li>
-                                {% endif %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="/profile"><i class="fas fa-user"></i> My Profile</a></li>
-                                <li><a class="dropdown-item" href="/change_password"><i class="fas fa-lock"></i> Change Password</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                            </ul>
-                        </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle nav-item-custom" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="d-none d-sm-inline">{{ current_user.name }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            {% if current_user.role == 'admin' %}
+                            <li><a class="dropdown-item" href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Admin
+                                    Dashboard</a></li>
+                            {% elif current_user.role == 'alumni' %}
+                            <li><a class="dropdown-item" href="/alumni/dashboard"><i class="fas fa-user-tie"></i> Alumni
+                                    Dashboard</a></li>
+                            {% elif current_user.role == 'student' %}
+                            <li><a class="dropdown-item" href="/student/dashboard"><i class="fas fa-search"></i> Find
+                                    Mentors</a></li>
+                            {% elif current_user.role == 'faculty' %}
+                            <li><a class="dropdown-item" href="/faculty/dashboard"><i
+                                        class="fas fa-chalkboard-user"></i> Faculty Dashboard</a></li>
+                            {% endif %}
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="/profile"><i class="fas fa-user"></i> My Profile</a></li>
+                            <li><a class="dropdown-item" href="/change_password"><i class="fas fa-lock"></i> Change
+                                    Password</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt"></i>
+                                    Logout</a></li>
+                        </ul>
+                    </li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link nav-login" href="/login">
-                                <i class="fas fa-key"></i> Login
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link nav-register btn-gradient btn-sm" href="/register" style="margin-left: 0.5rem;">
-                                <i class="fas fa-user-plus"></i> Register
-                            </a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-login" href="/login">
+                            <i class="fas fa-key"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-register btn-gradient btn-sm" href="/register"
+                            style="margin-left: 0.5rem;">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </li>
                     {% endif %}
                 </ul>
             </div>
@@ -158,15 +176,17 @@
     <!-- ===== ALERTS ===== -->
     <div class="alerts-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-modern alert-{{ 'danger' if category == 'danger' else 'success' if category == 'success' else 'warning' if category == 'warning' else 'info' }}-modern alert-dismissible fade show" role="alert">
-                        <i class="fas fa-{{ 'exclamation-circle' if category == 'danger' else 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'info-circle' }}"></i>
-                        <span>{{ message }}</span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-modern alert-{{ 'danger' if category == 'danger' else 'success' if category == 'success' else 'warning' if category == 'warning' else 'info' }}-modern alert-dismissible fade show"
+            role="alert">
+            <i
+                class="fas fa-{{ 'exclamation-circle' if category == 'danger' else 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'info-circle' }}"></i>
+            <span>{{ message }}</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
     </div>
 
@@ -200,9 +220,10 @@
                                 <i class="fas fa-graduation-cap"></i> Alumni Hub
                             </h5>
                             <p class="footer-text">
-                                Connecting DBIT alumni worldwide to build meaningful professional relationships and unlock opportunities.
+                                Connecting DBIT alumni worldwide to build meaningful professional relationships and
+                                unlock opportunities.
                             </p>
-                            
+
                             <!-- Social Media Links -->
                             <div class="social-links-container">
                                 <h6 class="social-section-title">
@@ -210,39 +231,31 @@
                                 </h6>
                                 <div class="social-links-grid">
                                     <!-- LinkedIn -->
-                                    <a href="/social/linkedin" 
-                                       class="social-icon-btn linkedin-btn" 
-                                       title="LinkedIn">
+                                    <a href="/social/linkedin" class="social-icon-btn linkedin-btn" title="LinkedIn">
                                         <div class="icon-wrapper">
                                             <i class="fab fa-linkedin-in"></i>
                                         </div>
                                         <span class="social-text">LinkedIn</span>
                                     </a>
-                                    
+
                                     <!-- Facebook -->
-                                    <a href="/social/facebook" 
-                                       class="social-icon-btn facebook-btn" 
-                                       title="Facebook">
+                                    <a href="/social/facebook" class="social-icon-btn facebook-btn" title="Facebook">
                                         <div class="icon-wrapper">
                                             <i class="fab fa-facebook-f"></i>
                                         </div>
                                         <span class="social-text">Facebook</span>
                                     </a>
-                                    
+
                                     <!-- Instagram -->
-                                    <a href="/social/instagram" 
-                                       class="social-icon-btn instagram-btn" 
-                                       title="Instagram">
+                                    <a href="/social/instagram" class="social-icon-btn instagram-btn" title="Instagram">
                                         <div class="icon-wrapper">
                                             <i class="fab fa-instagram"></i>
                                         </div>
                                         <span class="social-text">Instagram</span>
                                     </a>
-                                    
+
                                     <!-- YouTube -->
-                                    <a href="/social/youtube" 
-                                       class="social-icon-btn youtube-btn" 
-                                       title="YouTube">
+                                    <a href="/social/youtube" class="social-icon-btn youtube-btn" title="YouTube">
                                         <div class="icon-wrapper">
                                             <i class="fab fa-youtube"></i>
                                         </div>
@@ -250,9 +263,7 @@
                                     </a>
 
                                     <!-- GitHub -->
-                                    <a href="/social/github" 
-                                       class="social-icon-btn github-btn" 
-                                       title="GitHub">
+                                    <a href="/social/github" class="social-icon-btn github-btn" title="GitHub">
                                         <div class="icon-wrapper">
                                             <i class="fab fa-github"></i>
                                         </div>
@@ -269,9 +280,12 @@
                             <h5 class="footer-title">Quick Links</h5>
                             <ul class="footer-links">
                                 <li><a href="/" class="footer-link"><i class="fas fa-chevron-right"></i> Home</a></li>
-                                <li><a href="/about" class="footer-link"><i class="fas fa-chevron-right"></i> About</a></li>
-                                <li><a href="/services" class="footer-link"><i class="fas fa-chevron-right"></i> Services</a></li>
-                                <li><a href="/contact" class="footer-link"><i class="fas fa-chevron-right"></i> Contact</a></li>
+                                <li><a href="/about" class="footer-link"><i class="fas fa-chevron-right"></i> About</a>
+                                </li>
+                                <li><a href="/services" class="footer-link"><i class="fas fa-chevron-right"></i>
+                                        Services</a></li>
+                                <li><a href="/contact" class="footer-link"><i class="fas fa-chevron-right"></i>
+                                        Contact</a></li>
                             </ul>
                         </div>
                     </div>
@@ -281,10 +295,13 @@
                         <div class="footer-section">
                             <h5 class="footer-title">Information</h5>
                             <ul class="footer-links">
-                                <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
-                                <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i> Terms & Conditions</a></li>
+                                <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i> Privacy
+                                        Policy</a></li>
+                                <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i> Terms &
+                                        Conditions</a></li>
                                 <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i> FAQ</a></li>
-                                <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i> Report Issue</a></li>
+                                <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i> Report
+                                        Issue</a></li>
                             </ul>
                         </div>
                     </div>
@@ -296,7 +313,8 @@
                                 <i class="fas fa-map-location-dot"></i> Our Location
                             </h5>
                             <div class="map-container" id="mapContainer" title="Click to open in Google Maps">
-                                <img src="{{ url_for('static', filename='images/location_img.png') }}" alt="DBIT Alumni Hub Location">
+                                <img src="{{ url_for('static', filename='images/location_img.png') }}"
+                                    alt="DBIT Alumni Hub Location">
                                 <div class="map-overlay">
                                     <div class="map-overlay-text">
                                         <i class="fas fa-arrow-up-right-from-square"></i> View on Maps
@@ -304,7 +322,8 @@
                                 </div>
                             </div>
                             <p class="footer-text mt-3" style="font-size: 0.9rem;">
-                                <i class="fas fa-map-marker-alt text-danger"></i> 2, Okhla Rd, near Escort Hospital, Pocket A, Sukhdev Vihar, Okhla, New Delhi, Delhi 110025
+                                <i class="fas fa-map-marker-alt text-danger"></i> 2, Okhla Rd, near Escort Hospital,
+                                Pocket A, Sukhdev Vihar, Okhla, New Delhi, Delhi 110025
                             </p>
                         </div>
                     </div>
@@ -338,10 +357,10 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- AOS JS -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    
+
     <!-- Custom JS -->
     <script>
         // Initialize AOS
@@ -353,7 +372,7 @@
 
         // Back to Top Button
         const backToTop = document.getElementById('backToTop');
-        
+
         window.addEventListener('scroll', () => {
             if (window.pageYOffset > 300) {
                 backToTop.style.display = 'block';
@@ -401,5 +420,9 @@
             });
         }
     </script>
+
+    <!-- Advanced Animations Library -->
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
 </body>
+
 </html>

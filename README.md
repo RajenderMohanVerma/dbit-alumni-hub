@@ -1,6 +1,6 @@
 # 🎓 Alumni Connection Network App
 
-A comprehensive, professional Flask-based Alumni Management System with modern UI, animations, and Instagram-style friend request system for educational institutions. Connect students, alumni, and faculty in one unified platform.
+A comprehensive, professional Flask-based Alumni Management System with modern UI, animations, and Instagram-style connection request system for educational institutions. Connect students, alumni, and faculty in one unified platform.
 
 ---
 
@@ -11,13 +11,15 @@ A comprehensive, professional Flask-based Alumni Management System with modern U
 - **Students**: View alumni network, explore career opportunities, get mentored
 - **Alumni**: Manage profiles, register for events, mentor students, build network
 - **Faculty**: Share expertise, manage relationships, guide students and alumni
-- **Admin**: Manage all users, view statistics, monitor system activities
+- **Admin**: Manage all users, view statistics, monitor system activities, download CSV reports
 
 ### 🎨 Modern UI & Design
 
-- **Professional Gradient Design** - Purple/Blue theme throughout
+- **Premium Glassmorphism** - Ultra-modern glass cards with backdrop blur
+- **3D Interactive Elements** - Vanilla Tilt.js for authentic 3D card effects
+- **Ambient Animations** - Floating orbs, aurora effects, liquid wave transitions
+- **Advanced Text Animations** - Shimmering, typing reveals, gradient effects
 - **Smooth Animations** - Entrance animations, hover effects, staggered cards
-- **Interactive Components** - Glassmorphism effects, floating elements
 - **Responsive Layout** - Perfect on desktop, tablet, mobile
 - **Dark/Light Elements** - Modern color palette with proper contrast
 
@@ -30,41 +32,22 @@ A comprehensive, professional Flask-based Alumni Management System with modern U
 - **Toast Notifications**: Beautiful success/error/warning messages
 - **Security**: Prevents duplicates, self-requests, unauthorized actions
 
-### 📊 Dashboards
+### 📊 Admin Dashboard Features
 
-- **Alumni Dashboard** (`/alumni/dashboard`)
-  - Profile card with avatar, name, role
-  - Pending connection requests section
-  - Mentorship opportunities
-  - Alumni meet registration
-  - Network statistics
+- **User Management**: View, edit, delete users across all roles
+- **CSV Export**: Download separate CSV files for students, alumni, faculty, or all users
+- **Registration Tracking**: Automatic logging of all registrations with role-specific data
+- **Analytics Dashboard**: Real-time statistics and charts
+- **Enhanced UI**: Professional gradient design with smooth animations
 
-- **Student Dashboard** (`/student/dashboard`)
-  - Welcome hero section with avatar
-  - Statistics (alumni network, faculty, semester, CGPA)
-  - Pending connection requests
-  - Alumni network with search/filter
-  - Mentorship opportunities with "Find Mentors" button
+### 📥 Registration Tracking System
 
-- **Faculty Dashboard** (`/faculty/dashboard`)
-  - Profile information display
-  - Department and experience stats
-  - Pending connection requests
-  - Alumni and student networks
-  - Connection management
-
-### 🎯 Core Features
-
-- ✅ **Interactive Alumni Dashboard** - Search, filter, and connect with alumni
-- ✅ **Mentorship Program** - Different messages for students vs alumni
-- ✅ **Alumni Meet Registration** - Complete event management system
-- ✅ **Role-Based Dashboards** - Customized experience for each role
-- ✅ **Profile Management** - Edit profiles, upload achievements, change password
-- ✅ **Student to Alumni Upgrade** - Seamless transition after graduation
-- ✅ **Admin Panel** - User management and analytics
-- ✅ **WAL Database** - Optimized SQLite with concurrent access
-- ✅ **Real-time Features** - Auto-refreshing requests, instant notifications
-- ✅ **Professional Styling** - Gradient buttons, animated cards, smooth transitions
+- **Automatic Logging**: Every registration is automatically tracked in database
+- **Role-Specific Data**: Captures different fields for students, alumni, and faculty
+- **Admin Dashboard**: View all registrations at `/admin/registrations`
+- **CSV Reports**: Export registration data by role or combined
+- **Search & Filter**: Find registrations by name, email, or role
+- **Real-time Stats**: Live counts of registrations by role
 
 ---
 
@@ -81,8 +64,8 @@ A comprehensive, professional Flask-based Alumni Management System with modern U
 ### Frontend
 
 - **CSS Framework**: Bootstrap 5
-- **Styling**: Custom CSS with gradients, animations, keyframes
-- **JavaScript**: Vanilla JS with Fetch API, async/await
+- **Styling**: Custom CSS with gradients, glassmorphism, animations
+- **JavaScript**: Vanilla JS with Fetch API, async/await, Vanilla Tilt.js
 - **Templating**: Jinja2
 - **Icons**: FontAwesome
 - **Animations**: CSS keyframes (@keyframes) with 60fps performance
@@ -173,6 +156,15 @@ PASSWORD: admin123
 4. **Manage Requests** - Accept or reject pending connection requests
 5. **Guide Students** - Build your professional network
 
+### For Admin
+
+1. **Login** as admin
+2. **Access Admin Dashboard** (`/admin/dashboard`)
+3. **View Statistics** - See user counts, growth charts
+4. **Download CSV Data** - Export user data by role
+5. **View Registrations** (`/admin/registrations`) - Track all registrations
+6. **Manage Users** - Edit or delete user accounts
+
 ---
 
 ## 📁 Project Structure
@@ -190,9 +182,12 @@ Alumni App/
 │   ├── dashboard_alumni.html     # ✨ Alumni dashboard with requests
 │   ├── dashboard_student.html    # ✨ Student dashboard with requests
 │   ├── dashboard_faculty.html    # ✨ Faculty dashboard with requests
-│   ├── profile_alumni.html       # Profile with send request button
-│   ├── profile_student.html      # Profile with send request button
-│   ├── profile_faculty.html      # Profile with send request button
+│   ├── dashboard_admin.html      # ✨ Enhanced admin dashboard
+│   ├── admin_registrations.html  # ✨ Registration tracking dashboard
+│   ├── profile_alumni.html       # ✨ Extreme UI overhaul
+│   ├── profile_student.html
+│   ├── profile_faculty.html
+│   ├── change_password.html      # ✨ Premium glassmorphism design
 │   ├── edit_alumni_profile.html
 │   ├── edit_student_profile.html
 │   ├── edit_faculty_profile.html
@@ -213,105 +208,8 @@ Alumni App/
 ├── requirements.txt
 ├── vercel.json
 ├── Procfile
+├── generate_registration_report.py  # CSV report generator
 └── README.md (this file)
-```
-
----
-
-## 🔗 Connection Request System
-
-### **How It Works**
-
-```
-SEND REQUEST
-User visits profile → Clicks "Send Connection Request"
-↓ (API: POST /api/connection-request/send)
-Toast: "Connection request sent! ✓"
-Button: Changes to "✓ Request Sent"
-
-RECEIVE REQUEST
-Recipient logs in → Dashboard shows pending request
-Sees: Avatar, name, email in request card
-Options: [✓ Accept] [✗ Reject]
-
-RESPOND
-Click Accept → Creates connection → Toast: "Connection request accepted! ✓"
-OR
-Click Reject → Deletes request → Toast: "Connection request rejected"
-```
-
-### **API Endpoints**
-
-```
-POST   /api/connection-request/send         - Send a request
-POST   /api/connection-request/accept/{id}  - Accept request
-POST   /api/connection-request/reject/{id}  - Reject request
-GET    /api/connection-request/pending      - Get pending requests
-```
-
-### **Features**
-
-- ✅ Students can request alumni, faculty, other students
-- ✅ Alumni can request students, faculty, other alumni
-- ✅ Faculty can request students, alumni, other faculty
-- ✅ Prevents duplicate requests
-- ✅ Prevents self-requests
-- ✅ Checks if already connected
-- ✅ Real-time dashboard updates
-- ✅ Beautiful toast notifications
-- ✅ Mobile responsive cards
-
----
-
-## 🎨 UI/UX Enhancements
-
-### **Design System**
-
-**Color Palette:**
-
-- **Primary**: #667eea (Vivid Purple)
-- **Dark**: #764ba2 (Deep Purple)
-- **Success**: #10b981 (Green)
-- **Danger**: #ef4444 (Red)
-- **Warning**: #f59e0b (Amber)
-- **Background**: White with transparency
-
-**Typography:**
-
-- **Headings**: Bold, 1.5-2.5rem
-- **Body Text**: Regular, 0.95-1rem
-- **Labels**: Small, 0.85-0.9rem
-
-### **Animations**
-
-```
-slideInLeft:     50px translateX → 0
-slideInRight:    50px translateX → 0
-zoomIn:          scale(0.8) → scale(1)
-fadeIn:          opacity 0 → 1, scale 0.95 → 1
-float:           translateY(0) ↔ translateY(-20px)
-slideInToast:    translateX(400px) → translateX(0)
-```
-
-**Animation Speeds:**
-
-- **Fast**: 0.3s (hover effects)
-- **Normal**: 0.4-0.6s (entrance effects)
-- **Slow**: 0.8s (major animations)
-- **Infinite**: 3-6s (floating, pulsing)
-
-### **Responsive Design**
-
-```
-BREAKPOINTS:
-Desktop:  ≥ 992px (col-lg)
-Tablet:   768-991px (col-md)
-Mobile:   < 768px (col-sm, full width)
-
-GRID:
-Desktop:  Profile card (left, 4 cols) + Sections (right, 8 cols)
-Tablet:   Flexible layout
-Mobile:   Single column, full width
 ```
 
 ---
@@ -357,23 +255,136 @@ id, user_id, department, designation, office, phone_ext,
 office_hours, experience_years
 ```
 
+### **Registration Log Table** (NEW)
+
+```sql
+id, user_id, name, email, phone, role,
+enrollment_no, department, degree, pass_year,
+company_name, designation, experience_years,
+employee_id, registered_at
+```
+
 ---
 
-## ✅ Implementation Checklist
+## 🎨 UI/UX Enhancements
 
-- [x] **Alumni Dashboard** - Complete with pending requests
-- [x] **Student Dashboard** - Complete with pending requests
-- [x] **Faculty Dashboard** - Complete with pending requests
-- [x] **Connection Request System** - Send, accept, reject
-- [x] **Profile Pages** - All have send request buttons
-- [x] **Mentorship Section** - Role-specific messaging
-- [x] **Animations** - Smooth entrance and hover effects
-- [x] **Responsive Design** - Works on all devices
-- [x] **Toast Notifications** - Success, warning, error
-- [x] **Real-time Updates** - Auto-refresh after actions
-- [x] **Security** - Proper authorization and validation
-- [x] **Error Handling** - User-friendly messages
-- [x] **Mobile Support** - Touch-friendly buttons and layouts
+### Premium Design Features
+
+**Alumni Profile Page:**
+- 3D Interactive Tilt effects using Vanilla Tilt.js
+- Ambient lighting with floating glow orbs
+- Aurora hero effects with liquid wave transitions
+- Magnetic avatar scaling on hover
+- Pulsing connection buttons
+- Staggered text-typing reveals with shimmer effects
+- Ultra-glass cards with multi-layered blurs
+
+**Change Password Page:**
+- Security-first glassmorphism design
+- Real-time password strength meter ("Ultimate/Good/Weak")
+- Premium input system with floating labels
+- Custom security icons
+- Smooth visibility toggles
+- Ambient background motion orbs
+- Staggered entry animations
+
+**Admin Dashboard:**
+- Professional gradient backgrounds
+- Enhanced statistics cards with hover effects
+- CSV download functionality for all user roles
+- Improved charts with better styling
+- Smooth page load animations
+- Responsive design for all devices
+
+### Animation System
+
+```
+Entrance Animations:
+- fadeInScale:    0.8s cubic-bezier
+- slideInUp:      0.6-0.8s with stagger
+- reveal-and-glow: 1.5s with blur effects
+- fadeInSlide:    1s with transform
+
+Interactive Animations:
+- 3D Tilt:        Mouse-reactive transforms
+- Hover Lift:     translateY(-5px) with shadow
+- Pulse:          2s infinite scale
+- Shimmer:        3s infinite gradient shift
+- Float:          6s infinite translateY
+
+Text Animations:
+- Typing Reveal:  Letter-by-letter with glow
+- Shimmer Text:   Gradient background animation
+- Glass Reveal:   Slide with blur fade
+```
+
+---
+
+## 📥 Admin Features
+
+### CSV Download System
+
+**Download User Data:**
+- Student Data CSV (enrollment, department, semester, CGPA)
+- Alumni Data CSV (company, designation, experience, pass year)
+- Faculty Data CSV (employee ID, specialization, experience)
+- All Users CSV (combined data)
+
+**How It Works:**
+1. Click download button
+2. Button shows "⏳ Generating..."
+3. Backend generates CSV with role-specific data
+4. File downloads automatically
+5. Filename includes timestamp: `{ROLE}_Users_YYYY-MM-DD.csv`
+
+### Registration Tracking
+
+**Features:**
+- Automatic logging on every registration
+- Role-specific data capture
+- Real-time statistics dashboard
+- Search by name/email
+- Filter by role
+- Export to CSV reports
+
+**Access:**
+- URL: `/admin/registrations`
+- View all registrations with complete details
+- Generate reports with `python generate_registration_report.py`
+
+---
+
+## 🔗 Connection Request System
+
+### How It Works
+
+```
+SEND REQUEST
+User visits profile → Clicks "Send Connection Request"
+↓ (API: POST /api/connection-request/send)
+Toast: "Connection request sent! ✓"
+Button: Changes to "✓ Request Sent"
+
+RECEIVE REQUEST
+Recipient logs in → Dashboard shows pending request
+Sees: Avatar, name, email in request card
+Options: [✓ Accept] [✗ Reject]
+
+RESPOND
+Click Accept → Creates connection → Toast: "Connection request accepted! ✓"
+OR
+Click Reject → Deletes request → Toast: "Connection request rejected"
+```
+
+### API Endpoints
+
+```
+POST   /api/connection-request/send         - Send a request
+POST   /api/connection-request/accept/{id}  - Accept request
+POST   /api/connection-request/reject/{id}  - Reject request
+GET    /api/connection-request/pending      - Get pending requests
+GET    /api/download-csv/{role}             - Download user CSV
+```
 
 ---
 
@@ -388,39 +399,7 @@ office_hours, experience_years
 - ✅ **Duplicate Prevention** - Unique constraints in database
 - ✅ **Self-Request Prevention** - Server-side checks
 - ✅ **Owner Verification** - Only receiver can accept/reject
-
----
-
-## 🧪 Testing
-
-### **Manual Testing**
-
-**Test 1: Send Connection Request**
-
-1. Login as student
-2. Go to Alumni Network
-3. Click alumni profile
-4. Click "Send Connection Request"
-5. ✅ See success toast
-6. ✅ Button changes to "✓ Request Sent"
-
-**Test 2: Receive & Accept Request**
-
-1. Login as alumni
-2. Go to dashboard
-3. See pending request in top section
-4. Click [✓ Accept]
-5. ✅ See confirmation toast
-6. ✅ Request card disappears
-
-**Test 3: Receive & Reject Request**
-
-1. Login as user
-2. Go to dashboard
-3. See pending request
-4. Click [✗ Reject]
-5. ✅ See warning toast
-6. ✅ Request disappears
+- ✅ **Admin-Only Routes** - Protected admin endpoints
 
 ---
 
@@ -436,14 +415,14 @@ office_hours, experience_years
 
 ## 🚀 Deployment
 
-### **Vercel Deployment**
+### Vercel Deployment
 
 ```bash
 # Deploy to Vercel
 vercel deploy
 ```
 
-### **Heroku Deployment**
+### Heroku Deployment
 
 ```bash
 # Login to Heroku
@@ -456,11 +435,11 @@ heroku create your-app-name
 git push heroku main
 ```
 
-### **Environment Variables**
+### Environment Variables
 
 ```
 SECRET_KEY=your-secret-key
-DATABASE_URL=sqlite:///alumni.db
+DATABASE_URL=sqlite:///college_pro.db
 FLASK_ENV=production
 ```
 
@@ -479,69 +458,60 @@ FLASK_ENV=production
 
 ## 🐛 Troubleshooting
 
-### **Connection Routes Blueprint Not Found**
+### CSV Not Downloading
 
-- This is a warning only, doesn't affect functionality
-- The endpoint still works via direct import
+**Solution:**
+1. Verify logged in as admin
+2. Check browser console for errors
+3. Ensure JavaScript is enabled
+4. Try different browser
 
-### **Alumni Profile Not Found**
+### Charts Not Showing
 
-- ✅ Fixed: Auto-creates profile on first edit
-- Profile is now created automatically if missing
+**Solution:**
+1. Wait for page to fully load
+2. Check browser console
+3. Refresh page
+4. Clear browser cache
 
-### **Students Can't See Mentorship Section**
+### Animations Not Working
 
-- ✅ Fixed: Added "Get Mentored!" section to student dashboard
-- Shows different message based on role
+**Solution:**
+1. Enable CSS animations in browser
+2. Update browser to latest version
+3. Check GPU acceleration settings
+4. Disable ad blockers
 
-### **No Pending Requests Showing**
+### Registration Not Logging
 
-- Check if section displays when requests exist
-- Section auto-hides when no pending requests
-
----
-
-## 💡 Tips & Best Practices
-
-1. **Sending Requests**: Visit profile → Click "Send Connection Request"
-2. **Managing Requests**: Go to dashboard → Look for "Pending Connection Requests"
-3. **Accepting**: Click [✓ Accept] to create connection
-4. **Rejecting**: Click [✗ Reject] to decline request
-5. **Profiles**: Update profile with achievements and experience
-6. **Network**: Browse alumni by department, year, company
-7. **Mentorship**: Click "Find Mentors" to discover alumni
+**Solution:**
+1. Check database connection
+2. Verify registration_log table exists
+3. Check console for error messages
+4. Ensure proper permissions
 
 ---
 
 ## 📝 Recent Updates
 
-### **Latest Features Added**
+### Latest Features Added
 
-- ✨ Professional gradient design (Purple/Blue theme)
-- ✨ Advanced animations (slideIn, zoomIn, float, fadeIn, wave, shine effects)
-- ✨ Instagram-style friend request system with request counter badge
-- ✨ Mentorship section with role-specific messages and floating icon
-- ✨ Auto-creating alumni profiles on first edit
-- ✨ Real-time pending request updates with badge counter
-- ✨ Beautiful toast notifications with smooth slideIn/slideOut animations
-- ✨ Responsive design (desktop/tablet/mobile with optimized layouts)
-- ✨ Enhanced button styling with gradient backgrounds and hover effects
-- ✨ Pending request cards with staggered animations
-- ✨ Advanced hover effects with scale transforms and shadows
-- ✨ Wave animation on card headers for visual interest
-- ✨ Shine effect on stat cards with smooth transitions
-- ✨ Enhanced modal dialogs with gradient backgrounds and animations
-- ✨ Professional filter section with gradient background and smooth transitions
-- ✨ Avatar hover animations with scale and shadow effects
-- ✨ Advanced search/filter with staggered card animations
-- ✨ Faculty cards with smooth hover elevation effects
-- ✨ Mentorship card with continuous floating animation
-- ✨ Smooth modal transitions and backdrop filters
-- ✨ Enhanced form controls with better focus states and color indicators
-- ✨ Toast notifications with custom colors and smooth animations
-- ✨ Professional typography and spacing throughout
-- ✨ Smooth transitions on all interactive elements
-- ✨ Optimized animations for 60fps performance
+- ✨ **Extreme UI Overhaul** - Alumni profile with 3D tilt, ambient lighting, text animations
+- ✨ **Premium Change Password Page** - Glassmorphism design with real-time strength meter
+- ✨ **Enhanced Admin Dashboard** - CSV downloads, improved charts, better animations
+- ✨ **Registration Tracking System** - Automatic logging with admin dashboard
+- ✨ **Professional Gradient Design** - Purple/Blue theme throughout
+- ✨ **Advanced Animations** - slideIn, zoomIn, float, fadeIn, wave, shine effects
+- ✨ **Instagram-Style Requests** - Friend request system with counter badge
+- ✨ **Mentorship Section** - Role-specific messages and floating icon
+- ✨ **Auto-Creating Profiles** - Alumni profiles on first edit
+- ✨ **Real-Time Updates** - Pending request updates with badge counter
+- ✨ **Beautiful Toasts** - Smooth slideIn/slideOut animations
+- ✨ **Responsive Design** - Optimized for desktop/tablet/mobile
+- ✨ **Enhanced Buttons** - Gradient backgrounds and hover effects
+- ✨ **Staggered Animations** - Card animations with delays
+- ✨ **3D Tilt Effects** - Mouse-reactive card transforms
+- ✨ **Ambient Visuals** - Floating orbs and aurora effects
 
 ---
 
@@ -551,7 +521,7 @@ For issues, suggestions, or contributions:
 
 - Open an issue on GitHub
 - Contact the development team
-- Check documentation files for detailed guides
+- Check this documentation for detailed guides
 
 ---
 
@@ -568,21 +538,26 @@ Developed as a comprehensive alumni management system for educational institutio
 **Features include:**
 
 - Multi-role support (Student, Alumni, Faculty, Admin)
-- Modern responsive UI with animations
+- Modern responsive UI with premium animations
 - Instagram-style connection requests
-- Professional gradient design
+- Professional glassmorphism design
 - Real-time updates
 - Mobile-first approach
+- CSV export functionality
+- Registration tracking system
 
 ---
 
 ## ✨ Quick Links
 
-- **Dashboard**: http://localhost:5000/student/dashboard
+- **Student Dashboard**: http://localhost:5000/student/dashboard
+- **Alumni Dashboard**: http://localhost:5000/alumni/dashboard
+- **Faculty Dashboard**: http://localhost:5000/faculty/dashboard
+- **Admin Dashboard**: http://localhost:5000/admin/dashboard
+- **Registration Tracking**: http://localhost:5000/admin/registrations
 - **Alumni Network**: http://localhost:5000/search-network
-- **Profile**: http://localhost:5000/alumni/profile/1
 - **Login**: http://localhost:5000/login
 
 ---
 
-**Status**: ✅ Production Ready | **Version**: 1.0 | **Last Updated**: February 2026
+**Status**: ✅ Production Ready | **Version**: 2.0 | **Last Updated**: February 2026

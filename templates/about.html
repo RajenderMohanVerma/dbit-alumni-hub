@@ -1,8 +1,32 @@
 {% extends 'base.html' %}
 
-{% block title %}About - Alumni Management System{% endblock %}
+{% block title %}About - Alumni Management System
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cursor = document.createElement('div'); cursor.className = 'custom-cursor';
+    const cursorDot = document.createElement('div'); cursorDot.className = 'cursor-dot';
+    document.body.appendChild(cursor); document.body.appendChild(cursorDot);
+    let mouseX=0,mouseY=0,cursorX=0,cursorY=0,dotX=0,dotY=0;
+    document.addEventListener('mousemove',(e)=>{mouseX=e.clientX;mouseY=e.clientY;dotX=e.clientX;dotY=e.clientY;});
+    function animateCursor(){const delay=0.15;cursorX+=(mouseX-cursorX)*delay;cursorY+=(mouseY-cursorY)*delay;cursor.style.left=cursorX+'px';cursor.style.top=cursorY+'px';cursorDot.style.left=dotX+'px';cursorDot.style.top=dotY+'px';requestAnimationFrame(animateCursor);}
+    animateCursor();
+    document.querySelectorAll('a,button,.value-card,.team-card,.timeline-content,.mission-card,.vision-card').forEach(el=>{el.addEventListener('mouseenter',()=>{cursor.classList.add('cursor-hover');cursorDot.classList.add('cursor-hover');});el.addEventListener('mouseleave',()=>{cursor.classList.remove('cursor-hover');cursorDot.classList.remove('cursor-hover');});});
+    document.addEventListener('mousedown',()=>{cursor.classList.add('cursor-click');cursorDot.classList.add('cursor-click');});
+    document.addEventListener('mouseup',()=>{cursor.classList.remove('cursor-click');cursorDot.classList.remove('cursor-click');});
+    const particlesContainer=document.createElement('div');particlesContainer.className='particles-container';document.body.appendChild(particlesContainer);
+    document.addEventListener('mousemove',(e)=>{if(Math.random()>0.85){const p=document.createElement('div');p.className='cursor-particle';p.style.left=e.clientX+'px';p.style.top=e.clientY+'px';particlesContainer.appendChild(p);setTimeout(()=>p.remove(),1000);}});
+});
+</script>
+<style>
+body,a,button,.value-card,.team-card,.timeline-content{cursor:none!important}.custom-cursor{width:40px;height:40px;border:2px solid rgba(102,126,234,.8);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s,background .3s;mix-blend-mode:difference}.cursor-dot{width:8px;height:8px;background:rgba(102,126,234,1);border-radius:50%;position:fixed;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s}.custom-cursor.cursor-hover{width:60px;height:60px;border-color:rgba(245,158,11,.9);background:rgba(245,158,11,.1)}.cursor-dot.cursor-hover{width:12px;height:12px;background:rgba(245,158,11,1)}.custom-cursor.cursor-click{width:30px;height:30px;border-color:rgba(16,185,129,1)}.cursor-dot.cursor-click{width:6px;height:6px;background:rgba(16,185,129,1)}.particles-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998}.cursor-particle{position:absolute;width:4px;height:4px;background:radial-gradient(circle,rgba(102,126,234,.8),transparent);border-radius:50%;pointer-events:none;animation:particleFade 1s ease-out forwards;transform:translate(-50%,-50%)}@keyframes particleFade{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(0) translateY(-30px)}}@media (max-width:768px){.custom-cursor,.cursor-dot,.cursor-particle{display:none!important}body,a,button,.value-card,.team-card,.timeline-content{cursor:auto!important}}
+</style>
+
+{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/about-enhancements.css') }}">
+
 
 <style>
     /* Hero Section Enhancements */
@@ -1031,5 +1055,27 @@
             </div>
         </div>
     </section>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cursor = document.createElement('div'); cursor.className = 'custom-cursor';
+    const cursorDot = document.createElement('div'); cursorDot.className = 'cursor-dot';
+    document.body.appendChild(cursor); document.body.appendChild(cursorDot);
+    let mouseX=0,mouseY=0,cursorX=0,cursorY=0,dotX=0,dotY=0;
+    document.addEventListener('mousemove',(e)=>{mouseX=e.clientX;mouseY=e.clientY;dotX=e.clientX;dotY=e.clientY;});
+    function animateCursor(){const delay=0.15;cursorX+=(mouseX-cursorX)*delay;cursorY+=(mouseY-cursorY)*delay;cursor.style.left=cursorX+'px';cursor.style.top=cursorY+'px';cursorDot.style.left=dotX+'px';cursorDot.style.top=dotY+'px';requestAnimationFrame(animateCursor);}
+    animateCursor();
+    document.querySelectorAll('a,button,.value-card,.team-card,.timeline-content,.mission-card,.vision-card').forEach(el=>{el.addEventListener('mouseenter',()=>{cursor.classList.add('cursor-hover');cursorDot.classList.add('cursor-hover');});el.addEventListener('mouseleave',()=>{cursor.classList.remove('cursor-hover');cursorDot.classList.remove('cursor-hover');});});
+    document.addEventListener('mousedown',()=>{cursor.classList.add('cursor-click');cursorDot.classList.add('cursor-click');});
+    document.addEventListener('mouseup',()=>{cursor.classList.remove('cursor-click');cursorDot.classList.remove('cursor-click');});
+    const particlesContainer=document.createElement('div');particlesContainer.className='particles-container';document.body.appendChild(particlesContainer);
+    document.addEventListener('mousemove',(e)=>{if(Math.random()>0.85){const p=document.createElement('div');p.className='cursor-particle';p.style.left=e.clientX+'px';p.style.top=e.clientY+'px';particlesContainer.appendChild(p);setTimeout(()=>p.remove(),1000);}});
+});
+</script>
+<style>
+body,a,button,.value-card,.team-card,.timeline-content{cursor:none!important}.custom-cursor{width:40px;height:40px;border:2px solid rgba(102,126,234,.8);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s,background .3s;mix-blend-mode:difference}.cursor-dot{width:8px;height:8px;background:rgba(102,126,234,1);border-radius:50%;position:fixed;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s}.custom-cursor.cursor-hover{width:60px;height:60px;border-color:rgba(245,158,11,.9);background:rgba(245,158,11,.1)}.cursor-dot.cursor-hover{width:12px;height:12px;background:rgba(245,158,11,1)}.custom-cursor.cursor-click{width:30px;height:30px;border-color:rgba(16,185,129,1)}.cursor-dot.cursor-click{width:6px;height:6px;background:rgba(16,185,129,1)}.particles-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998}.cursor-particle{position:absolute;width:4px;height:4px;background:radial-gradient(circle,rgba(102,126,234,.8),transparent);border-radius:50%;pointer-events:none;animation:particleFade 1s ease-out forwards;transform:translate(-50%,-50%)}@keyframes particleFade{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(0) translateY(-30px)}}@media (max-width:768px){.custom-cursor,.cursor-dot,.cursor-particle{display:none!important}body,a,button,.value-card,.team-card,.timeline-content{cursor:auto!important}}
+</style>
 
 {% endblock %}
