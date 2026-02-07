@@ -1,22 +1,29 @@
 import sqlite3
-import os
 
-db_file = 'college_pro.db'
-if not os.path.exists(db_file):
-    print(f"Database file {db_file} does not exist!")
-else:
-    file_size = os.path.getsize(db_file)
-    print(f"Database file size: {file_size} bytes")
+conn = sqlite3.connect('college_pro.db')
+cursor = conn.cursor()
 
+# Check tables
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+tables = cursor.fetchall()
+print("Available tables:")
+for t in tables:
+    print(f"  - {t[0]}")
+
+# Check faculty_profile table
+print("\nFaculty Profile Schema:")
 try:
-    conn = sqlite3.connect(db_file)
-    cur = conn.cursor()
-    tables = cur.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-    print(f"Found {len(tables)} tables:")
-    for table in tables:
-        count = cur.execute(f"SELECT COUNT(*) FROM {table[0]}").fetchone()[0]
-        print(f"  - {table[0]}: {count} rows")
-    conn.close()
-    print("\nDatabase initialized successfully!")
+    cursor.execute("PRAGMA table_info(faculty_profile)")
+    for row in cursor.fetchall():
+        print(f"  {row}")
+    
+    cursor.execute("SELECT COUNT(*) FROM faculty_profile")
+    print(f"\nTotal faculty profiles: {cursor.fetchone()[0]}")
 except Exception as e:
     print(f"Error: {e}")
+
+# Check users table for faculty
+cursor.execute("SELECT COUNT(*) FROM users WHERE role='faculty'")
+print(f"Total faculty users: {cursor.fetchone()[0]}")
+
+conn.close()

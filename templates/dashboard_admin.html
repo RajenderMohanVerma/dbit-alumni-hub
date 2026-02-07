@@ -1,493 +1,544 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
-    .admin-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem 1rem;
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        --info-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(255, 255, 255, 0.2);
+        --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
     }
 
+    .admin-container {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
+
+    /* Page Header */
     .page-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 3rem 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        animation: slideDown 0.6s ease-out;
+        background: var(--primary-gradient);
+        padding: 3rem 2.5rem;
+        border-radius: 24px;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.25);
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        pointer-events: none;
     }
 
     .page-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: white;
+        font-size: 2.8rem;
+        font-weight: 800;
         margin: 0;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        letter-spacing: -0.5px;
     }
 
     .page-header p {
-        color: rgba(255,255,255,0.9);
-        font-size: 1.1rem;
+        opacity: 0.9;
+        font-size: 1.2rem;
         margin-top: 0.5rem;
+        font-weight: 400;
     }
 
+    /* Stat Cards */
     .stat-card {
         background: white;
-        border-radius: 12px;
-        padding: 2rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        border-top: 5px solid;
-        transition: all 0.3s ease;
-        animation: slideInUp 0.6s ease-out;
+        border-radius: 20px;
+        padding: 1.75rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: var-card-shadow;
+        border: 1px solid #f1f5f9;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
     }
 
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     }
 
     .stat-card.students {
-        border-top-color: #3b82f6;
-        background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+        border-left: 6px solid #3b82f6;
     }
 
     .stat-card.alumni {
-        border-top-color: #f59e0b;
-        background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
+        border-left: 6px solid #f59e0b;
     }
 
     .stat-card.faculty {
-        border-top-color: #10b981;
-        background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        border-left: 6px solid #10b981;
     }
 
     .stat-card.funds {
-        border-top-color: #8b5cf6;
-        background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+        border-left: 6px solid #8b5cf6;
+    }
+
+    .stat-icon {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        background: #f8fafc;
     }
 
     .stat-number {
-        font-size: 3rem;
+        font-size: 2.4rem;
         font-weight: 800;
-        margin: 1rem 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #1e293b;
+        margin: 0.5rem 0;
     }
 
     .stat-label {
         font-size: 1rem;
-        color: #6b7280;
+        color: #64748b;
         font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
-    .stat-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        opacity: 0.8;
-    }
-
+    /* Chart Containers */
     .chart-container {
         background: white;
-        border-radius: 12px;
+        border-radius: 24px;
         padding: 2rem;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        box-shadow: var-card-shadow;
+        margin-bottom: 2rem;
+        border: 1px solid #f1f5f9;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 1.5rem;
-        animation: slideInUp 0.7s ease-out 0.1s both;
     }
 
     .chart-title {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
         font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 3px solid #667eea;
+        color: #1e293b;
     }
 
-    .download-section {
+    /* Section Cards */
+    .section-card {
         background: white;
-        border-radius: 12px;
+        border-radius: 24px;
         padding: 2.5rem;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        margin-bottom: 1.5rem;
-        animation: slideInUp 0.7s ease-out 0.2s both;
+        box-shadow: var-card-shadow;
+        margin-bottom: 2.5rem;
+        border: 1px solid #f1f5f9;
     }
 
-    .download-title {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 1.5rem;
+    .section-title {
+        font-size: 1.6rem;
+        font-weight: 750;
+        color: #1e293b;
+        margin-bottom: 2rem;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
     }
 
+    .section-title i {
+        color: #6366f1;
+    }
+
+    /* Download Grid */
     .download-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 1.5rem;
     }
 
     .download-card {
-        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
-        border: 2px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1.5rem;
+        background: #f8fafc;
+        border-radius: 20px;
+        padding: 2rem;
         text-align: center;
+        border: 2px solid transparent;
         transition: all 0.3s ease;
-        cursor: pointer;
     }
 
     .download-card:hover {
-        border-color: #667eea;
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
-        transform: translateY(-3px);
-    }
-
-    .download-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .download-card.students .download-icon {
-        color: #3b82f6;
-    }
-
-    .download-card.alumni .download-icon {
-        color: #f59e0b;
-    }
-
-    .download-card.faculty .download-icon {
-        color: #10b981;
-    }
-
-    .download-card.all .download-icon {
-        color: #8b5cf6;
+        background: white;
+        border-color: #6366f1;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.1);
     }
 
     .download-card h3 {
-        font-size: 1.1rem;
+        font-size: 1.25rem;
         font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 0.5rem;
-    }
-
-    .download-card p {
-        color: #6b7280;
-        font-size: 0.9rem;
-        margin-bottom: 1.5rem;
+        margin: 1rem 0 0.5rem;
+        color: #1e293b;
     }
 
     .download-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary-gradient);
         color: white;
         border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        width: 100%;
-    }
-
-    .download-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
-    }
-
-    .recent-table {
-        background: white;
+        padding: 0.8rem 1.5rem;
         border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        animation: slideInUp 0.7s ease-out 0.3s both;
-    }
-
-    .table-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-
-    .table-header th {
-        padding: 1.5rem;
         font-weight: 600;
-        border: none;
+        width: 100%;
+        margin-top: 1.5rem;
+        transition: all 0.3s ease;
     }
 
-    .table tbody tr {
-        border-bottom: 1px solid #e5e7eb;
-        transition: background-color 0.2s ease;
+    .download-btn:hover:not(:disabled) {
+        transform: scale(1.02);
+        filter: brightness(1.1);
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
     }
 
-    .table tbody tr:hover {
-        background-color: #f9fafb;
+    /* Table Enhancements */
+    .table-responsive-container {
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background: #f8fafc;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
     }
 
     .table tbody td {
         padding: 1.25rem 1.5rem;
-        color: #1f2937;
+        vertical-align: middle;
+        color: #334155;
+        border-bottom: 1px solid #f1f5f9;
     }
 
-    .badge-role {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        font-size: 0.85rem;
+    /* Search Bar */
+    .table-search-wrapper {
+        position: relative;
+        max-width: 400px;
+        margin-bottom: 1.5rem;
+    }
+
+    .table-search-input {
+        width: 100%;
+        padding: 0.8rem 1rem 0.8rem 3rem;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .table-search-input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        outline: none;
+    }
+
+    .table-search-icon {
+        position: absolute;
+        left: 1.2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f8fafc;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    /* Badges */
+    .badge-modern {
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
         font-weight: 600;
+        font-size: 0.8rem;
     }
 
     .badge-student {
-        background-color: #dbeafe;
+        background: #dbeafe;
         color: #1e40af;
     }
 
     .badge-alumni {
-        background-color: #fef3c7;
+        background: #fef3c7;
         color: #92400e;
     }
 
     .badge-faculty {
-        background-color: #dcfce7;
+        background: #dcfce7;
         color: #166534;
     }
 
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* Action Buttons */
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
-    @keyframes slideInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .delete-btn {
+        background: #fee2e2;
+        color: #ef4444;
     }
 
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.05);
-        }
-        100% {
-            transform: scale(1);
-        }
+    .delete-btn:hover {
+        background: #ef4444;
+        color: white;
     }
 
-    .stat-card:hover .stat-number {
-        animation: pulse 0.6s ease-in-out;
-    }
-
-    @media (max-width: 768px) {
+    /* Responsive adjustments */
+    @media (max-width: 991px) {
         .page-header {
-            padding: 2rem 1rem;
+            padding: 2rem;
         }
 
         .page-header h1 {
-            font-size: 1.75rem;
+            font-size: 2.2rem;
+        }
+
+        .section-card {
+            padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stat-number {
+            font-size: 2rem;
         }
 
         .download-grid {
             grid-template-columns: 1fr;
         }
 
-        .stat-number {
-            font-size: 2.2rem;
+        .table-search-wrapper {
+            max-width: 100%;
+        }
+
+        /* Table mobile optimization */
+        .table condensation {
+            display: block;
         }
     }
 </style>
 
 <div class="admin-container">
     <!-- Page Header -->
-    <div class="page-header">
-        <h1>📊 Admin Dashboard</h1>
-        <p>Manage users, view analytics, and export data</p>
+    <div class="page-header animate__animated animate__fadeInDown">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>👋 Hello, Admin!</h1>
+                <p>Welcome to your central control hub. Monitor growth and manage the community.</p>
+            </div>
+            <div class="col-md-4 text-md-end d-none d-md-block">
+                <div class="header-clock" id="digitalClock" style="font-size: 1.5rem; font-weight: 700; opacity: 0.9;">
+                </div>
+                <p class="mb-0" id="currentDate" style="opacity: 0.8; font-size: 0.9rem;"></p>
+            </div>
+        </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
+    <!-- Stats Cards Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
             <div class="stat-card students">
-                <div class="stat-icon">👨‍🎓</div>
-                <div class="stat-label">Total Students</div>
-                <div class="stat-number">{{ s_count }}</div>
+                <div>
+                    <div class="stat-icon"><i class="fas fa-user-graduate text-primary"></i></div>
+                    <div class="stat-label">Students</div>
+                    <div class="stat-number">{{ s_count }}</div>
+                </div>
+                <div class="progress mt-3" style="height: 6px;">
+                    <div class="progress-bar bg-primary" style="width: 75%"></div>
+                </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
             <div class="stat-card alumni">
-                <div class="stat-icon">🎓</div>
-                <div class="stat-label">Total Alumni</div>
-                <div class="stat-number">{{ a_count }}</div>
+                <div>
+                    <div class="stat-icon"><i class="fas fa-user-tie text-warning"></i></div>
+                    <div class="stat-label">Alumni</div>
+                    <div class="stat-number">{{ a_count }}</div>
+                </div>
+                <div class="progress mt-3" style="height: 6px;">
+                    <div class="progress-bar bg-warning" style="width: 60%"></div>
+                </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
             <div class="stat-card faculty">
-                <div class="stat-icon">👨‍🏫</div>
-                <div class="stat-label">Total Faculty</div>
-                <div class="stat-number">{{ f_count }}</div>
+                <div>
+                    <div class="stat-icon"><i class="fas fa-chalkboard-teacher text-success"></i></div>
+                    <div class="stat-label">Faculty</div>
+                    <div class="stat-number">{{ f_count }}</div>
+                </div>
+                <div class="progress mt-3" style="height: 6px;">
+                    <div class="progress-bar bg-success" style="width: 45%"></div>
+                </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
             <div class="stat-card funds">
-                <div class="stat-icon">💰</div>
-                <div class="stat-label">Funds Raised</div>
-                <div class="stat-number">₹40L</div>
+                <div>
+                    <div class="stat-icon"><i class="fas fa-hand-holding-usd text-purple"></i></div>
+                    <div class="stat-label">Total Funds</div>
+                    <div class="stat-number">₹40 L</div>
+                </div>
+                <div class="progress mt-3" style="height: 6px;">
+                    <div class="progress-bar bg-purple" style="width: 85%"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Charts Section -->
-    <div class="row mb-4">
-        <div class="col-lg-8">
+    <!-- Charts Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-8 animate__animated animate__fadeInLeft">
             <div class="chart-container">
-                <div class="chart-title">📈 Placement & Fund Growth Trends</div>
-                <canvas id="growthChart" height="80"></canvas>
+                <div class="chart-header">
+                    <div class="chart-title">Growth Analytics</div>
+                </div>
+                <canvas id="growthChart" height="150"></canvas>
             </div>
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-4 animate__animated animate__fadeInRight">
             <div class="chart-container">
-                <div class="chart-title">👥 User Distribution</div>
-                <canvas id="userChart" height="100"></canvas>
+                <div class="chart-header">
+                    <div class="chart-title">User Mix</div>
+                </div>
+                <canvas id="userChart" height="200"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- CSV Download Section -->
-    <div class="download-section">
-        <div class="download-title">
-            📥 Download User Data by Role (CSV Format)
+    <!-- Registrations Section -->
+    <div class="section-card animate__animated animate__fadeIn">
+        <div class="section-title">
+            <i class="fas fa-id-card"></i> Recent Registrations
         </div>
-        <div class="download-grid">
-            <div class="download-card students">
-                <div class="download-icon">👨‍🎓</div>
-                <h3>Student Data</h3>
-                <p>Export all student registrations and profiles</p>
-                <button class="download-btn" onclick="downloadCSV('student')">
-                    Download CSV
-                </button>
-            </div>
-            <div class="download-card alumni">
-                <div class="download-icon">🎓</div>
-                <h3>Alumni Data</h3>
-                <p>Export all alumni information and details</p>
-                <button class="download-btn" onclick="downloadCSV('alumni')">
-                    Download CSV
-                </button>
-            </div>
-            <div class="download-card faculty">
-                <div class="download-icon">👨‍🏫</div>
-                <h3>Faculty Data</h3>
-                <p>Export all faculty records and details</p>
-                <button class="download-btn" onclick="downloadCSV('faculty')">
-                    Download CSV
-                </button>
-            </div>
-            <div class="download-card all">
-                <div class="download-icon">📋</div>
-                <h3>All Users</h3>
-                <p>Export complete user database</p>
-                <button class="download-btn" onclick="downloadCSV('all')">
-                    Download CSV
-                </button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Database Download Section -->
-    <div class="download-section">
-        <div class="download-title">
-            💾 Download Database Files
-        </div>
-        <div class="download-grid">
-            <div class="download-card students">
-                <div class="download-icon">💾</div>
-                <h3>Complete Database</h3>
-                <p>Download complete college_pro.db with all data</p>
-                <button class="download-btn" onclick="downloadDB('college_pro')">
-                    Download DB
-                </button>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+            <div class="table-search-wrapper">
+                <i class="fas fa-search table-search-icon"></i>
+                <input type="text" id="userSearch" class="table-search-input"
+                    placeholder="Search by name, email, or role...">
             </div>
-            <div class="download-card alumni">
-                <div class="download-icon">💾</div>
-                <h3>Alumni Database</h3>
-                <p>Download alumni database snapshot</p>
-                <button class="download-btn" onclick="downloadDB('alumni')">
-                    Download DB
-                </button>
-            </div>
-            <div class="download-card faculty">
-                <div class="download-icon">💾</div>
-                <h3>Faculty Database</h3>
-                <p>Download faculty database snapshot</p>
-                <button class="download-btn" onclick="downloadDB('faculty')">
-                    Download DB
-                </button>
-            </div>
-            <div class="download-card all">
-                <div class="download-icon">💾</div>
-                <h3>Student Database</h3>
-                <p>Download student database snapshot</p>
-                <button class="download-btn" onclick="downloadDB('student')">
-                    Download DB
-                </button>
+            <div class="d-flex gap-2">
+                <select id="roleFilter" class="form-select form-select-sm" style="border-radius: 10px; width: auto;">
+                    <option value="all">All Roles</option>
+                    <option value="student">Students</option>
+                    <option value="alumni">Alumni</option>
+                    <option value="faculty">Faculty</option>
+                </select>
             </div>
         </div>
-    </div>
 
-    <!-- Recent Registrations Table -->
-    <div class="recent-table overflow-auto">
-        <div style="padding: 2rem;">
-            <h5 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem;">📋 Recent Registrations</h5>
-            <table class="table table-hover" style="margin-bottom: 0;">
-                <thead class="table-header">
+        <div class="table-responsive-container">
+            <table class="table table-hover" id="usersTable">
+                <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Role</th>
-                        <th>Email</th>
+                        <th>Member Details</th>
+                        <th>Position/Role</th>
                         <th>Department</th>
-                        <th>Status</th>
+                        <th>Verified Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for user in users[:10] %}
-                    <tr>
-                        <td><strong>{{ user['name'] }}</strong></td>
+                    {% for user in users[:15] %}
+                    <tr class="user-row" data-role="{{ user['role'] }}">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm me-3"
+                                    style="width: 45px; height: 45px; border-radius: 12px; overflow: hidden;">
+                                    <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&background=667eea&color=fff"
+                                        alt="" class="img-fluid">
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ user['name'] }}</h6>
+                                    <small class="text-muted">{{ user['email'] }}</small>
+                                </div>
+                            </div>
+                        </td>
                         <td>
                             {% if user['role'] == 'student' %}
-                                <span class="badge-role badge-student">Student</span>
+                            <span class="badge-modern badge-student">Student</span>
                             {% elif user['role'] == 'alumni' %}
-                                <span class="badge-role badge-alumni">Alumni</span>
+                            <span class="badge-modern badge-alumni">Alumni</span>
                             {% else %}
-                                <span class="badge-role badge-faculty">Faculty</span>
+                            <span class="badge-modern badge-faculty">Faculty</span>
                             {% endif %}
                         </td>
-                        <td>{{ user['email'] }}</td>
-                        <td>{% if user['department'] %}{{ user['department'] }}{% else %}N/A{% endif %}</td>
                         <td>
-                            <span style="color: #10b981; font-weight: 600; margin-right: 1rem;">✓ Verified</span>
-                            <button 
-                                class="delete-btn" 
-                                onclick="deleteUser({{ user['id'] }}, '{{ user['name'] }}', '{{ user['email'] }}')"
-                                style="background: #ef4444; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.3s ease;"
-                                onmouseover="this.style.background='#dc2626'; this.style.transform='scale(1.05)'"
-                                onmouseout="this.style.background='#ef4444'; this.style.transform='scale(1)'"
-                            >
-                                🗑️ Delete
-                            </button>
+                            <div class="text-dark">{{ user['department'] or 'General' }}</div>
+                            <small class="text-muted">Batch: 2024</small>
+                        </td>
+                        <td>
+                            <span class="text-success"><i class="fas fa-check-circle me-1"></i> Verified</span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                {% if user['email'] == 'admin@college.edu' %}
+                                <span class="badge bg-warning text-dark px-3 py-2" style="border-radius: 10px;">
+                                    <i class="fas fa-shield-alt me-1"></i> Protected Account
+                                </span>
+                                {% else %}
+                                <button class="action-btn delete-btn"
+                                    onclick="confirmDelete({{ user['id'] }}, '{{ user['name'] }}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -495,262 +546,282 @@
             </table>
         </div>
     </div>
+
+    <!-- Downloads Section -->
+    <div class="section-card">
+        <div class="section-title">
+            <i class="fas fa-file-export"></i> Data Exports
+        </div>
+
+        <ul class="nav nav-pills mb-4" id="exportTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#csvExports">CSV Reports</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#dbExports">Database Backups</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="exportTabsContent">
+            <!-- CSV Exports -->
+            <div class="tab-pane fade show active" id="csvExports">
+                <div class="download-grid">
+                    <div class="download-card">
+                        <div class="stat-icon"><i class="fas fa-user-graduate text-primary"></i></div>
+                        <h3>Student Records</h3>
+                        <p class="text-muted">Complete profiles with academic data</p>
+                        <button class="download-btn" onclick="downloadData('student', 'csv')">Export CSV</button>
+                    </div>
+                    <div class="download-card">
+                        <div class="stat-icon"><i class="fas fa-user-tie text-warning"></i></div>
+                        <h3>Alumni Directory</h3>
+                        <p class="text-muted">Professional details and contact info</p>
+                        <button class="download-btn" onclick="downloadData('alumni', 'csv')">Export CSV</button>
+                    </div>
+                    <div class="download-card">
+                        <div class="stat-icon"><i class="fas fa-users text-success"></i></div>
+                        <h3>Master List</h3>
+                        <p class="text-muted">Full registered user database</p>
+                        <button class="download-btn" onclick="downloadData('all', 'csv')">Export CSV</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DB Exports -->
+            <div class="tab-pane fade" id="dbExports">
+                <div class="download-grid">
+                    <div class="download-card">
+                        <div class="stat-icon"><i class="fas fa-database text-info"></i></div>
+                        <h3>System Core DB</h3>
+                        <p class="text-muted">Standard college_pro.db snapshot</p>
+                        <button class="download-btn" onclick="downloadData('college_pro', 'db')">Download .db</button>
+                    </div>
+                    <div class="download-card">
+                        <div class="stat-icon"><i class="fas fa-server text-secondary"></i></div>
+                        <h3>Alumni Snapshot</h3>
+                        <p class="text-muted">Alumni-specific database file</p>
+                        <button class="download-btn" onclick="downloadData('alumni', 'db')">Download .db</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0" style="border-radius: 20px;">
+            <div class="modal-body p-4 text-center">
+                <div class="mb-4">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
+                </div>
+                <h3 class="fw-bold mb-2">Are you sure?</h3>
+                <p class="text-muted mb-4">You are about to delete <span id="deleteUserName"
+                        class="fw-bold text-dark"></span>. This action cannot be undone.</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-danger btn-lg py-3" style="border-radius: 12px;" id="finalDeleteBtn">Yes,
+                        Delete User</button>
+                    <button class="btn btn-light btn-lg py-3" style="border-radius: 12px;"
+                        data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    // Growth Chart (Bar) with enhanced styling
-    var ctx = document.getElementById('growthChart').getContext('2d');
-    var growthChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: {{ chart_data.years | tojson }},
-            datasets: [{
-                label: '📍 Placements',
-                data: {{ chart_data.placements | tojson }},
-                backgroundColor: 'rgba(102, 126, 234, 0.8)',
-                borderColor: '#667eea',
-                borderWidth: 2,
-                borderRadius: 8,
-                tension: 0.4
-            }, {
-                label: '💰 Funds (Lakhs)',
-                data: {{ chart_data.funds | tojson }},
-                backgroundColor: 'rgba(245, 158, 11, 0.8)',
-                borderColor: '#f59e0b',
-                borderWidth: 2,
-                borderRadius: 8,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#1f2937',
-                        font: { size: 13, weight: '600' },
-                        padding: 20,
-                        usePointStyle: true
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    ticks: { color: '#6b7280', font: { size: 12 } },
-                    grid: { color: 'rgba(0,0,0,0.05)' }
-                },
-                x: {
-                    ticks: { color: '#6b7280', font: { size: 12 } },
-                    grid: { display: false }
-                }
-            }
-        }
-    });
+    // Delete Logic - Must be in global scope for inline onclick handlers
+    let userIdToDelete = null;
+    let deleteModal = null;
 
-    // User Chart (Doughnut) with enhanced styling
-    var ctx2 = document.getElementById('userChart').getContext('2d');
-    var userChart = new Chart(ctx2, {
+    function confirmDelete(id, name) {
+        userIdToDelete = id;
+        document.getElementById('deleteUserName').textContent = name;
+        if (!deleteModal) {
+            deleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        }
+        deleteModal.show();
+    }
+
+    // Initialize Charts and other functionality
+    document.addEventListener('DOMContentLoaded', function () {
+        // Growth Chart
+        const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+        new Chart(ctxGrowth, {
+            type: 'line',
+            data: {
+                labels: {{ chart_data.years | tojson }},
+        datasets: [{
+            label: 'Placements',
+            data: {{ chart_data.placements | tojson }},
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        fill: true,
+        tension: 0.4,
+        borderWidth: 3
+                }, {
+            label: 'Funds (L)',
+            data: {{ chart_data.funds | tojson }},
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        fill: true,
+        tension: 0.4,
+        borderWidth: 3
+                }]
+            },
+        options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+            x: { grid: { display: false } }
+        }
+    }
+        });
+
+    // User Mix Chart
+    const ctxUser = document.getElementById('userChart').getContext('2d');
+    new Chart(ctxUser, {
         type: 'doughnut',
         data: {
-            labels: ['👨‍🎓 Alumni', '🎓 Students', '👨‍🏫 Faculty'],
+            labels: ['Students', 'Alumni', 'Faculty'],
             datasets: [{
-                data: [{{ a_count }}, {{ s_count }}, {{ f_count }}],
-                backgroundColor: [
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(16, 185, 129, 0.8)'
-                ],
-                borderColor: ['#f59e0b', '#3b82f6', '#10b981'],
-                borderWidth: 2
-            }]
-        },
+                data: [{{ s_count }}, {{ a_count }}, {{ f_count }}],
+        backgroundColor: ['#6366f1', '#f59e0b', '#10b981'],
+        hoverOffset: 12,
+        borderWidth: 0
+                }]
+            },
         options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#1f2937',
-                        font: { size: 13, weight: '600' },
-                        padding: 15,
-                        usePointStyle: true
-                    }
-                }
-            }
-        }
-    });
-
-    // CSV Download Function
-    function downloadCSV(role) {
-        const loadingBtn = event.target;
-        const originalText = loadingBtn.innerHTML;
-        
-        // Show loading state
-        loadingBtn.innerHTML = '⏳ Generating...';
-        loadingBtn.disabled = true;
-        
-        // Make request to backend
-        fetch(`/api/download-csv/${role}`)
-            .then(response => {
-                console.log('CSV Response status:', response.status);
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.error || 'Download failed');
-                    });
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                console.log('CSV Blob size:', blob.size, 'Type:', blob.type);
-                
-                // Create blob URL and trigger download
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                
-                const timestamp = new Date().toISOString().slice(0, 10);
-                link.download = `${role.toUpperCase()}_Users_${timestamp}.csv`;
-                
-                // Trigger download
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                // Clean up
-                setTimeout(() => {
-                    window.URL.revokeObjectURL(url);
-                }, 100);
-                
-                // Reset button
-                loadingBtn.innerHTML = '✅ Downloaded!';
-                setTimeout(() => {
-                    loadingBtn.innerHTML = originalText;
-                    loadingBtn.disabled = false;
-                }, 2000);
-            })
-            .catch(error => {
-                console.error('CSV Error:', error);
-                loadingBtn.innerHTML = '❌ Error: ' + error.message;
-                setTimeout(() => {
-                    loadingBtn.innerHTML = originalText;
-                    loadingBtn.disabled = false;
-                }, 2000);
-            });
+        cutout: '70%',
+        plugins: { legend: { position: 'bottom' } }
     }
+        });
 
-    // Database Download Function
-    function downloadDB(dbType) {
-        const loadingBtn = event.target;
-        const originalText = loadingBtn.innerHTML;
-        
-        // Show loading state
-        loadingBtn.innerHTML = '⏳ Downloading...';
-        loadingBtn.disabled = true;
-        
-        // Make request to backend
-        fetch(`/api/download-db/${dbType}`)
-            .then(response => {
-                console.log('DB Response status:', response.status);
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.error || 'Download failed');
-                    });
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                console.log('DB Blob size:', blob.size, 'Type:', blob.type);
-                
-                // Create blob URL and trigger download
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                
-                const timestamp = new Date().toISOString().slice(0, 10);
-                link.download = `${dbType.toUpperCase()}_Database_${timestamp}.db`;
-                
-                // Trigger download
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                // Clean up
-                setTimeout(() => {
-                    window.URL.revokeObjectURL(url);
-                }, 100);
-                
-                // Reset button
-                loadingBtn.innerHTML = '✅ Downloaded!';
-                setTimeout(() => {
-                    loadingBtn.innerHTML = originalText;
-                    loadingBtn.disabled = false;
-                }, 2000);
-            })
-            .catch(error => {
-                console.error('DB Error:', error);
-                loadingBtn.innerHTML = '❌ Error: ' + error.message;
-                setTimeout(() => {
-                    loadingBtn.innerHTML = originalText;
-                    loadingBtn.disabled = false;
-                }, 2000);
-            });
-    }
+    // Clock Functionality
+    const updateClock = () => {
+        const now = new Date();
+        document.getElementById('digitalClock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('currentDate').textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    };
+    setInterval(updateClock, 1000);
+    updateClock();
 
-    // Delete User Function
-    function deleteUser(userId, userName, userEmail) {
-        const confirmMsg = `⚠️ PERMANENT DELETION\n\n` +
-                          `You are about to permanently delete:\n\n` +
-                          `Name: ${userName}\n` +
-                          `Email: ${userEmail}\n\n` +
-                          `This action cannot be undone!\n` +
-                          `All their data, posts, and connections will be deleted.\n\n` +
-                          `Type "DELETE" to confirm:`;
-        
-        const userInput = prompt(confirmMsg);
-        
-        if (userInput !== 'DELETE') {
-            alert('❌ Deletion cancelled');
+    // Search & Filter Logic
+    const searchInput = document.getElementById('userSearch');
+    const roleFilter = document.getElementById('roleFilter');
+    const userRows = document.querySelectorAll('.user-row');
+
+    const filterTable = () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedRole = roleFilter.value;
+
+        userRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const role = row.dataset.role;
+            const matchesSearch = text.includes(searchTerm);
+            const matchesRole = selectedRole === 'all' || role === selectedRole;
+
+            row.style.display = (matchesSearch && matchesRole) ? '' : 'none';
+        });
+    };
+
+    searchInput.addEventListener('input', filterTable);
+    roleFilter.addEventListener('change', filterTable);
+
+    // Delete button handler - attach after DOM is loaded
+    document.getElementById('finalDeleteBtn').addEventListener('click', function () {
+        if (!userIdToDelete) {
+            console.error('No user ID set for deletion');
             return;
         }
-        
-        // Second confirmation
-        const finalConfirm = confirm(`🗑️ Are you absolutely sure?\n\nDeleting: ${userName}`);
-        
-        if (!finalConfirm) {
-            alert('❌ Deletion cancelled');
-            return;
-        }
-        
-        // Proceed with deletion
-        fetch(`/api/delete-user/${userId}`, {
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Deleting...`;
+
+        console.log(`Attempting to delete user ID: ${userIdToDelete}`);
+
+        fetch(`/api/delete-user/${userIdToDelete}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => {
-            console.log('Delete Response status:', response.status);
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw new Error(data.error || 'Deletion failed');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Deletion successful:', data);
-            alert(`✅ Success!\n\n${data.message}`);
-            
-            // Reload the page to refresh the table
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
-        })
-        .catch(error => {
-            console.error('Deletion Error:', error);
-            alert(`❌ Error: ${error.message}`);
-        });
+            .then(res => {
+                console.log('Delete response status:', res.status);
+                console.log('Delete response headers:', res.headers);
+
+                if (!res.ok) {
+                    return res.text().then(text => {
+                        console.error('Error response body:', text);
+                        try {
+                            const json = JSON.parse(text);
+                            throw new Error(json.error || `Server error: ${res.status}`);
+                        } catch (e) {
+                            throw new Error(`Server error: ${res.status} - ${text}`);
+                        }
+                    });
+                }
+
+                return res.json();
+            })
+            .then(data => {
+                console.log('Delete response data:', data);
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                if (data.success) {
+                    console.log('Deletion successful, reloading page...');
+                    deleteModal.hide();
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    throw new Error('Unexpected response format');
+                }
+            })
+            .catch(err => {
+                console.error('Delete error:', err);
+                alert(`Error deleting user: ${err.message}\n\nPlease check the browser console for more details.`);
+                btn.disabled = false;
+                btn.innerHTML = `Yes, Delete User`;
+            });
+    });
+    });
+
+    // Data Download Function 
+    function downloadData(category, type) {
+        const btn = event.currentTarget;
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Processing...`;
+
+        const endpoint = type === 'csv' ? `/api/download-csv/${category}` : `/api/download-db/${category}`;
+
+        fetch(endpoint)
+            .then(res => {
+                if (!res.ok) throw new Error('Download failed');
+                return res.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `${category}_export_${new Date().getTime()}.${type === 'csv' ? 'csv' : 'db'}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                btn.innerHTML = `<i class="fas fa-check"></i> Ready!`;
+                setTimeout(() => { btn.disabled = false; btn.innerHTML = originalHtml; }, 2000);
+            })
+            .catch(err => {
+                alert('Error: ' + err.message);
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            });
     }
 </script>
 {% endblock %}

@@ -1731,6 +1731,11 @@ def delete_user(user_id):
             conn.close()
             return jsonify({'error': 'User not found'}), 404
 
+        # PROTECTION: Prevent deletion of super admin account
+        if user['email'] == 'admin@college.edu':
+            conn.close()
+            return jsonify({'error': 'Cannot delete the Super Admin account. This account is protected.'}), 403
+
         user_role = user['role']
         user_name = user['name']
         user_email = user['email']
