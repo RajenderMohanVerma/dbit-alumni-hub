@@ -886,13 +886,45 @@ def dashboard_admin():
         a_count = conn.execute("SELECT COUNT(*) FROM users WHERE role='alumni'").fetchone()[0]
         s_count = conn.execute("SELECT COUNT(*) FROM users WHERE role='student'").fetchone()[0]
         f_count = conn.execute("SELECT COUNT(*) FROM users WHERE role='faculty'").fetchone()[0]
+        
+        # Dynamic Chart Data Calculation
+        current_year = datetime.now().year
+        years = [str(y) for y in range(current_year - 4, current_year + 1)]
+        
+        placements_data = []
+        events_data = []
+        
+        for year in years:
+            # Get placement counts for this year
+            p_count = conn.execute("""
+                SELECT COUNT(*) FROM alumni_profile 
+                WHERE pass_year = ? AND company_name IS NOT NULL AND company_name != ''
+            """, (int(year),)).fetchone()[0]
+            placements_data.append(p_count)
+            
+            # Get event registrations for this year
+            e_count = conn.execute("""
+                SELECT COUNT(*) FROM alumni_meet_registration 
+                WHERE strftime('%Y', created_at) = ?
+            """, (year,)).fetchone()[0]
+            events_data.append(e_count)
 
         chart_data = {
-            'years': ['2021', '2022', '2023', '2024', '2025'],
-            'placements': [120, 150, 200, 250, 310],
-            'funds': [5, 12, 15, 25, 40]
+            'years': years,
+            'placements': placements_data,
+            'events': events_data
         }
-        return render_template('dashboard_admin.html', users=users, a_count=a_count, s_count=s_count, f_count=f_count, chart_data=chart_data)
+        
+        # Total event registrations for stat card
+        event_total = sum(events_data)
+        
+        return render_template('dashboard_admin.html', 
+                               users=users, 
+                               a_count=a_count, 
+                               s_count=s_count, 
+                               f_count=f_count, 
+                               event_total=event_total,
+                               chart_data=chart_data)
     finally:
         if conn:
             conn.close()

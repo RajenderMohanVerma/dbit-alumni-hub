@@ -430,9 +430,9 @@
         <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
             <div class="stat-card funds">
                 <div>
-                    <div class="stat-icon"><i class="fas fa-hand-holding-usd text-purple"></i></div>
-                    <div class="stat-label">Total Funds</div>
-                    <div class="stat-number">₹40 L</div>
+                    <div class="stat-icon"><i class="fas fa-calendar-check text-purple"></i></div>
+                    <div class="stat-label">Event Registrations</div>
+                    <div class="stat-number">{{ event_total }}</div>
                 </div>
                 <div class="progress mt-3" style="height: 6px;">
                     <div class="progress-bar bg-purple" style="width: 85%"></div>
@@ -661,8 +661,8 @@
         tension: 0.4,
         borderWidth: 3
                 }, {
-            label: 'Funds (L)',
-            data: {{ chart_data.funds | tojson }},
+            label: 'Events',
+            data: {{ chart_data.events | tojson }},
         borderColor: '#f59e0b',
         backgroundColor: 'rgba(245, 158, 11, 0.1)',
         fill: true,
@@ -691,13 +691,13 @@
         backgroundColor: ['#6366f1', '#f59e0b', '#10b981'],
         hoverOffset: 12,
         borderWidth: 0
-                }]
-            },
+            }]
+        },
         options: {
         cutout: '70%',
         plugins: { legend: { position: 'bottom' } }
     }
-        });
+    });
 
     // Clock Functionality
     const updateClock = () => {
