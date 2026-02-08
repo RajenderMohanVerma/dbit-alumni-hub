@@ -20,19 +20,10 @@ app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv(
-    'MAIL_DEFAULT_SENDER',
-    app.config['MAIL_USERNAME']
-)
+# Set sender name as "Alumni Hub" with email
+app.config['MAIL_DEFAULT_SENDER'] = ('Alumni Hub', os.getenv('MAIL_USERNAME', 'alumnihub26@gmail.com'))
 
 mail = Mail(app)
-# ===== EMAIL CONFIGURATION =====
-app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
-app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
-app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', True)
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'rajendramohan7800@gmail.com')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'your_app_password_here')
-app.config['MAIL_DEFAULT_SENDER'] = 'noreply@alumnihub.com'
 
 
 DB_NAME = app.config['DB_NAME']
@@ -265,9 +256,9 @@ def init_db():
 
         # Create Admin if not exists
         if admin_exists == 0:
-            pw = generate_password_hash("admin123")
+            pw = generate_password_hash("admindbit195@")
             c.execute("INSERT INTO users (name, email, password, role, phone) VALUES (?, ?, ?, ?, ?)",
-                      ("Super Admin", "admin@college.edu", pw, "admin", "0000000000"))
+                      ("Super Admin", "admindbit195@college.edu", pw, "admin", "0000000000"))
 
         conn.commit()
         print("Database initialized successfully!")
@@ -795,7 +786,7 @@ def dashboard_student():
             SELECT u.id, u.name, u.email, u.phone, u.profile_pic,
                    s.department, s.degree, s.semester
             FROM users u
-            JOIN student_profile s ON u.id = s.user_id
+            LEFT JOIN student_profile s ON u.id = s.user_id
             WHERE u.role='student' AND u.id != ?
             ORDER BY u.name ASC
         """, (current_user.id,)).fetchall()
@@ -931,7 +922,22 @@ def dashboard_admin():
     conn = None
     try:
         conn = get_db_connection()
-        users = conn.execute("SELECT * FROM users ORDER BY id DESC").fetchall()
+        
+        # Fetch users with their profile data (department, batch/pass_year)
+        users_query = """
+            SELECT 
+                u.id, u.name, u.email, u.role, u.created_at,
+                COALESCE(s.department, a.department, f.department, 'N/A') as department,
+                COALESCE(s.semester, a.pass_year, NULL) as batch_info,
+                u.role as user_role
+            FROM users u
+            LEFT JOIN student_profile s ON u.id = s.user_id AND u.role = 'student'
+            LEFT JOIN alumni_profile a ON u.id = a.user_id AND u.role = 'alumni'
+            LEFT JOIN faculty_profile f ON u.id = f.user_id AND u.role = 'faculty'
+            ORDER BY u.id DESC
+        """
+        users = conn.execute(users_query).fetchall()
+        
         a_count = conn.execute("SELECT COUNT(*) FROM users WHERE role='alumni'").fetchone()[0]
         s_count = conn.execute("SELECT COUNT(*) FROM users WHERE role='student'").fetchone()[0]
         f_count = conn.execute("SELECT COUNT(*) FROM users WHERE role='faculty'").fetchone()[0]
@@ -1813,7 +1819,7 @@ def delete_user(user_id):
             return jsonify({'error': 'User not found'}), 404
 
         # PROTECTION: Prevent deletion of super admin account
-        if user['email'] == 'admin@college.edu':
+        if user['email'] == 'admindbit195@college.edu':
             conn.close()
             return jsonify({'error': 'Cannot delete the Super Admin account. This account is protected.'}), 403
 
@@ -1849,8 +1855,12 @@ def delete_user(user_id):
         result1 = c.execute('DELETE FROM connection_requests WHERE sender_id = ? OR receiver_id = ?', (user_id, user_id))
         print(f"[DELETE DEBUG] connection_requests rows deleted: {result1.rowcount}")
 
-        result2 = c.execute('DELETE FROM connections WHERE user_id_1 = ? OR user_id_2 = ?', (user_id, user_id))
-        print(f"[DELETE DEBUG] connections rows deleted: {result2.rowcount}")
+        try:
+            result2 = c.execute('DELETE FROM connections WHERE user_id_1 = ? OR user_id_2 = ?', (user_id, user_id))
+            print(f"[DELETE DEBUG] connections rows deleted: {result2.rowcount}")
+        except Exception as e:
+            print(f"[DELETE DEBUG] connections table error (may not exist or different schema): {e}")
+
 
         # Delete from other related tables (if they exist)
         try:
@@ -2136,6 +2146,7 @@ def get_student_details(user_id):
     finally:
         if conn:
             conn.close()
+
 
 # ===== UNIFIED CONNECTION REQUEST SYSTEM (Role-Agnostic) =====
 
@@ -2560,6 +2571,106 @@ def send_connection_email(recipient_email, recipient_name, sender_name, sender_r
     except Exception as e:
         print(f"Error sending connection email: {e}")
         # Silently fail - don't interrupt request flow if email fails
+
+# --- INFORMATION PAGES ---
+
+@app.route('/privacy-policy')
+def privacy_policy():
+    return render_template('privacy_policy.html')
+
+@app.route('/terms-conditions')
+def terms_conditions():
+    return render_template('terms_conditions.html')
+
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
+
+@app.route('/report-issue', methods=['GET', 'POST'])
+def report_issue():
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        issue_type = request.form.get('issue_type', '').strip()
+        description = request.form.get('description', '').strip()
+        
+        if not all([name, email, issue_type, description]):
+            flash('All fields are required!', 'warning')
+            return render_template('report_issue.html')
+        
+        # Send email to admin
+        try:
+            submission_time = datetime.now().strftime('%d %B %Y at %I:%M %p')
+            
+            msg = Message(
+                subject=f'🚨 Issue Report: {issue_type} | Alumni Hub',
+                recipients=[app.config.get('ADMIN_EMAIL', 'alumnihub26@gmail.com')],
+                html=f'''
+                <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%); padding: 30px; border-radius: 15px;">
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-top: 5px solid #dc2626; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                        <h1 style="color: #dc2626; margin: 0 0 15px 0; font-size: 1.8rem;">🚨 New Issue Reported</h1>
+
+                        <div style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
+                            <p style="margin: 0 0 8px 0; color: #dc2626; font-weight: 700; font-size: 0.9rem;">📌 PROJECT SOURCE</p>
+                            <p style="margin: 0; color: #1e3a8a; font-size: 1.2rem; font-weight: 800;">🎓 ALUMNI HUB MANAGEMENT SYSTEM</p>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 0.85rem;">Issue Report Submission</p>
+                        </div>
+                    </div>
+
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
+                        <h3 style="color: #1e3a8a; margin: 0 0 15px 0; border-bottom: 2px solid #dc2626; padding-bottom: 10px; font-size: 1.1rem;">👤 Reporter Information</h3>
+
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a; width: 30%;">Name:</td>
+                                <td style="padding: 12px 0; color: #333;">{name}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Email:</td>
+                                <td style="padding: 12px 0; color: #333;"><a href="mailto:{email}" style="color: #0ea5e9; text-decoration: none; font-weight: 600;">{email}</a></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Issue Type:</td>
+                                <td style="padding: 12px 0; color: #333;">
+                                    <span style="background: #dc2626; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">{issue_type}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Submitted:</td>
+                                <td style="padding: 12px 0; color: #666; font-size: 0.9rem;">{submission_time}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #f59e0b; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
+                        <h3 style="color: #1e3a8a; margin: 0 0 15px 0; font-size: 1.1rem;">📝 Issue Description</h3>
+                        <p style="margin: 0; color: #333; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word;">{description}</p>
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); padding: 20px; border-radius: 12px; margin-bottom: 15px; color: white; text-align: center;">
+                        <p style="margin: 0; font-size: 0.95rem; font-weight: 600;">⚡ Action Required</p>
+                        <p style="margin: 10px 0 0 0; font-size: 0.85rem; opacity: 0.9;">Please review and respond to this issue report promptly</p>
+                    </div>
+
+                    <div style="background: #fef2f2; padding: 15px; border-radius: 8px; text-align: center;">
+                        <p style="margin: 0; color: #666; font-size: 0.85rem;">
+                            <strong style="color: #dc2626;">Alumni Hub</strong> • Issue Tracking System<br>
+                            This report was submitted via the Alumni Hub issue reporting form.
+                        </p>
+                    </div>
+                </div>
+                ''',
+                reply_to=email
+            )
+            mail.send(msg)
+            flash('Issue reported successfully! We will get back to you soon.', 'success')
+            return redirect(url_for('report_issue'))
+        except Exception as e:
+            print(f"Error sending issue report: {e}")
+            flash('Error sending report. Please try again.', 'danger')
+    
+    return render_template('report_issue.html')
+
 
 if __name__ == '__main__':
     init_db()

@@ -338,6 +338,16 @@
         color: white;
     }
 
+    .view-btn {
+        background: #dbeafe;
+        color: #3b82f6;
+    }
+
+    .view-btn:hover {
+        background: #3b82f6;
+        color: white;
+    }
+
     /* Responsive adjustments */
     @media (max-width: 991px) {
         .page-header {
@@ -515,24 +525,37 @@
                             <span class="badge-modern badge-student">Student</span>
                             {% elif user['role'] == 'alumni' %}
                             <span class="badge-modern badge-alumni">Alumni</span>
-                            {% else %}
+                            {% elif user['role'] == 'faculty' %}
                             <span class="badge-modern badge-faculty">Faculty</span>
+                            {% else %}
+                            <span class="badge-modern badge-admin"
+                                style="background: #fef3c7; color: #92400e;">Admin</span>
                             {% endif %}
                         </td>
                         <td>
-                            <div class="text-dark">{{ user['department'] or 'General' }}</div>
-                            <small class="text-muted">Batch: 2024</small>
+                            <div class="text-dark">{{ user['department'] or 'N/A' }}</div>
+                            {% if user['role'] == 'student' and user['batch_info'] %}
+                            <small class="text-muted">Semester: {{ user['batch_info'] }}</small>
+                            {% elif user['role'] == 'alumni' and user['batch_info'] %}
+                            <small class="text-muted">Batch: {{ user['batch_info'] }}</small>
+                            {% else %}
+                            <small class="text-muted">-</small>
+                            {% endif %}
                         </td>
                         <td>
                             <span class="text-success"><i class="fas fa-check-circle me-1"></i> Verified</span>
                         </td>
                         <td>
                             <div class="d-flex gap-2">
-                                {% if user['email'] == 'admin@college.edu' %}
+                                {% if user['email'] == 'admindbit195@college.edu' %}
                                 <span class="badge bg-warning text-dark px-3 py-2" style="border-radius: 10px;">
                                     <i class="fas fa-shield-alt me-1"></i> Protected Account
                                 </span>
                                 {% else %}
+                                <a href="{% if user['role'] == 'student' %}{{ url_for('student_profile', user_id=user['id']) }}{% elif user['role'] == 'alumni' %}{{ url_for('alumni_profile', user_id=user['id']) }}{% else %}{{ url_for('faculty_profile', user_id=user['id']) }}{% endif %}"
+                                    class="action-btn view-btn" style="text-decoration: none;">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
                                 <button class="action-btn delete-btn"
                                     onclick="confirmDelete({{ user['id'] }}, '{{ user['name'] }}')">
                                     <i class="fas fa-trash"></i> Delete

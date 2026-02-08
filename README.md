@@ -122,8 +122,8 @@ Visit `http://localhost:5000` in your browser.
 ## 📝 Default Test Credentials
 
 ```
-EMAIL: admin@college.edu
-PASSWORD: admin123
+EMAIL: admindbit195@college.edu
+PASSWORD: admindbit195@
 ```
 
 ---

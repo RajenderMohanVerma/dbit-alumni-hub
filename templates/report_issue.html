@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Report Issue - Alumni Hub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-5" data-aos="fade-down">
+                <h1 class="display-4 fw-bold text-danger mb-3">
+                    <i class="fas fa-flag me-3"></i>Report an Issue
+                </h1>
+                <p class="lead text-muted">Help us improve by reporting bugs, issues, or suggestions</p>
+            </div>
+
+            <!-- Report Form Card -->
+            <div class="card shadow-lg border-0" data-aos="fade-up">
+                <div class="card-header bg-danger text-white py-3">
+                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Issue Report Form</h4>
+                </div>
+                <div class="card-body p-5">
+
+                    <form method="POST" id="reportForm">
+                        <!-- Name -->
+                        <div class="mb-4">
+                            <label for="name" class="form-label fw-bold">
+                                <i class="fas fa-user text-primary me-2"></i>Your Name *
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="name" name="name"
+                                placeholder="Enter your full name" required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-4">
+                            <label for="email" class="form-label fw-bold">
+                                <i class="fas fa-envelope text-primary me-2"></i>Email Address *
+                            </label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="email"
+                                placeholder="your.email@example.com" required>
+                            <small class="text-muted">We'll use this to follow up on your report</small>
+                        </div>
+
+                        <!-- Issue Type -->
+                        <div class="mb-4">
+                            <label for="issue_type" class="form-label fw-bold">
+                                <i class="fas fa-tags text-primary me-2"></i>Issue Type *
+                            </label>
+                            <select class="form-select form-select-lg" id="issue_type" name="issue_type" required>
+                                <option value="">-- Select Issue Type --</option>
+                                <option value="Bug Report">🐛 Bug Report</option>
+                                <option value="Feature Request">💡 Feature Request</option>
+                                <option value="Login/Account Issue">🔐 Login/Account Issue</option>
+                                <option value="Profile Issue">👤 Profile Issue</option>
+                                <option value="Connection Issue">🤝 Connection Issue</option>
+                                <option value="Performance Issue">⚡ Performance Issue</option>
+                                <option value="Security Concern">🔒 Security Concern</option>
+                                <option value="Other">❓ Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-bold">
+                                <i class="fas fa-comment-alt text-primary me-2"></i>Description *
+                            </label>
+                            <textarea class="form-control" id="description" name="description" rows="6"
+                                placeholder="Please provide detailed information about the issue...&#10;&#10;For bugs, include:&#10;- What you were trying to do&#10;- What happened instead&#10;- Steps to reproduce the issue&#10;- Browser and device information"
+                                required></textarea>
+                            <small class="text-muted">The more details you provide, the faster we can help!</small>
+                        </div>
+
+                        <!-- Guidelines -->
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading"><i class="fas fa-lightbulb me-2"></i>Reporting Guidelines</h6>
+                            <ul class="mb-0 small">
+                                <li>Be specific and provide as much detail as possible</li>
+                                <li>Include screenshots if applicable (you can email them separately)</li>
+                                <li>For bugs, mention your browser and operating system</li>
+                                <li>Check the <a href="{{ url_for('faq') }}" class="alert-link">FAQ</a> first to see if
+                                    your issue is already addressed</li>
+                            </ul>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Report
+                            </button>
+                            <a href="{{ url_for('home') }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- Alternative Contact Methods -->
+            <div class="row g-4 mt-4" data-aos="fade-up">
+                <div class="col-md-6">
+                    <div class="card border-primary h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                            <h5>Email Support</h5>
+                            <p class="text-muted small">For urgent issues or detailed inquiries</p>
+                            <a href="mailto:support@alumnihub.com" class="btn btn-outline-primary">
+                                support@alumnihub.com
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-success h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-question-circle fa-3x text-success mb-3"></i>
+                            <h5>Check FAQ</h5>
+                            <p class="text-muted small">Find answers to common questions</p>
+                            <a href="{{ url_for('faq') }}" class="btn btn-outline-success">
+                                View FAQ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // Form validation
+    document.getElementById('reportForm').addEventListener('submit', function (e) {
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const issueType = document.getElementById('issue_type').value;
+        const description = document.getElementById('description').value.trim();
+
+        if (!name || !email || !issueType || !description) {
+            e.preventDefault();
+            alert('Please fill in all required fields!');
+            return false;
+        }
+
+        if (description.length < 20) {
+            e.preventDefault();
+            alert('Please provide a more detailed description (at least 20 characters)');
+            return false;
+        }
+    });
+</script>
+{% endblock %}
