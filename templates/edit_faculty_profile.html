@@ -1,133 +1,165 @@
-<!-- filepath: d:\RajenderMohan_BCA\RajenderMohan_Projects\6_Semester\Major Project\Alumni App\templates\edit_faculty_profile.html -->
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-lg border-0" style="border-radius: 15px; animation: slideInUp 0.6s ease;">
-                <div class="card-header bg-warning text-dark" style="border-radius: 15px 15px 0 0;">
-                    <h3 class="mb-0"><i class="fas fa-edit"></i> Edit Faculty Profile</h3>
-                    <small>Update your professional details and office information</small>
+<!-- Font Awesome & Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<div class="edit-profile-container">
+    <!-- Mesh Gradient Background -->
+    <div class="mesh-gradient-bg">
+        <div class="mesh-1"></div>
+        <div class="mesh-2"></div>
+        <div class="mesh-3"></div>
+        <div class="mesh-4"></div>
+    </div>
+
+    <div class="container position-relative z-index-10 py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-xl-8">
+
+                <!-- Header -->
+                <div class="text-center mb-5 animate__animated animate__fadeInDown">
+                    <h2 class="text-white fw-bold display-5 mb-2">Edit Profile</h2>
+                    <p class="text-white-50 lead">Keep your professional identity up to date</p>
                 </div>
-                <div class="card-body p-5">
-                    <form id="editForm" method="POST" enctype="multipart/form-data" class="needs-validation">
-                        <!-- Profile Photo -->
-                        <div class="card mb-4 border-light">
-                            <div class="card-header bg-light border-0">
-                                <h6 class="mb-0"><i class="fas fa-image"></i> Profile Photo</h6>
-                            </div>
-                            <div class="card-body text-center">
-                                <div class="mb-3">
-                                    <img id="photoPreview" 
-                                         src="https://ui-avatars.com/api/?name={{ user['name'] }}&size=150&background=FFC107&color=000&rounded=true" 
-                                         alt="Profile Photo" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+
+                <div class="glass-panel p-4 p-md-5 animate__animated animate__fadeInUp">
+                    <form id="editForm" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+
+                        <!-- Section: Profile Photo -->
+                        <div class="section-block mb-5 text-center">
+                            <div class="position-relative d-inline-block mb-4">
+                                <div class="profile-img-wrap">
+                                    <img id="photoPreview"
+                                        src="{{ user['profile_pic'] if user['profile_pic'] and user['profile_pic'].startswith('/') else 'https://ui-avatars.com/api/?name=' + user['name'] + '&background=f59e0b&color=fff&size=200' }}"
+                                        alt="Profile Photo" class="rounded-circle shadow-lg main-profile-img">
+                                    <label for="profile_pic" class="upload-btn shadow-lg" data-bs-toggle="tooltip"
+                                        title="Change Photo">
+                                        <i class="fas fa-camera"></i>
+                                    </label>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="profile_pic" class="form-label">Upload Photo (JPG, PNG, GIF - Max 16MB)</label>
-                                    <input type="file" class="form-control" id="profile_pic" name="profile_pic" 
-                                           accept="image/*" onchange="previewPhoto(this)">
-                                </div>
+                                <input type="file" id="profile_pic" name="profile_pic" class="d-none" accept="image/*"
+                                    onchange="previewPhoto(this)">
                             </div>
+                            <h5 class="text-white mb-1">{{ user['name'] }}</h5>
+                            <p class="text-warning small mb-0">{{ profile['designation'] }}</p>
                         </div>
 
-                        <!-- Personal Information -->
-                        <div class="card mb-4 border-light">
-                            <div class="card-header bg-light border-0">
-                                <h6 class="mb-0"><i class="fas fa-user-circle"></i> Personal Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="name" name="name" 
-                                               value="{{ user['name'] }}" required>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="phone" name="phone" 
-                                               value="{{ user['phone'] or '' }}" required>
+                        <!-- Section: Personal Info -->
+                        <div class="section-block mb-5">
+                            <h5 class="text-white fw-bold mb-4 border-bottom border-white-10 pb-2">
+                                <i class="fas fa-user-circle me-2 text-warning"></i> Personal Details
+                            </h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-floating-custom">
+                                        <input type="text" class="form-control form-control-glass" id="name" name="name"
+                                            value="{{ user['name'] }}" required placeholder="Full Name">
+                                        <label for="name">Full Name</label>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Faculty Information -->
-                        <div class="card mb-4 border-light">
-                            <div class="card-header bg-light border-0">
-                                <h6 class="mb-0"><i class="fas fa-id-card"></i> Faculty Details</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Department (Fixed)</label>
-                                        <input type="text" class="form-control" value="{{ profile['department'] }}" disabled>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Designation (Fixed)</label>
-                                        <input type="text" class="form-control" value="{{ profile['designation'] }}" disabled>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="experience_years" class="form-label">Experience (Years)</label>
-                                        <input type="number" class="form-control" id="experience_years" name="experience_years" 
-                                               value="{{ profile['experience_years'] or '' }}" min="0">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="specialization" class="form-label">Specialization (comma-separated)</label>
-                                        <input type="text" class="form-control" id="specialization" name="specialization" 
-                                               value="{{ profile['specialization'] or '' }}" placeholder="e.g., Data Science, AI, ML">
+                                <div class="col-md-6">
+                                    <div class="form-floating-custom">
+                                        <input type="tel" class="form-control form-control-glass" id="phone"
+                                            name="phone" value="{{ user['phone'] or '' }}" required
+                                            placeholder="Phone Number">
+                                        <label for="phone">Phone Number</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Office Details -->
-                        <div class="card mb-4 border-light">
-                            <div class="card-header bg-light border-0">
-                                <h6 class="mb-0"><i class="fas fa-door-open"></i> Office Details</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="office_location" class="form-label">Office Location</label>
-                                        <input type="text" class="form-control" id="office_location" name="office_location" 
-                                               value="{{ profile['office_location'] or '' }}" placeholder="e.g., Room 301, Building A">
+                        <!-- Section: Professional Info -->
+                        <div class="section-block mb-5">
+                            <h5 class="text-white fw-bold mb-4 border-bottom border-white-10 pb-2">
+                                <i class="fas fa-briefcase me-2 text-warning"></i> Professional Info
+                            </h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-floating-custom">
+                                        <input type="text" class="form-control form-control-glass locked"
+                                            value="{{ profile['department'] }}" disabled>
+                                        <label>Department <i class="fas fa-lock ms-1 small opacity-50"></i></label>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="office_hours" class="form-label">Office Hours</label>
-                                        <input type="text" class="form-control" id="office_hours" name="office_hours" 
-                                               value="{{ profile['office_hours'] or '' }}" placeholder="e.g., Mon-Fri 10am-12pm">
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating-custom">
+                                        <input type="text" class="form-control form-control-glass locked"
+                                            value="{{ profile['designation'] }}" disabled>
+                                        <label>Designation <i class="fas fa-lock ms-1 small opacity-50"></i></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating-custom">
+                                        <input type="number" class="form-control form-control-glass"
+                                            id="experience_years" name="experience_years"
+                                            value="{{ profile['experience_years'] or '' }}" min="0" placeholder="Years">
+                                        <label for="experience_years">Experience (Years)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="text-white-75 small mb-2 ms-1">Specialization (Type & Press
+                                        Enter)</label>
+                                    <div class="tag-input-container form-control-glass" id="tagInputContainer">
+                                        <!-- Tags will be injected here -->
+                                        <input type="text" id="tagInput" class="tag-input-field"
+                                            placeholder="Add specialization...">
+                                    </div>
+                                    <input type="hidden" name="specialization" id="specializationHidden"
+                                        value="{{ profile['specialization'] or '' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section: Office Info -->
+                        <div class="section-block mb-5">
+                            <h5 class="text-white fw-bold mb-4 border-bottom border-white-10 pb-2">
+                                <i class="fas fa-building me-2 text-warning"></i> Office Details
+                            </h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-floating-custom">
+                                        <input type="text" class="form-control form-control-glass" id="office_location"
+                                            name="office_location" value="{{ profile['office_location'] or '' }}"
+                                            placeholder="Room No">
+                                        <label for="office_location">Office Location</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating-custom">
+                                        <input type="text" class="form-control form-control-glass" id="office_hours"
+                                            name="office_hours" value="{{ profile['office_hours'] or '' }}"
+                                            placeholder="Hours">
+                                        <label for="office_hours">Office Hours</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Bio -->
-                        <div class="card mb-4 border-light">
-                            <div class="card-header bg-light border-0">
-                                <h6 class="mb-0"><i class="fas fa-book"></i> Bio</h6>
-                            </div>
-                            <div class="card-body">
-                                <textarea class="form-control" id="bio" name="bio" rows="4" 
-                                          placeholder="Tell us about yourself and your teaching philosophy">{{ profile['bio'] or '' }}</textarea>
+                        <!-- Section: Bio -->
+                        <div class="section-block mb-5">
+                            <h5 class="text-white fw-bold mb-4 border-bottom border-white-10 pb-2">
+                                <i class="fas fa-book-open me-2 text-warning"></i> Bio & Philosophy
+                            </h5>
+                            <div class="form-floating-custom">
+                                <textarea class="form-control form-control-glass" id="bio" name="bio"
+                                    style="height: 150px" placeholder="Bio">{{ profile['bio'] or '' }}</textarea>
+                                <label for="bio">Tell us about yourself...</label>
                             </div>
                         </div>
 
-                        <!-- Action Buttons -->
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-warning btn-lg fw-bold">
-                                <i class="fas fa-save"></i> Save Changes
+                        <!-- Actions -->
+                        <div class="d-flex gap-3 pt-3 border-top border-white-10">
+                            <button type="submit"
+                                class="btn btn-warning-gradient btn-lg w-100 rounded-pill shadow-lg hover-lift">
+                                <i class="fas fa-save me-2"></i> Save Changes
                             </button>
-                            <a href="{{ url_for('faculty_profile', user_id=user['id']) }}" class="btn btn-outline-secondary">
-                                Cancel & Go Back
-                            </a>
-                            <a href="{{ url_for('change_password') }}" class="btn btn-outline-info">
-                                <i class="fas fa-lock"></i> Change Password
+                            <a href="{{ url_for('faculty_profile', user_id=user['id']) }}"
+                                class="btn btn-glass-light btn-lg w-100 rounded-pill hover-lift">
+                                Cancel
                             </a>
                         </div>
+
                     </form>
                 </div>
             </div>
@@ -136,96 +168,321 @@
 </div>
 
 <style>
-    .card {
-        border-radius: 10px;
+    /* VARIABLES */
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+    }
+
+    /* MESH BACKGROUND */
+    .edit-profile-container {
+        position: relative;
+        background: #0f172a;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    .mesh-gradient-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+        background: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+            radial-gradient(at 50% 100%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+            radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+    }
+
+    .mesh-1,
+    .mesh-2,
+    .mesh-3,
+    .mesh-4 {
+        position: absolute;
+        filter: blur(80px);
+        opacity: 0.5;
+        animation: float 20s infinite alternate;
+        border-radius: 50%;
+    }
+
+    .mesh-1 {
+        top: -10%;
+        left: -10%;
+        width: 50vw;
+        height: 50vw;
+        background: #4f46e5;
+    }
+
+    .mesh-2 {
+        bottom: 10%;
+        right: -10%;
+        width: 40vw;
+        height: 40vw;
+        background: #f59e0b;
+        animation-delay: -5s;
+    }
+
+    /* GLASS COMPONENTS */
+    .glass-panel {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .border-white-10 {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* FORM STYLING */
+    .form-floating-custom {
+        position: relative;
+    }
+
+    .form-control-glass {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--glass-border);
+        color: white;
+        border-radius: 12px;
+        padding: 1rem 1rem;
         transition: all 0.3s ease;
-        border: none !important;
     }
 
-    .card-header {
-        border-radius: 10px 10px 0 0 !important;
+    .form-control-glass:focus {
+        background: rgba(0, 0, 0, 0.3);
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+        color: white;
     }
 
-    @keyframes slideInUp {
+    .form-control-glass.locked {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: transparent;
+        color: rgba(255, 255, 255, 0.5);
+        cursor: not-allowed;
+    }
+
+    .form-floating-custom label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 1rem;
+        pointer-events: none;
+        transform-origin: 0 0;
+        transition: opacity .1s ease-in-out, transform .1s ease-in-out;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .form-control-glass:focus~label,
+    .form-control-glass:not(:placeholder-shown)~label {
+        transform: scale(.85) translateY(-0.7rem) translateX(0.15rem);
+        color: #f59e0b;
+        opacity: 1;
+        background: #0f172a;
+        padding: 0 0.5rem;
+        height: auto;
+    }
+
+    /* PROFILE PHOTO */
+    .profile-img-wrap {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+    }
+
+    .main-profile-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .upload-btn {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background: #f59e0b;
+        color: #0f172a;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .upload-btn:hover {
+        transform: scale(1.1);
+        background: white;
+    }
+
+    /* TAG INPUT Styling */
+    .tag-input-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px;
+        min-height: 50px;
+        cursor: text;
+    }
+
+    .tag {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fbbf24;
+        padding: 4px 10px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .tag i {
+        margin-left: 6px;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .tag i:hover {
+        opacity: 1;
+        color: white;
+    }
+
+    .tag-input-field {
+        background: transparent;
+        border: none;
+        color: white;
+        flex: 1;
+        outline: none;
+        min-width: 100px;
+    }
+
+    .tag-input-field::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* BUTTONS */
+    .btn-warning-gradient {
+        background: var(--warning-gradient);
+        border: none;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-glass-light {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .btn-glass-light:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-3px);
+    }
+
+    @keyframes float {
+        0% {
+            transform: translate(0, 0);
+        }
+
+        100% {
+            transform: translate(20px, -20px);
+        }
+    }
+
+    @keyframes fadeIn {
         from {
             opacity: 0;
-            transform: translateY(30px);
+            transform: scale(0.9);
         }
+
         to {
             opacity: 1;
-            transform: translateY(0);
+            transform: scale(1);
         }
-    }
-
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-    }
-
-    #photoPreview {
-        transition: all 0.3s ease;
-        border: 3px solid #FFC107;
-        animation: pulse 2s infinite;
-    }
-
-    #photoPreview:hover {
-        box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
     }
 </style>
 
 <script>
-function previewPhoto(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('photoPreview').src = e.target.result;
+    // --- TAG INPUT LOGIC ---
+    document.addEventListener('DOMContentLoaded', function () {
+        const tagInputContainer = document.getElementById('tagInputContainer');
+        const tagInput = document.getElementById('tagInput');
+        const hiddenInput = document.getElementById('specializationHidden');
+
+        let tags = hiddenInput.value ? hiddenInput.value.split(',').map(s => s.trim()).filter(s => s) : [];
+
+        function renderTags() {
+            // Clear existing tags (keep the input field)
+            const existingTags = tagInputContainer.querySelectorAll('.tag');
+            existingTags.forEach(tag => tag.remove());
+
+            // Render current tags
+            tags.forEach((tag, index) => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'tag';
+                tagEl.innerHTML = `${tag} <i class="fas fa-times" onclick="removeTag(${index})"></i>`;
+                tagInputContainer.insertBefore(tagEl, tagInput);
+            });
+
+            // Update hidden input
+            hiddenInput.value = tags.join(',');
+        }
+
+        // Add Tag
+        tagInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                const val = tagInput.value.trim().replace(/,/g, '');
+                if (val && !tags.includes(val)) {
+                    tags.push(val);
+                    renderTags();
+                    tagInput.value = '';
+                }
+            } else if (e.key === 'Backspace' && !tagInput.value && tags.length > 0) {
+                tags.pop();
+                renderTags();
+            }
+        });
+
+        // Remove Tag (Global function for onclick)
+        window.removeTag = function (index) {
+            tags.splice(index, 1);
+            renderTags();
         };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
 
-// Toast notification function
-function showToast(message, type = 'warning') {
-    const toastHtml = `
-        <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="fas fa-${type === 'warning' ? 'exclamation-circle' : 'check-circle'} me-2"></i>${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    `;
-    const toastContainer = document.createElement('div');
-    toastContainer.innerHTML = toastHtml;
-    document.body.appendChild(toastContainer);
-    
-    const toastElement = toastContainer.querySelector('.toast');
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
-    
-    setTimeout(() => toastContainer.remove(), 5000);
-}
+        // Focus container
+        tagInputContainer.addEventListener('click', () => tagInput.focus());
 
-// Form submission with validation
-document.getElementById('editForm').addEventListener('submit', function(e) {
-    const name = document.getElementById('name').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    
-    if (!name) {
-        e.preventDefault();
-        showToast('Name is required!', 'warning');
-        return false;
+        // Initial Render
+        renderTags();
+    });
+
+    // --- PHOTO PREVIEW ---
+    function previewPhoto(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('photoPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
     }
-    
-    if (!phone) {
-        e.preventDefault();
-        showToast('Phone is required!', 'warning');
-        return false;
-    }
-    
-    // If validation passes, form submits normally
-    return true;
-});
 </script>
 {% endblock %}
