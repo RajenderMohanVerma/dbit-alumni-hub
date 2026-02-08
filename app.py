@@ -47,11 +47,30 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def get_db_connection():
-    conn = sqlite3.connect(DB_NAME, timeout=20.0)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    return conn
+    """
+    Get database connection - automatically uses PostgreSQL on Vercel, SQLite locally
+    """
+    database_url = os.getenv('DATABASE_URL')
+    
+    if database_url:
+        # Production: Use PostgreSQL (Vercel)
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        # Fix for Vercel's postgres:// URL (psycopg2 needs postgresql://)
+        if database_url.startswith('postgres://'):
+            database_url = database_url.replace('postgres://', 'postgresql://', 1)
+        
+        conn = psycopg2.connect(database_url, cursor_factory=RealDictCursor)
+        conn.autocommit = False
+        return conn
+    else:
+        # Development: Use SQLite
+        conn = sqlite3.connect(DB_NAME, timeout=20.0)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
+        return conn
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
