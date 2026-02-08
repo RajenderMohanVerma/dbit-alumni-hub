@@ -1,6 +1,7 @@
 
 
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+import random
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,6 +12,10 @@ from config import config
 import time
 import base64
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 env = os.getenv('FLASK_ENV', 'development')
@@ -1383,6 +1388,150 @@ def edit_admin_profile(user_id):
     finally:
         if conn:
             conn.close()
+
+# --- FORGOT PASSWORD ROUTES ---
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        conn = None
+        try:
+            conn = get_db_connection()
+            user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+            
+            if user:
+                # Generate OTP
+                otp = str(random.randint(100000, 999999))
+                
+                # Store OTP
+                conn.execute('INSERT INTO password_resets (email, otp) VALUES (?, ?)', (email, otp))
+                conn.commit()
+                
+                # Send Email with Premium Template
+                msg = Message(
+                    subject='🔐 Reset Your Password - Alumni Hub',
+                    recipients=[email],
+                    html=f'''
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+                        </style>
+                    </head>
+                    <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: 'Outfit', sans-serif;">
+                        <div style="max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.05);">
+                            
+                            <!-- Header -->
+                            <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 40px; text-align: center; position: relative;">
+                                <div style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 20px 20px; opacity: 0.3;"></div>
+                                <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 1px; position: relative; z-index: 2;">Alumni Hub</h1>
+                                <p style="color: rgba(255,255,255,0.7); margin: 10px 0 0 0; font-size: 14px; position: relative; z-index: 2;">Connecting Generations</p>
+                            </div>
+
+                            <!-- Body -->
+                            <div style="padding: 40px;">
+                                <h2 style="color: #1e293b; font-size: 22px; font-weight: 700; margin-top: 0; text-align: center;">Password Reset Request</h2>
+                                
+                                <p style="color: #64748b; line-height: 1.8; font-size: 16px; text-align: center; margin-bottom: 30px;">
+                                    We received a request to reset the password for your Alumni Hub account. <br>
+                                    Use the One-Time Password (OTP) below to proceed.
+                                </p>
+
+                                <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px dashed #cbd5e1; border-radius: 16px; padding: 25px; text-align: center; margin-bottom: 30px;">
+                                    <span style="font-size: 36px; font-weight: 800; color: #4f46e5; letter-spacing: 8px; display: block;">{otp}</span>
+                                    <span style="display: block; font-size: 12px; color: #94a3b8; margin-top: 10px; font-weight: 500;">VALID FOR 10 MINUTES</span>
+                                </div>
+
+                                <p style="color: #94a3b8; font-size: 14px; text-align: center; line-height: 1.6; margin-bottom: 0;">
+                                    If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.
+                                </p>
+                            </div>
+
+                            <!-- Footer -->
+                            <div style="background: #f1f5f9; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+                                <p style="color: #64748b; font-size: 12px; margin: 0;">&copy; 2026 Alumni Hub. All rights reserved.</p>
+                                <p style="color: #94a3b8; font-size: 12px; margin: 5px 0 0 0;">This is an automated message, please do not reply.</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                    '''
+                )
+                try:
+                    mail.send(msg)
+                except Exception as e:
+                    print(f"Email error: {e}")
+                    flash('Error sending email. Please try again.', 'danger')
+                    return redirect(url_for('forgot_password'))
+
+                flash('OTP sent to your email!', 'success')
+                return redirect(url_for('verify_otp', email=email))
+            else:
+                flash('Email not found!', 'danger')
+        finally:
+            if conn:
+                conn.close()
+                
+    return render_template('forgot_password.html')
+
+@app.route('/verify-otp', methods=['GET', 'POST'])
+def verify_otp():
+    email = request.args.get('email', '')
+    if request.method == 'POST':
+        email = request.form.get('email', '')
+        otp = request.form.get('otp', '')
+        
+        conn = None
+        try:
+            conn = get_db_connection()
+            # Check latest OTP for this email
+            record = conn.execute('SELECT * FROM password_resets WHERE email = ? ORDER BY created_at DESC LIMIT 1', (email,)).fetchone()
+            
+            if record and record['otp'] == otp:
+                # Valid OTP
+                session['reset_email'] = email
+                flash('OTP Verified! Set your new password.', 'success')
+                return redirect(url_for('reset_password_final'))
+            else:
+                flash('Invalid OTP!', 'danger')
+        finally:
+            if conn:
+                conn.close()
+                
+    return render_template('verify_otp.html', email=email)
+
+@app.route('/reset-password-final', methods=['GET', 'POST'])
+def reset_password_final():
+    if 'reset_email' not in session:
+        return redirect(url_for('forgot_password'))
+        
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        
+        if password != confirm_password:
+            flash('Passwords do not match!', 'warning')
+            return render_template('reset_password_final.html')
+            
+        conn = None
+        try:
+            conn = get_db_connection()
+            email = session['reset_email']
+            password_hash = generate_password_hash(password)
+            
+            conn.execute('UPDATE users SET password = ? WHERE email = ?', (password_hash, email))
+            conn.commit()
+            
+            session.pop('reset_email', None)
+            flash('Password reset successful! Please login.', 'success')
+            return redirect(url_for('login'))
+        finally:
+            if conn:
+                conn.close()
+                
+    return render_template('reset_password_final.html')
 
 # --- PASSWORD CHANGE ROUTES ---
 

@@ -1,436 +1,229 @@
 {% extends 'base.html' %}
 
-{% block title %}Login - Alumni Management System{% endblock %}
+{% block title %}Login - Alumni Hub{% endblock %}
 
 {% block content %}
-<style>
-    .login-container {
-        min-height: 100vh;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0;
-        background: white;
-    }
+<!-- Premium Fonts -->
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
-    /* Left Side - Branding */
-    .login-left {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 3.5rem 2.5rem;
-        position: relative;
-        overflow: hidden;
-        color: white;
-    }
+<div class="position-relative overflow-hidden min-vh-100 d-flex align-items-center justify-content-center">
 
-    .login-left::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 200%;
-        height: 200%;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
-        animation: slideBackground 20s linear infinite;
-    }
-
-    @keyframes slideBackground {
-        0% { transform: translate(0, 0); }
-        100% { transform: translate(100px, 100px); }
-    }
-
-    .login-left-content {
-        position: relative;
-        z-index: 2;
-        max-width: 400px;
-    }
-
-    .login-left-content h1 {
-        font-size: 2.8rem;
-        font-weight: 900;
-        margin-bottom: 1.5rem;
-        letter-spacing: -1px;
-        animation: slideInLeft 0.8s ease-out;
-    }
-
-    .login-left-content p {
-        font-size: 1.15rem;
-        margin: 1.5rem 0;
-        opacity: 0.95;
-        line-height: 1.6;
-        animation: slideInLeft 0.8s ease-out 0.1s both;
-    }
-
-    .login-left-features {
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 2px solid rgba(255,255,255,0.2);
-        animation: slideInLeft 0.8s ease-out 0.2s both;
-    }
-
-    .login-feature-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.25rem;
-        font-size: 1.05rem;
-        opacity: 0.9;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-weight: 500;
-    }
-
-    .login-feature-item:last-child {
-        margin-bottom: 0;
-    }
-
-    .login-feature-item:hover {
-        opacity: 1;
-        transform: translateX(8px);
-    }
-
-    .login-feature-item i {
-        font-size: 1.4rem;
-        flex-shrink: 0;
-    }
-
-    /* Right Side - Form */
-    .login-right {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 3.5rem 2.5rem;
-        background: white;
-    }
-
-    .login-form-wrapper {
-        width: 100%;
-        max-width: 460px;
-        animation: slideInRight 0.8s ease-out;
-    }
-
-    @keyframes slideInLeft {
-        from { opacity: 0; transform: translateX(-40px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    @keyframes slideInRight {
-        from { opacity: 0; transform: translateX(40px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    .login-form-header {
-        margin-bottom: 2rem;
-    }
-
-    .login-form-header h2 {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--primary);
-        margin-bottom: 0.5rem;
-        letter-spacing: -0.5px;
-    }
-
-    .form-subtitle {
-        font-size: 1.05rem;
-        color: var(--text-light);
-        font-weight: 500;
-    }
-
-    .login-form {
-        background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(14, 165, 233, 0.05) 100%);
-        border-radius: 16px;
-        padding: 2.5rem;
-        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(13, 110, 253, 0.1);
-        transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .login-form:hover {
-        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.12);
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-        animation: slideInUp 0.6s ease-out forwards;
-    }
-
-    .form-group:nth-child(1) { animation-delay: 0.1s; }
-    .form-group:nth-child(2) { animation-delay: 0.2s; }
-
-    @keyframes slideInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .form-group label {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin-bottom: 0.8rem;
-        font-size: 1rem;
-        transition: color 0.3s ease;
-    }
-
-    .form-group:focus-within label {
-        color: var(--primary);
-    }
-
-    .form-group input {
-        width: 100%;
-        padding: 1rem 1.125rem;
-        border: 2px solid #e5e7eb;
-        border-radius: 10px;
-        font-size: 1rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: white;
-        font-family: inherit;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
-
-    .form-group input::placeholder {
-        color: #9ca3af;
-        opacity: 0.8;
-    }
-
-    .form-group input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15), 0 4px 12px rgba(13, 110, 253, 0.2);
-        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
-        transform: translateY(-2px);
-    }
-
-    .form-group input:hover:not(:focus) {
-        border-color: #d1d5db;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    }
-
-    .form-submit {
-        width: 100%;
-        padding: 1.2rem 1.5rem;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 1.1rem;
-        font-weight: 800;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 10px 30px rgba(13, 110, 253, 0.3);
-        position: relative;
-        overflow: hidden;
-        margin-top: 0.5rem;
-        animation: slideInUp 0.6s ease-out 0.3s both;
-    }
-
-    .form-submit::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        transition: left 0.6s ease;
-    }
-
-    .form-submit:hover::before {
-        left: 100%;
-    }
-
-    .form-submit:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 20px 50px rgba(13, 110, 253, 0.4);
-    }
-
-    .form-submit:active {
-        transform: translateY(-2px);
-    }
-
-    .alert {
-        border-radius: 12px;
-        border: none;
-        padding: 1rem 1.25rem;
-        margin-bottom: 1.5rem;
-        animation: slideInDown 0.5s ease-out;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    @keyframes slideInDown {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .alert-success {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
-        color: #047857;
-        border-left: 4px solid #10b981;
-    }
-
-    .alert-danger {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
-        color: #b91c1c;
-        border-left: 4px solid #ef4444;
-    }
-
-    .alert-warning {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
-        color: #92400e;
-        border-left: 4px solid #f59e0b;
-    }
-
-    .form-footer {
-        text-align: center;
-        margin-top: 1.75rem;
-        padding-top: 1.75rem;
-        border-top: 1px solid rgba(13, 110, 253, 0.15);
-        font-size: 1rem;
-        color: var(--text-dark);
-        animation: slideInUp 0.6s ease-out 0.4s both;
-    }
-
-    .form-footer a {
-        color: var(--primary);
-        text-decoration: none;
-        font-weight: 700;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .form-footer a:hover {
-        color: var(--secondary);
-        text-decoration: underline;
-        transform: translateX(2px);
-    }
-
-    .back-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.6rem;
-        color: #6b7280;
-        text-decoration: none;
-        font-size: 0.95rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        margin-top: 1.5rem;
-        font-weight: 600;
-    }
-
-    .back-link:hover {
-        color: var(--primary);
-        transform: translateX(-4px);
-    }
-
-    @media (max-width: 768px) {
-        .login-container {
-            grid-template-columns: 1fr;
-        }
-
-        .login-left {
-            display: none;
-        }
-
-        .login-right {
-            padding: 2rem 1.5rem;
-        }
-
-        .login-form-wrapper {
-            max-width: 100%;
-        }
-
-        .login-form {
-            padding: 2rem;
-        }
-
-        .login-form-header h2 {
-            font-size: 1.5rem;
-        }
-    }
-</style>
-
-<div class="login-container">
-    <!-- Left Side - Branding -->
-    <div class="login-left">
-        <div class="login-left-content">
-            <h1>🎓 Alumni Hub</h1>
-            <p style="margin: 1.5rem 0;">
-                Connect with thousands of successful alumni worldwide and unlock unlimited opportunities.
-            </p>
-            <div class="login-left-features">
-                <div class="login-feature-item">
-                    <i class="fas fa-network-wired"></i>
-                    <span>Network with Professionals</span>
-                </div>
-                <div class="login-feature-item">
-                    <i class="fas fa-briefcase"></i>
-                    <span>Career Opportunities</span>
-                </div>
-                <div class="login-feature-item">
-                    <i class="fas fa-users"></i>
-                    <span>Community Support</span>
-                </div>
-            </div>
-        </div>
+    <!-- Animated Mesh Background -->
+    <div class="mesh-background">
+        <div class="mesh-ball ball-1"></div>
+        <div class="mesh-ball ball-2"></div>
+        <div class="mesh-ball ball-3"></div>
+        <div class="mesh-ball ball-4"></div>
     </div>
 
-    <!-- Right Side - Login Form -->
-    <div class="login-right">
-        <div class="login-form-wrapper">
-            <div class="login-form-header">
-                <h2>Welcome Back</h2>
-                <p class="form-subtitle">Sign in to your account to continue</p>
-            </div>
+    <!-- Login Container -->
+    <div class="container position-relative z-2">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-5">
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                            {% if category == 'success' %}
-                                <i class="fas fa-check-circle"></i>
-                            {% elif category == 'danger' %}
-                                <i class="fas fa-exclamation-circle"></i>
-                            {% else %}
-                                <i class="fas fa-info-circle"></i>
-                            {% endif %}
-                            <span>{{ message }}</span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <!-- Glassmorphic Login Card -->
+                <div class="card-modern glass-panel p-4 p-md-5 reveal-fade"
+                    style="border-radius: 24px; overflow: visible;">
+
+                    <!-- Header -->
+                    <div class="text-center mb-5">
+                        <div class="d-inline-block mb-3 reveal-fade" style="transition-delay: 0.1s;">
+                            <div class="icon-circle bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                                style="width: 80px; height: 80px; font-size: 2rem;">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
                         </div>
+                        <h2 class="fw-bold mb-2 reveal-text display-6">
+                            Welcome <span class="text-holographic">Back</span>
+                        </h2>
+                        <p class="text-muted reveal-fade" style="transition-delay: 0.2s;">
+                            Sign in to access your professional network
+                        </p>
+                    </div>
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-modern alert-{{ category }} alert-dismissible fade show reveal-fade"
+                        role="alert">
+                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+                        <span>{{ message }}</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     {% endfor %}
-                {% endif %}
-            {% endwith %}
+                    {% endif %}
+                    {% endwith %}
 
-            <form method="POST" action="/login" class="login-form">
-                <div class="form-group">
-                    <label for="email">
-                        <i class="fas fa-envelope"></i> Email Address
-                    </label>
-                    <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                    <!-- Login Form -->
+                    <form method="POST" action="/login" class="needs-validation">
+
+                        <!-- Email Input -->
+                        <div class="form-floating-premium mb-4 reveal-fade" style="transition-delay: 0.3s;">
+                            <input type="email" class="form-control form-control-modern ps-5" id="email" name="email"
+                                placeholder="" required>
+                            <label for="email" class="ps-5">Email Address</label>
+                            <i
+                                class="fas fa-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                            <div class="liquid-focus-border"></div>
+                        </div>
+
+                        <!-- Password Input -->
+                        <div class="form-floating-premium mb-4 reveal-fade" style="transition-delay: 0.4s;">
+                            <input type="password" class="form-control form-control-modern ps-5" id="password"
+                                name="password" placeholder="" required>
+                            <label for="password" class="ps-5">Password</label>
+                            <i
+                                class="fas fa-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                            <div class="liquid-focus-border"></div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex justify-content-between align-items-center mb-4 reveal-fade"
+                            style="transition-delay: 0.5s;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rememberMe">
+                                <label class="form-check-label text-sm text-muted" for="rememberMe">Remember me</label>
+                            </div>
+                            <a href="{{ url_for('forgot_password') }}"
+                                class="text-primary text-decoration-none text-sm fw-semibold hover-liquid">Forgot
+                                Password?</a>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-premium-gradient w-100 py-3 magnetic-button reveal-fade"
+                            style="transition-delay: 0.6s; font-size: 1.1rem;">
+                            <span class="position-relative z-2">Sign In</span>
+                            <div class="btn-glow"></div>
+                        </button>
+
+                    </form>
+
+                    <!-- Footer -->
+                    <div class="text-center mt-5 pt-4 border-top border-light-subtle reveal-fade"
+                        style="transition-delay: 0.7s;">
+                        <p class="text-muted mb-0">
+                            Don't have an account?
+                            <a href="/register"
+                                class="text-primary fw-bold text-decoration-none hover-scale d-inline-block">Create
+                                one now</a>
+                        </p>
+                    </div>
+
                 </div>
 
-                <div class="form-group">
-                    <label for="password">
-                        <i class="fas fa-lock"></i> Password
-                    </label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <!-- Back to Home -->
+                <div class="text-center mt-4 reveal-fade" style="transition-delay: 0.8s;">
+                    <a href="/"
+                        class="text-white-50 text-decoration-none hover-light d-inline-flex align-items-center gap-2">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
                 </div>
 
-                <button type="submit" class="form-submit">
-                    <i class="fas fa-arrow-right"></i> Sign In
-                </button>
-            </form>
-
-            <div class="form-footer">
-                Don't have an account? <a href="/register">Create one now</a>
             </div>
-
-            <a href="/" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Home
-            </a>
         </div>
     </div>
+
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Trigger Reveals
+        setTimeout(() => {
+            document.querySelectorAll('.reveal-fade').forEach(el => el.classList.add('revealed'));
+        }, 100);
+
+        // Magnetic Button Logic
+        const magneticBtns = document.querySelectorAll('.magnetic-button');
+        magneticBtns.forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const { left, top, width, height } = btn.getBoundingClientRect();
+                const x = (e.clientX - left - width / 2) * 0.3;
+                const y = (e.clientY - top - height / 2) * 0.3;
+                const glow = btn.querySelector('.btn-glow');
+
+                btn.style.transform = `translate(${x}px, ${y}px)`;
+                if (glow) {
+                    glow.style.left = `${e.clientX - left}px`;
+                    glow.style.top = `${e.clientY - top}px`;
+                }
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translate(0, 0)';
+            });
+        });
+
+        // 3D Parallax Tilt & Glow for Login Card
+        const loginCard = document.querySelector('.card-modern');
+        if (loginCard) {
+            loginCard.addEventListener('mousemove', (e) => {
+                const rect = loginCard.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                // Subtle tilt
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+
+                loginCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+
+                // Dynamic Glow
+                const glowX = (x / rect.width) * 100;
+                const glowY = (y / rect.height) * 100;
+                loginCard.style.background = `radial-gradient(circle at ${glowX}% ${glowY}%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)`;
+                loginCard.style.borderColor = 'rgba(255, 255, 255, 0.9)';
+            });
+
+            loginCard.addEventListener('mouseleave', () => {
+                loginCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+                loginCard.style.background = 'rgba(255, 255, 255, 0.95)';
+                loginCard.style.borderColor = 'rgba(255, 255, 255, 0.8)';
+            });
+        }
+
+        // Typewriter Effect for "Back"
+        const typeWriterElement = document.querySelector('.text-holographic');
+        if (typeWriterElement) {
+            const text = typeWriterElement.textContent;
+            typeWriterElement.textContent = '';
+            typeWriterElement.style.borderRight = '3px solid transparent';
+
+            // Delay start slightly to match reveals
+            setTimeout(() => {
+                let i = 0;
+                typeWriterElement.style.borderRight = '3px solid #6366f1'; // Cursor start
+
+                function type() {
+                    if (i < text.length) {
+                        typeWriterElement.textContent += text.charAt(i);
+                        i++;
+                        setTimeout(type, 150); // Typing speed
+                    } else {
+                        // Blink cursor then remove
+                        setTimeout(() => {
+                            typeWriterElement.style.borderRight = '3px solid transparent';
+                        }, 2000);
+                    }
+                }
+                type();
+            }, 800);
+        }
+    });
+
+    // Add CSS for 3D logic dynamically
+    const style = document.createElement('style');
+    style.textContent = `
+        .card-modern {
+            transform-style: preserve-3d;
+            will-change: transform;
+            transition: transform 0.1s ease-out; /* Smooth follow */
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 {% endblock %}
