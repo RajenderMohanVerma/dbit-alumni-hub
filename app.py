@@ -47,30 +47,11 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def get_db_connection():
-    """
-    Get database connection - automatically uses PostgreSQL on Vercel, SQLite locally
-    """
-    database_url = os.getenv('DATABASE_URL')
-    
-    if database_url:
-        # Production: Use PostgreSQL (Vercel)
-        import psycopg2
-        from psycopg2.extras import RealDictCursor
-        
-        # Fix for Vercel's postgres:// URL (psycopg2 needs postgresql://)
-        if database_url.startswith('postgres://'):
-            database_url = database_url.replace('postgres://', 'postgresql://', 1)
-        
-        conn = psycopg2.connect(database_url, cursor_factory=RealDictCursor)
-        conn.autocommit = False
-        return conn
-    else:
-        # Development: Use SQLite
-        conn = sqlite3.connect(DB_NAME, timeout=20.0)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA synchronous=NORMAL")
-        return conn
+    conn = sqlite3.connect(DB_NAME, timeout=20.0)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    return conn
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -109,16 +90,13 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    try:
-        conn = get_db_connection()
-        user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
-        conn.close()
-        if user:
-            # Avatar generation logic
-            avatar = user['profile_pic'] if user['profile_pic'] else f"https://ui-avatars.com/api/?name={user['name']}&background=0D6EFD&color=fff"
-            return User(user['id'], user['name'], user['email'], user['role'], avatar)
-    except Exception as e:
-        print(f"Error loading user: {e}")
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+    conn.close()
+    if user:
+        # Avatar generation logic
+        avatar = user['profile_pic'] if user['profile_pic'] else f"https://ui-avatars.com/api/?name={user['name']}&background=0D6EFD&color=fff"
+        return User(user['id'], user['name'], user['email'], user['role'], avatar)
     return None
 
 # --- DATABASE SETUP ---
@@ -503,15 +481,9 @@ def login():
                     return redirect(url_for('dashboard_admin'))
                 if user['role'] == 'alumni':
                     return redirect(url_for('dashboard_alumni'))
-                if user['role'] == 'faculty':
-                    return redirect(url_for('dashboard_faculty'))
                 return redirect(url_for('dashboard_student'))
             else:
                 flash('Invalid Email or Password', 'danger')
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            flash(f'An error occurred: {str(e)}', 'danger')
         finally:
             if conn:
                 conn.close()
