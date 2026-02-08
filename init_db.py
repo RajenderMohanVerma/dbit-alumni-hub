@@ -39,6 +39,7 @@ c.execute('''CREATE TABLE IF NOT EXISTS alumni_profile (
     experience_years INTEGER DEFAULT 0,
     linkedin_url TEXT,
     skills TEXT,
+    achievements TEXT,
     bio TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 )''')
@@ -53,6 +54,8 @@ c.execute('''CREATE TABLE IF NOT EXISTS student_profile (
     cgpa REAL,
     skills TEXT,
     interests TEXT,
+    achievements TEXT,
+    resume_link TEXT,
     bio TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 )''')
