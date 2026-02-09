@@ -1,0 +1,29 @@
+Mail Server: smtp.gmail.com
+Mail Port: 587
+Mail Username: alumnihub26@gmail.com
+Error: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-c6dcb3cb742sm10851856a12.0 - gsmtp')
+Traceback (most recent call last):
+  File "D:\RajenderMohan_BCA\RajenderMohan_Projects\6_Semester\Major Project\Alumni App\alumni-web\test_email.py", line 33, in <module>
+    mail.send(msg)
+    ~~~~~~~~~^^^^^
+  File "C:\Users\vkver\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_mail.py", line 491, in send
+    with self.connect() as connection:
+         ~~~~~~~~~~~~^^
+  File "C:\Users\vkver\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_mail.py", line 144, in __enter__
+    self.host = self.configure_host()
+                ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\vkver\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_mail.py", line 165, in configure_host
+    host.login(self.mail.username, self.mail.password)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vkver\AppData\Local\Programs\Python\Python313\Lib\smtplib.py", line 750, in login
+    raise last_exception
+  File "C:\Users\vkver\AppData\Local\Programs\Python\Python313\Lib\smtplib.py", line 739, in login
+    (code, resp) = self.auth(
+                   ~~~~~~~~~^
+        authmethod, getattr(self, method_name),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        initial_response_ok=initial_response_ok)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vkver\AppData\Local\Programs\Python\Python313\Lib\smtplib.py", line 662, in auth
+    raise SMTPAuthenticationError(code, resp)
+smtplib.SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-c6dcb3cb742sm10851856a12.0 - gsmtp')

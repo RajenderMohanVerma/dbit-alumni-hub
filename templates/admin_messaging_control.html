@@ -1,0 +1,560 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .admin-messaging-container {
+        padding: 30px;
+        background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%);
+        min-height: 100vh;
+    }
+
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .admin-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1e3a8a;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .status-display {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .status-item:last-child {
+        border-bottom: none;
+    }
+
+    .status-label {
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .status-value {
+        color: #1e3a8a;
+        font-weight: 700;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-unlocked {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-locked {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .lock-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .reason-input {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+        resize: vertical;
+    }
+
+    .reason-input:focus {
+        outline: none;
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .statistics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .stat-item {
+        background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1e3a8a;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: 5px;
+    }
+
+    .messages-section {
+        grid-column: 1 / -1;
+    }
+
+    .messages-toolbar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .messages-list {
+        max-height: 600px;
+        overflow-y: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+    }
+
+    .messages-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .messages-list::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+
+    .messages-list::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    .message-item {
+        padding: 15px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 10px;
+    }
+
+    .message-item:last-child {
+        border-bottom: none;
+    }
+
+    .message-item:hover {
+        background: #f8fafc;
+    }
+
+    .message-content {
+        flex: 1;
+    }
+
+    .message-sender {
+        font-weight: 700;
+        color: #1e3a8a;
+        margin-bottom: 5px;
+    }
+
+    .message-text {
+        color: #475569;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+
+    .message-time {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-top: 8px;
+    }
+
+    .delete-msg-btn {
+        background: #ef4444;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: background 0.3s;
+        white-space: nowrap;
+    }
+
+    .delete-msg-btn:hover {
+        background: #dc2626;
+    }
+
+    .empty-messages {
+        text-align: center;
+        padding: 40px;
+        color: #94a3b8;
+    }
+
+    .success-message {
+        background: #dcfce7;
+        border: 2px solid #86efac;
+        color: #166534;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+    }
+
+    .lock-warning {
+        background: #fef2f2;
+        border: 2px solid #fca5a5;
+        color: #991b1b;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+    }
+
+    @media (max-width: 1024px) {
+        .admin-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .statistics {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="admin-messaging-container">
+    <h1 style="color: #1e3a8a; margin-bottom: 30px;">⚙️ Messaging Control Panel</h1>
+
+    <div class="success-message" id="successMessage"></div>
+    <div class="lock-warning" id="lockWarning"></div>
+
+    <div class="admin-grid">
+        <!-- Lock/Unlock Control -->
+        <div class="admin-card">
+            <div class="card-title">
+                🔒 Messaging Lock Control
+            </div>
+
+            <div class="status-display">
+                <div class="status-item">
+                    <span class="status-label">Current Status</span>
+                    <span class="status-value">
+                        <span class="status-badge" id="lockBadge">Loading...</span>
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Locked By</span>
+                    <span class="status-value" id="lockedByValue">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Locked At</span>
+                    <span class="status-value" id="lockedAtValue">-</span>
+                </div>
+            </div>
+
+            <textarea
+                id="lockReason"
+                class="reason-input"
+                placeholder="Optional: Enter reason for locking..."
+                maxlength="500"
+                rows="3"
+            ></textarea>
+
+            <div class="lock-controls">
+                <button class="btn btn-danger" id="lockBtn" onclick="lockMessaging()">
+                    🔒 Lock Messaging
+                </button>
+                <button class="btn btn-primary" id="unlockBtn" onclick="unlockMessaging()">
+                    🔓 Unlock Messaging
+                </button>
+            </div>
+
+            <p style="font-size: 0.85rem; color: #64748b; margin: 0;">
+                When locked, users cannot send public messages. Existing messages will be hidden.
+            </p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="admin-card">
+            <div class="card-title">
+                📊 Messaging Statistics
+            </div>
+
+            <div class="statistics">
+                <div class="stat-item">
+                    <div class="stat-number" id="publicMsgCount">0</div>
+                    <div class="stat-label">Public Messages</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="privateMsgCount">0</div>
+                    <div class="stat-label">Private Messages</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="conversationCount">0</div>
+                    <div class="stat-label">Conversations</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="refreshStatistics()" style="width: 100%;">
+                🔄 Refresh Statistics
+            </button>
+        </div>
+
+        <!-- Public Messages Moderation -->
+        <div class="admin-card messages-section">
+            <div class="card-title">
+                💬 Public Messages Moderation
+            </div>
+
+            <div class="messages-toolbar">
+                <button class="btn btn-primary" onclick="loadPublicMessages()" style="flex: 1;">
+                    📥 Load Messages
+                </button>
+                <button class="btn btn-primary" onclick="toggleViewHidden()" style="flex: 1;" id="toggleHiddenBtn">
+                    👁️ Show Hidden
+                </button>
+            </div>
+
+            <div class="messages-list" id="messagesList">
+                <div class="empty-messages">
+                    Click "Load Messages" to view public messages
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isLocked = false;
+    let viewingHidden = false;
+
+    // Load initial state
+    document.addEventListener('DOMContentLoaded', function() {
+        refreshLockStatus();
+        refreshStatistics();
+        loadPublicMessages();
+    });
+
+    function refreshLockStatus() {
+        fetch('/api/admin/messaging/status')
+            .then(r => r.json())
+            .then(data => {
+                isLocked = data.is_locked;
+                updateLockUI();
+            });
+    }
+
+    function updateLockUI() {
+        const badge = document.getElementById('lockBadge');
+        const lockBtn = document.getElementById('lockBtn');
+        const unlockBtn = document.getElementById('unlockBtn');
+
+        if (isLocked) {
+            badge.className = 'status-badge badge-locked';
+            badge.textContent = '🔒 LOCKED';
+            lockBtn.disabled = true;
+            unlockBtn.disabled = false;
+        } else {
+            badge.className = 'status-badge badge-unlocked';
+            badge.textContent = '🔓 UNLOCKED';
+            lockBtn.disabled = false;
+            unlockBtn.disabled = true;
+        }
+    }
+
+    function lockMessaging() {
+        const reason = document.getElementById('lockReason').value;
+
+        fetch('/api/admin/messaging/lock', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+            .then(r => r.json())
+            .then(data => {
+                showSuccess('Messaging system locked successfully!');
+                isLocked = true;
+                updateLockUI();
+                refreshStatistics();
+                document.getElementById('lockReason').value = '';
+            });
+    }
+
+    function unlockMessaging() {
+        fetch('/api/admin/messaging/unlock', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(r => r.json())
+            .then(data => {
+                showSuccess('Messaging system unlocked successfully!');
+                isLocked = false;
+                updateLockUI();
+                refreshStatistics();
+            });
+    }
+
+    function refreshStatistics() {
+        fetch('/api/admin/messaging/statistics')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('publicMsgCount').textContent = data.statistics.total_public_messages;
+                document.getElementById('privateMsgCount').textContent = data.statistics.total_private_messages;
+                document.getElementById('conversationCount').textContent = data.statistics.total_conversations;
+            });
+    }
+
+    function loadPublicMessages() {
+        const includeHidden = viewingHidden ? 'true' : 'false';
+        fetch(`/api/admin/messaging/public-messages?include_hidden=${includeHidden}&limit=100`)
+            .then(r => r.json())
+            .then(data => {
+                const messagesList = document.getElementById('messagesList');
+
+                if (!data.messages || data.messages.length === 0) {
+                    messagesList.innerHTML = '<div class="empty-messages">No messages found</div>';
+                    return;
+                }
+
+                messagesList.innerHTML = '';
+                data.messages.forEach(msg => {
+                    const messageEl = document.createElement('div');
+                    messageEl.className = 'message-item';
+
+                    const isHidden = msg.is_hidden ? '(Hidden)' : '';
+
+                    messageEl.innerHTML = `
+                        <div class="message-content">
+                            <div class="message-sender">${msg.name}</div>
+                            <div class="message-text">${escapeHtml(msg.content)}</div>
+                            <div class="message-time">
+                                ${new Date(msg.created_at).toLocaleString()}
+                                ${isHidden ? ' ' + isHidden : ''}
+                            </div>
+                        </div>
+                        <button class="delete-msg-btn" onclick="deleteMessage(${msg.id})">
+                            Delete
+                        </button>
+                    `;
+                    messagesList.appendChild(messageEl);
+                });
+            });
+    }
+
+    function toggleViewHidden() {
+        viewingHidden = !viewingHidden;
+        const btn = document.getElementById('toggleHiddenBtn');
+        btn.textContent = viewingHidden ? '👁️ Show Public Only' : '👁️ Show Hidden';
+        loadPublicMessages();
+    }
+
+    function deleteMessage(messageId) {
+        if (confirm('Delete this message?')) {
+            fetch(`/api/messages/public/${messageId}`, {
+                method: 'DELETE'
+            })
+                .then(r => r.json())
+                .then(data => {
+                    showSuccess('Message deleted successfully!');
+                    loadPublicMessages();
+                    refreshStatistics();
+                });
+        }
+    }
+
+    function showSuccess(message) {
+        const msgEl = document.getElementById('successMessage');
+        msgEl.textContent = '✓ ' + message;
+        msgEl.style.display = 'block';
+        setTimeout(() => {
+            msgEl.style.display = 'none';
+        }, 4000);
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Refresh every 30 seconds
+    setInterval(() => {
+        refreshStatistics();
+    }, 30000);
+</script>
+
+{% endblock %}

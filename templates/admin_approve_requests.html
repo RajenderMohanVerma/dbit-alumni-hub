@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Approve Requests - Alumni Hub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown">
+        <div>
+            <h1 class="fw-bold gradient-text display-5 mb-2">Pending Approvals</h1>
+            <p class="lead text-muted">Review and approve new alumni and faculty registrations.</p>
+        </div>
+        <div>
+            <span class="badge bg-warning text-dark p-2 fs-6 rounded-pill"><i class="fas fa-clock me-2"></i> 12
+                Pending</span>
+        </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="glass-card p-0 overflow-hidden animate__animated animate__fadeInUp">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="p-4 border-0">User</th>
+                        <th class="p-4 border-0">Role</th>
+                        <th class="p-4 border-0">Details</th>
+                        <th class="p-4 border-0">Date</th>
+                        <th class="p-4 border-0 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Row 1 -->
+                    <tr>
+                        <td class="p-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                    style="width: 40px; height: 40px;">JS</div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">John Smith</h6>
+                                    <small class="text-muted">john.smith@example.com</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4"><span class="badge bg-info-subtle text-info">Alumni</span></td>
+                        <td class="p-4">
+                            <small class="d-block text-muted">Batch: <strong>2023</strong></small>
+                            <small class="d-block text-muted">Dept: <strong>CSE</strong></small>
+                        </td>
+                        <td class="p-4 text-muted">Just now</td>
+                        <td class="p-4 text-end">
+                            <button class="btn btn-sm btn-success me-2" title="Approve"><i
+                                    class="fas fa-check"></i></button>
+                            <button class="btn btn-sm btn-danger" title="Reject"><i class="fas fa-times"></i></button>
+                        </td>
+                    </tr>
+
+                    <!-- Row 2 -->
+                    <tr>
+                        <td class="p-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                    style="width: 40px; height: 40px;">MP</div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Maria P</h6>
+                                    <small class="text-muted">maria.p@example.com</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4"><span class="badge bg-warning-subtle text-warning text-dark">Faculty</span></td>
+                        <td class="p-4">
+                            <small class="d-block text-muted">Dept: <strong>ECE</strong></small>
+                            <small class="d-block text-muted">ID: <strong>FAC1029</strong></small>
+                        </td>
+                        <td class="p-4 text-muted">2 hours ago</td>
+                        <td class="p-4 text-end">
+                            <button class="btn btn-sm btn-success me-2" title="Approve"><i
+                                    class="fas fa-check"></i></button>
+                            <button class="btn btn-sm btn-danger" title="Reject"><i class="fas fa-times"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

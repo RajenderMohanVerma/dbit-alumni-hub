@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}System Statistics - Alumni Hub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="mb-5 animate__animated animate__fadeInDown">
+        <h1 class="fw-bold gradient-text display-5 mb-2">System Statistics</h1>
+        <p class="lead text-muted">Real-time insights and analytics.</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="glass-card p-4 text-center">
+                <div class="display-4 fw-bold text-primary mb-2">1,250</div>
+                <div class="text-muted small text-uppercase fw-bold">Total Users</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-4 text-center">
+                <div class="display-4 fw-bold text-success mb-2">850</div>
+                <div class="text-muted small text-uppercase fw-bold">Alumni</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-4 text-center">
+                <div class="display-4 fw-bold text-info mb-2">350</div>
+                <div class="text-muted small text-uppercase fw-bold">Students</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-4 text-center">
+                <div class="display-4 fw-bold text-warning mb-2">50</div>
+                <div class="text-muted small text-uppercase fw-bold">Faculty</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-4">
+        <div class="col-lg-8 animate__animated animate__fadeInUp">
+            <div class="glass-card p-4">
+                <h5 class="fw-bold mb-4">User Growth (Last 6 Months)</h5>
+                <canvas id="userGrowthChart" height="150"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-4 animate__animated animate__fadeInUp" style="--delay: 0.1s">
+            <div class="glass-card p-4">
+                <h5 class="fw-bold mb-4">User Role Distribution</h5>
+                <canvas id="roleDistChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Line Chart
+        const ctx1 = document.getElementById('userGrowthChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'New Registrations',
+                    data: [65, 59, 80, 81, 56, 155],
+                    borderColor: '#0ea5e9',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Doughnut Chart
+        const ctx2 = document.getElementById('roleDistChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Alumni', 'Students', 'Faculty'],
+                datasets: [{
+                    data: [850, 350, 50],
+                    backgroundColor: ['#10b981', '#0ea5e9', '#f59e0b']
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    });
+</script>
+{% endblock %}

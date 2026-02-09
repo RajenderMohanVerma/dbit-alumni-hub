@@ -136,6 +136,10 @@
                                 onclick="sendExtremeConnection({{ user['id'] }})">
                                 <i class="fas fa-user-plus me-2"></i>Send Request
                             </button>
+                            <button type="button" class="btn-extreme-outline py-3 rounded-pill mt-2 w-100"
+                                data-bs-toggle="modal" data-bs-target="#emailModal">
+                                <i class="fas fa-envelope me-2 text-indigo-600"></i>Send Email
+                            </button>
                             {% endif %}
 
                             {% if profile['linkedin_url'] %}
@@ -236,6 +240,37 @@
                     </div>
                 </div>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Email Modal -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-hidden="true" style="z-index: 100000;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card border-0" style="background: rgba(255, 255, 255, 0.95);">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Send Email to {{ user['name'] }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/send-email" method="POST">
+                    <input type="hidden" name="recipient_email" value="{{ user['email'] }}">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Subject</label>
+                        <input type="text" name="subject" class="form-control rounded-3" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Message</label>
+                        <textarea name="message" class="form-control rounded-3" rows="5" required></textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary fw-bold py-2">
+                            <i class="fas fa-paper-plane me-2"></i> Send Message
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

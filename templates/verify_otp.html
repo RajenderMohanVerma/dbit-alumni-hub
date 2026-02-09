@@ -54,7 +54,7 @@
                     {% endwith %}
 
                     <!-- Form -->
-                    <form method="POST" action="/verify-otp" class="needs-validation">
+                    <form method="POST" action="{{ action_url or '/verify-otp' }}" class="needs-validation">
                         <input type="hidden" name="email" value="{{ email }}">
 
                         <!-- OTP Input -->

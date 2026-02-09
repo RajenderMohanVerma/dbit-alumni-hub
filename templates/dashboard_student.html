@@ -17,46 +17,43 @@
     </div>
     <!-- Hero Section -->
     <div class="hero-section glass-hero"
-        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 80px 0; position: relative; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.1);">
-        <!-- Animated Background Blobs -->
+        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 100px 0; position: relative; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <!-- Advanced Animated Background -->
         <div class="hero-bg">
             <div class="blob blob-1"></div>
             <div class="blob blob-2"></div>
             <div class="blob blob-3"></div>
+            <div class="animated-bg-lines"></div>
         </div>
 
         <div class="container" style="position: relative; z-index: 2;">
             <div class="row align-items-center">
                 <div class="col-lg-7">
                     <div class="hero-content" style="animation: fadeInLeft 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);">
-                        <div class="badge rounded-pill bg-white text-primary px-3 py-2 mb-3 shadow-sm border-0"
-                            id="timeGreetingBadge">
-                            <i class="far fa-clock me-1"></i> <span id="dynamicGreeting">Loading...</span>
+                        <div class="badge-animated rounded-pill bg-white text-primary px-3 py-2 mb-3 shadow-lg border-0"
+                            id="timeGreetingBadge" style="display: inline-block; animation: bounceIn 0.8s ease;">
+                            <i class="far fa-clock me-1"></i> <span id="dynamicGreeting" class="fw-bold">Loading...</span>
                         </div>
-                        <h1 class="text-white display-4 fw-bold mb-3 reveal-text">
-                            <i class="fas fa-user-graduate me-3"></i>Hello, <span
-                                class="text-holographic typing-text">{{
-                                current_user.name }}!</span>
+                        <h1 class="text-white display-4 fw-bold mb-3 reveal-text split-text-hero" style="line-height: 1.2; letter-spacing: -1px;">
+                            <i class="fas fa-user-graduate me-3 slide-in-icon"></i><span class="word-reveal">Hello,</span> <span
+                                class="text-holographic typing-text gradient-text animate-gradient">{{ current_user.name }}!</span>
                         </h1>
-                        <p class="text-white-50 lead mb-4 reveal-fade" style="font-size: 1.25rem; max-width: 600px;">
+                        <p class="text-white-50 lead mb-4 reveal-fade" style="font-size: 1.25rem; max-width: 600px; animation: slideInDown 1s ease 0.3s both;">
                             Empower your future. Connect with the elite network of alumni and mentors.
                         </p>
 
-                        <!-- Profile Completeness -->
-                        <div class="profile-completeness-wrapper glass-card p-3 d-inline-block"
-                            style="min-width: 300px;">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-white small fw-bold">Profile Completeness</span>
-                                <span class="text-white small fw-bold" id="completenessPercent">0%</span>
+                        <!-- Profile Completeness with Advanced Animation -->
+                        <div class="profile-completeness-wrapper glass-card p-4 d-inline-block"
+                            style="min-width: 320px; animation: slideInLeft 0.8s ease 0.5s both; backdrop-filter: blur(15px);">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-white small fw-bold" style="font-size: 0.95rem;">Profile Completeness</span>
+                                <span class="text-white small fw-bold badge bg-primary" id="completenessPercent" style="font-size: 0.9rem; animation: counterPop 0.6s ease;">0%</span>
                             </div>
-                            <div class="progress"
-                                style="height: 10px; border-radius: 5px; background: rgba(255,255,255,0.2);">
-                                <div class="progress-bar bg-info progress-bar-striped progress-bar-animated"
-                                    id="completenessBar" role="progressbar" style="width: 0%"></div>
+                            <div class="progress" style="height: 12px; border-radius: 8px; background: rgba(255,255,255,0.15); overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">
+                                <div class="progress-bar bg-info progress-bar-striped" id="completenessBar" role="progressbar" style="width: 0%; border-radius: 8px; background: linear-gradient(90deg, #10b981, #3b82f6); box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); animation: slideUp 1s ease-out 0.7s both;"></div>
                             </div>
-                            <p class="text-white-50 small mt-2 mb-0">
-                                <i class="fas fa-magic me-1"></i> <span id="completenessTip">Complete your profile to
-                                    stand out!</span>
+                            <p class="text-white-50 small mt-3 mb-0" style="font-size: 0.85rem;">
+                                <i class="fas fa-magic me-2 text-warning" style="animation: spin 2s linear infinite;"></i> <span id="completenessTip">Complete your profile to stand out!</span>
                             </p>
                         </div>
                     </div>
@@ -451,26 +448,27 @@
     <!-- Action Buttons -->
     <div class="action-buttons mt-5 mb-5">
         <div class="text-center">
-            <a href="{{ url_for('edit_student_profile', user_id=current_user.id) }}" class="btn btn-primary btn-lg me-2"
-                style="border-radius: 12px; padding: 0.9rem 2.5rem; font-weight: 600; transition: all 0.3s ease;"
-                onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(102,126,234,0.4)'"
+            <a href="{{ url_for('edit_student_profile', user_id=current_user.id) }}" class="btn btn-primary btn-lg me-2 action-btn"
+                style="border-radius: 12px; padding: 0.9rem 2.5rem; font-weight: 600; transition: all 0.3s ease; position: relative; overflow: hidden;"
+                onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 15px 35px rgba(102,126,234,0.5)'"
                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
                 <i class="fas fa-edit me-2"></i> Edit Profile
             </a>
-            <button class="btn btn-warning btn-lg me-2" data-bs-toggle="modal" data-bs-target="#upgradeModal"
-                style="border-radius: 12px; padding: 0.9rem 2.5rem; font-weight: 600; background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); border: none; color: white; transition: all 0.3s ease;"
-                onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(245,158,11,0.4)'"
+            <button class="btn btn-warning btn-lg me-2 action-btn" data-bs-toggle="modal" data-bs-target="#upgradeModal"
+                style="border-radius: 12px; padding: 0.9rem 2.5rem; font-weight: 600; background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); border: none; color: white; transition: all 0.3s ease; position: relative; overflow: hidden;"
+                onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 15px 35px rgba(249,115,22,0.5)'"
                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
                 <i class="fas fa-arrow-up me-2"></i> Upgrade to Alumni
             </button>
-            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-lg"
-                style="border-radius: 12px; padding: 0.9rem 2.5rem; font-weight: 600; transition: all 0.3s ease;"
-                onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(239,68,68,0.4)'"
+            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-lg action-btn"
+                style="border-radius: 12px; padding: 0.9rem 2.5rem; font-weight: 600; transition: all 0.3s ease; position: relative; overflow: hidden;"
+                onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 15px 35px rgba(239,68,68,0.5)'"
                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
                 <i class="fas fa-sign-out-alt me-2"></i> Logout
             </a>
         </div>
     </div>
+
 </div>
 </div>
 
@@ -1338,15 +1336,495 @@
     }
 
     @keyframes bounceX {
-
         0%,
         100% {
             transform: translateX(0);
         }
-
         50% {
             transform: translateX(5px);
         }
+    }
+
+    /* ===== ADVANCED ANIMATION STYLES ===== */
+    
+    /* Split Text Animations */
+    .split-text-hero {
+        display: block;
+        overflow: hidden;
+    }
+
+    .split-text-hero .word-reveal {
+        display: inline-block;
+        animation: slideInDown 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards;
+        opacity: 0;
+    }
+
+    @keyframes slideInDown {
+        from {
+            transform: translateY(-40px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .gradient-text {
+        background: linear-gradient(90deg, #00d4ff, #0099ff, #00d4ff, #00d4ff);
+        background-size: 300% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .animate-gradient {
+        animation: gradientShift 5s ease infinite;
+    }
+
+    @keyframes gradientShift {
+        0%, 100% {
+            background-position: 0% center;
+        }
+        50% {
+            background-position: 100% center;
+        }
+    }
+
+    .slide-in-icon {
+        display: inline-block;
+        animation: slideInLeft 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .badge-animated {
+        animation: float 3s ease-in-out infinite;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .badge-animated:hover {
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        transform: translateY(-2px);
+    }
+
+    @keyframes bounceIn {
+        0% {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Animated Background Lines */
+    .animated-bg-lines {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.08;
+        background-image: 
+            linear-gradient(90deg, transparent 24%, rgba(255,255,255,.2) 25%, rgba(255,255,255,.2) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.2) 75%, rgba(255,255,255,.2) 76%, transparent 77%, transparent),
+            linear-gradient(0deg, transparent 24%, rgba(255,255,255,.2) 25%, rgba(255,255,255,.2) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.2) 75%, rgba(255,255,255,.2) 76%, transparent 77%, transparent);
+        background-size: 50px 50px;
+        animation: moveLines 15s linear infinite;
+        pointer-events: none;
+    }
+
+    @keyframes moveLines {
+        0% {
+            transform: translateY(0);
+        }
+        100% {
+            transform: translateY(50px);
+        }
+    }
+
+    /* Enhanced Stat Cards with Stagger */
+    .stat-card {
+        animation: slideUp 0.6s ease-out both;
+        position: relative;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .stat-card:hover::before {
+        left: 100%;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.2s; }
+    .stat-card:nth-child(2) { animation-delay: 0.4s; }
+    .stat-card:nth-child(3) { animation-delay: 0.6s; }
+    .stat-card:nth-child(4) { animation-delay: 0.8s; }
+
+    /* Premium Card Enhancements */
+    .premium-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .premium-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+        animation: rotate 8s linear infinite;
+        pointer-events: none;
+    }
+
+    @keyframes rotate {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Premium Card with hover lift effect */
+    .premium-card {
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .premium-card:hover {
+        transform: translateY(-15px) scale(1.02);
+        box-shadow: 0 30px 60px rgba(102, 126, 234, 0.25);
+    }
+
+    /* Text Reveal Animation */
+    .text-reveal {
+        animation: textReveal 0.8s ease forwards;
+        overflow: hidden;
+    }
+
+    @keyframes textReveal {
+        from {
+            width: 0;
+            opacity: 0;
+        }
+        to {
+            width: 100%;
+            opacity: 1;
+        }
+    }
+
+    /* Neon Glow Effect */
+    .neon-glow {
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
+        animation: neonFlicker 3s infinite;
+    }
+
+    @keyframes neonFlicker {
+        0%, 18%, 22%, 25%, 53%, 57%, 100% {
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        20%, 24%, 55% {
+            text-shadow: 0 0 5px rgba(0, 212, 255, 0.2);
+        }
+    }
+
+    /* Category Pills with Enhanced Animation */
+    .gradient-pills .nav-link {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+    }
+
+    .gradient-pills .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transition: width 0.4s ease;
+    }
+
+    .gradient-pills .nav-link:hover::after {
+        width: 100%;
+    }
+
+    /* Counter Animation Improvements */
+    .counter {
+        font-weight: 800;
+        animation: counterPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes counterPop {
+        0% {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Floating Animation Enhancement */
+    @keyframes floatUpDown {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    .floating-shape {
+        animation: floatUpDown 6s ease-in-out infinite;
+    }
+
+    /* Modal Enter Animation */
+    .modal.fade .modal-dialog {
+        animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* Card Stagger Animation */
+    .alumniGrid, .studentGrid, .facultyGrid {
+        animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Ripple Effect for Buttons */
+    .btn.ripple {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ripple-effect {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+        transform: scale(0);
+        animation: ripple-animation 0.6s ease-out;
+        pointer-events: none;
+    }
+
+    @keyframes ripple-animation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+
+    /* Spin Animation for Icons */
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Advanced Counter Pop Animation */
+    @keyframes counterPop {
+        0% {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.2);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Smooth Stagger Animation */
+    @keyframes stagger {
+        0% {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Pulse Glow Animation */
+    @keyframes pulseGlow {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+        }
+        50% {
+            box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+        }
+    }
+
+    /* Action Button Enhancements */
+    .action-btn {
+        animation: slideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .action-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .action-btn:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    /* Professional Stat Card Hover */
+    .stat-card {
+        position: relative;
+    }
+
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+        border-radius: 24px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .stat-card:hover::after {
+        opacity: 1;
+    }
+
+    /* Modal Professional Animation */
+    .modal.fade .modal-dialog {
+        animation: modalSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes modalSlideUp {
+        from {
+            opacity: 0;
+            transform: scale(0.85) translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* Badge Pulse Animation */
+    .badge-animated {
+        animation: badgePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+        }
+        50% {
+            box-shadow: 0 0 0 8px rgba(102, 126, 234, 0);
+        }
+    }
+
+    /* Smooth Transition for Category Switch */
+    .category-panel {
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* ===== MODAL STYLES ===== */
+    .modal {
+        z-index: 1050;
+    }
+
+    .modal-backdrop {
+        z-index: 1040;
+        backdrop-filter: blur(4px);
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal.show {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-dialog {
+        margin: 0;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-content {
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border: none;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-body {
+        max-height: calc(90vh - 120px);
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-close-white {
+        filter: invert(1);
+    }
+
+    .btn-close-white:focus {
+        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
     }
 </style>
 
@@ -1459,7 +1937,7 @@
         const text = el.innerText;
         el.innerText = '';
         let i = 0;
-        const speed = 100;
+        const speed = 80;
 
         function type() {
             if (i < text.length) {
@@ -1471,18 +1949,108 @@
         type();
     }
 
+    // Advanced Counter with RequestAnimationFrame
+    function advancedAnimateCounter(el, target) {
+        let current = 0;
+        const duration = 2000;
+        const increment = target / (duration / 16);
+        const startTime = performance.now();
+
+        function frame(time) {
+            const elapsed = time - startTime;
+            current = Math.min((elapsed / duration) * target, target);
+            el.textContent = Math.floor(current);
+            
+            if (elapsed < duration) {
+                requestAnimationFrame(frame);
+            } else {
+                el.textContent = target;
+            }
+        }
+        requestAnimationFrame(frame);
+    }
+
+    // Initialize Advanced Animations
+    function initAdvancedAnimations() {
+        // Card hover effects
+        const cards = document.querySelectorAll('.premium-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
+                this.style.transform = 'translateY(-15px) scale(1.02)';
+                
+                const avatar = this.querySelector('.card-avatar-wrapper');
+                if (avatar) avatar.style.transform = 'scale(1.1) rotate(5deg)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                const avatar = this.querySelector('.card-avatar-wrapper');
+                if (avatar) avatar.style.transform = 'scale(1) rotate(0deg)';
+            });
+        });
+
+        // Glow effect on buttons
+        const buttons = document.querySelectorAll('.btn-primary, .btn-info');
+        buttons.forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 0 25px rgba(102, 126, 234, 0.6)';
+                this.style.transition = 'all 0.3s ease';
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.boxShadow = '';
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    }
+
+    // Stagger Animation for Cards
+    function staggerCardAnimations() {
+        const cards = document.querySelectorAll('.premium-card');
+        cards.forEach((card, index) => {
+            card.style.animation = `slideUp 0.6s ease-out backwards`;
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const typingEl = document.querySelector('.typing-text');
         if (typingEl) {
             setTimeout(() => typeText(typingEl), 800);
         }
+
+        // Initialize all advanced animations
+        setTimeout(() => {
+            initAdvancedAnimations();
+            staggerCardAnimations();
+        }, 500);
+
+        // Animate counters on scroll
+        const counters = document.querySelectorAll('.counter, .counter-float');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.dataset.animated) {
+                    const target = parseFloat(entry.target.dataset.target) || parseInt(entry.target.textContent) || 0;
+                    entry.target.dataset.animated = 'true';
+                    entry.target.textContent = '0';
+                    advancedAnimateCounter(entry.target, target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(counter => observer.observe(counter));
     });
 
     let currentCategory = 'alumni';
 
     function switchCategory(cat) {
         const container = document.querySelector('.directory-container');
-        if (container) container.classList.add('is-loading');
+        if (container) {
+            container.style.opacity = '0';
+            container.style.transform = 'scale(0.95)';
+        }
 
         setTimeout(() => {
             currentCategory = cat;
@@ -1497,8 +2065,12 @@
             });
 
             performSearch();
-            if (container) container.classList.remove('is-loading');
-        }, 400);
+            if (container) {
+                container.style.opacity = '1';
+                container.style.transition = 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                container.style.transform = 'scale(1)';
+            }
+        }, 300);
     }
 
     function performSearch() {
@@ -1507,14 +2079,29 @@
         const q = searchInput.value.toLowerCase();
         const cards = document.querySelectorAll(`.${currentCategory}-card`);
 
-        cards.forEach(c => {
+        cards.forEach((c, index) => {
             const name = c.dataset.name || "";
             const info = c.dataset.info || "";
-            c.style.display = (name.includes(q) || info.includes(q)) ? 'block' : 'none';
+            const isMatch = (name.includes(q) || info.includes(q));
+            
+            c.style.display = isMatch ? 'block' : 'none';
+            if (isMatch) {
+                c.style.animation = `slideUp 0.4s ease-out backwards`;
+                c.style.animationDelay = `${index * 0.05}s`;
+            }
         });
     }
 
-    document.getElementById('globalSearch').addEventListener('input', performSearch);
+    const searchInput = document.getElementById('globalSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', performSearch);
+        // Debounce for better performance
+        let searchTimeout;
+        searchInput.addEventListener('keyup', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(performSearch, 300);
+        });
+    }
 
     function resetAllFilters() {
         document.getElementById('globalSearch').value = '';
@@ -1549,69 +2136,133 @@
     }
 
     function viewStudentModal(studentId) {
-        const content = document.getElementById('alumniDetailsContent');
-        content.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-info"></div></div>';
-        const modal = new bootstrap.Modal(document.getElementById('alumniDetailsModal'));
-        modal.show();
-
-        fetch(`/api/student/${studentId}`).then(r => r.json()).then(data => {
-            if (data.error) {
-                content.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+        try {
+            const contentEl = document.getElementById('alumniDetailsContent');
+            const modalEl = document.getElementById('alumniDetailsModal');
+            
+            if (!contentEl) {
+                console.error('alumniDetailsContent element not found');
                 return;
             }
+            if (!modalEl) {
+                console.error('alumniDetailsModal element not found');
+                return;
+            }
+            
+            contentEl.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-info"></div></div>';
+            
+            // Ensure Bootstrap Modal is available
+            if (!window.bootstrap || !window.bootstrap.Modal) {
+                console.error('Bootstrap Modal not loaded');
+                return;
+            }
+            
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
 
-            const u = data.user;
-            const p = data.profile;
+            fetch(`/api/student/${studentId}`)
+                .then(r => {
+                    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+                    return r.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        contentEl.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                        return;
+                    }
 
-            content.innerHTML = `
-                <div class="text-center mb-4">
-                    <img src="${u.profile_pic || 'https://ui-avatars.com/api/?name=' + u.name}" class="rounded-circle shadow" style="width: 100px; height: 100px; object-fit: cover;">
-                    <h4 class="mt-3 fw-bold">${u.name}</h4>
-                    <span class="badge bg-info">${p.degree} | Semester ${p.semester}</span>
-                </div>
-                <div class="p-4 bg-light rounded-4 border-start border-4 border-info">
-                    <div class="row g-3">
-                        <div class="col-6"><p class="mb-0 text-muted small">Department</p><p class="fw-bold">${p.department}</p></div>
-                        <div class="col-6"><p class="mb-0 text-muted small">Semester</p><p class="fw-bold">${p.semester}</p></div>
-                        <div class="col-12"><p class="mb-0 text-muted small">Email Address</p><p class="fw-bold">${u.email}</p></div>
-                    </div>
-                </div>`;
-            document.getElementById('viewFullProfileBtn').style.display = 'none';
-        });
+                    const u = data.user;
+                    const p = data.profile;
+                    const profileImg = u.profile_pic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name);
+
+                    contentEl.innerHTML = `
+                        <div class="text-center mb-4">
+                            <img src="${profileImg}" class="rounded-circle shadow" style="width: 100px; height: 100px; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&bg=4facfe&color=fff'">
+                            <h4 class="mt-3 fw-bold">${u.name}</h4>
+                            <span class="badge bg-info">${p.degree} | Semester ${p.semester}</span>
+                        </div>
+                        <div class="p-4 bg-light rounded-4 border-start border-4 border-info">
+                            <div class="row g-3">
+                                <div class="col-6"><p class="mb-0 text-muted small">Department</p><p class="fw-bold">${p.department}</p></div>
+                                <div class="col-6"><p class="mb-0 text-muted small">Semester</p><p class="fw-bold">${p.semester}</p></div>
+                                <div class="col-12"><p class="mb-0 text-muted small">Email Address</p><p class="fw-bold">${u.email}</p></div>
+                            </div>
+                        </div>`;
+                    document.getElementById('viewFullProfileBtn').style.display = 'none';
+                })
+                .catch(err => {
+                    console.error('Error fetching student data:', err);
+                    contentEl.innerHTML = `<div class="alert alert-danger">Error loading student details. Please try again.</div>`;
+                });
+        } catch (err) {
+            console.error('Error in viewStudentModal:', err);
+        }
     }
 
     function showAlumniModal(alumId) {
-        const content = document.getElementById('alumniDetailsContent');
-        content.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
-        const modal = new bootstrap.Modal(document.getElementById('alumniDetailsModal'));
-        modal.show();
-
-        fetch(`/api/alumni/${alumId}`).then(r => r.json()).then(data => {
-            if (data.error) {
-                content.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+        try {
+            const contentEl = document.getElementById('alumniDetailsContent');
+            const modalEl = document.getElementById('alumniDetailsModal');
+            
+            if (!contentEl) {
+                console.error('alumniDetailsContent element not found');
                 return;
             }
+            if (!modalEl) {
+                console.error('alumniDetailsModal element not found');
+                return;
+            }
+            
+            contentEl.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
+            
+            // Ensure Bootstrap Modal is available
+            if (!window.bootstrap || !window.bootstrap.Modal) {
+                console.error('Bootstrap Modal not loaded');
+                return;
+            }
+            
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
 
-            const u = data.user;
-            const p = data.profile;
+            fetch(`/api/alumni/${alumId}`)
+                .then(r => {
+                    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+                    return r.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        contentEl.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                        return;
+                    }
 
-            content.innerHTML = `
-                <div class="text-center mb-4">
-                    <img src="${u.profile_pic || 'https://ui-avatars.com/api/?name=' + u.name}" class="rounded-circle shadow" style="width: 100px; height: 100px; object-fit: cover;">
-                    <h4 class="mt-3 fw-bold">${u.name}</h4>
-                    <span class="badge bg-primary">Batch ${p.pass_year}</span>
-                </div>
-                <div class="p-4 bg-light rounded-4 border-start border-4 border-primary">
-                    <div class="row g-3">
-                        <div class="col-6"><p class="mb-0 text-muted small">Company</p><p class="fw-bold">${p.company_name || 'N/A'}</p></div>
-                        <div class="col-6"><p class="mb-0 text-muted small">Position</p><p class="fw-bold">${p.designation || 'N/A'}</p></div>
-                        <div class="col-6"><p class="mb-0 text-muted small">Department</p><p class="fw-bold">${p.department}</p></div>
-                        <div class="col-6"><p class="mb-0 text-muted small">Location</p><p class="fw-bold">${p.work_location || 'Remote'}</p></div>
-                    </div>
-                </div>`;
-            document.getElementById('viewFullProfileBtn').style.display = 'inline-block';
-            document.getElementById('viewFullProfileBtn').href = `/alumni/profile/${alumId}`;
-        });
+                    const u = data.user;
+                    const p = data.profile;
+                    const profileImg = u.profile_pic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name);
+
+                    contentEl.innerHTML = `
+                        <div class="text-center mb-4">
+                            <img src="${profileImg}" class="rounded-circle shadow" style="width: 100px; height: 100px; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&bg=667eea&color=fff'">
+                            <h4 class="mt-3 fw-bold">${u.name}</h4>
+                            <span class="badge bg-primary">Batch ${p.pass_year}</span>
+                        </div>
+                        <div class="p-4 bg-light rounded-4 border-start border-4 border-primary">
+                            <div class="row g-3">
+                                <div class="col-6"><p class="mb-0 text-muted small">Company</p><p class="fw-bold">${p.company_name || 'N/A'}</p></div>
+                                <div class="col-6"><p class="mb-0 text-muted small">Position</p><p class="fw-bold">${p.designation || 'N/A'}</p></div>
+                                <div class="col-6"><p class="mb-0 text-muted small">Department</p><p class="fw-bold">${p.department}</p></div>
+                                <div class="col-6"><p class="mb-0 text-muted small">Location</p><p class="fw-bold">${p.work_location || 'Remote'}</p></div>
+                            </div>
+                        </div>`;
+                    document.getElementById('viewFullProfileBtn').style.display = 'inline-block';
+                    document.getElementById('viewFullProfileBtn').href = `/alumni/profile/${alumId}`;
+                })
+                .catch(err => {
+                    console.error('Error fetching alumni data:', err);
+                    contentEl.innerHTML = `<div class="alert alert-danger">Error loading alumni details. Please try again.</div>`;
+                });
+        } catch (err) {
+            console.error('Error in showAlumniModal:', err);
+        }
     }
 
     function showToast(message, type = 'info') {
@@ -1624,18 +2275,58 @@
         toast.style.zIndex = '9999';
         toast.style.animation = 'slideUp 0.4s ease';
 
+        const iconClass = type === 'success' ? 'fa-check-circle' : type === 'danger' ? 'fa-exclamation-circle' : 'fa-info-circle';
+        
         toast.innerHTML = `
-            <div style="background: ${color}; color: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); font-weight: 600; min-width: 280px;">
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'} me-2"></i>${message}
+            <div style="background: linear-gradient(135deg, ${color}, ${color}dd); color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 12px 35px rgba(0,0,0,0.25); font-weight: 600; min-width: 280px; border-left: 4px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px);">
+                <i class="fas ${iconClass} me-2"></i>${message}
             </div>`;
         document.body.appendChild(toast);
 
+        toast.style.animation = 'slideUp 0.4s ease-out';
+
         setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.4s ease';
+            toast.style.animation = 'slideDown 0.4s ease-out forwards';
             setTimeout(() => toast.remove(), 400);
         }, 3000);
     }
+
+    // Add missing animations
+    const animationStyle = document.createElement('style');
+    animationStyle.textContent = `
+        @keyframes slideUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px) scale(0.95);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes slideDown {
+            from { 
+                opacity: 1; 
+                transform: translateY(0);
+            }
+            to { 
+                opacity: 0; 
+                transform: translateY(30px);
+            }
+        }
+        @keyframes slideInLeft {
+            from { 
+                opacity: 0; 
+                transform: translateX(-30px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0);
+            }
+        }
+    `;
+    document.head.appendChild(animationStyle);
+
 </script>
 
 {% endblock %}

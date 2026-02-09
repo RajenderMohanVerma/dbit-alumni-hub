@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Reports & Issues - Alumni Hub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown">
+        <div>
+            <h1 class="fw-bold gradient-text display-5 mb-2">Reports & Issues</h1>
+            <p class="lead text-muted">Manage and resolve reported issues from users.</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-outline-primary active">Open</button>
+            <button class="btn btn-outline-primary">Resolved</button>
+            <button class="btn btn-outline-primary">All</button>
+        </div>
+    </div>
+
+    <!-- Reports Table -->
+    <div class="glass-card p-0 overflow-hidden animate__animated animate__fadeInUp">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="p-4 border-0">ID</th>
+                        <th class="p-4 border-0">Reporter</th>
+                        <th class="p-4 border-0">Issue Type</th>
+                        <th class="p-4 border-0">Description</th>
+                        <th class="p-4 border-0">Date</th>
+                        <th class="p-4 border-0">Status</th>
+                        <th class="p-4 border-0 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Row 1 -->
+                    <tr>
+                        <td class="p-4 fw-bold">#1024</td>
+                        <td class="p-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                    style="width: 35px; height: 35px;">JD</div>
+                                <div>
+                                    <h6 class="mb-0">John Doe</h6>
+                                    <small class="text-muted">Student</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4"><span class="badge bg-danger-subtle text-danger">Bug</span></td>
+                        <td class="p-4 text-truncate" style="max-width: 200px;">Login page not loading properly on
+                            mobile...</td>
+                        <td class="p-4 text-muted">Oct 24, 2025</td>
+                        <td class="p-4"><span class="badge bg-warning text-dark">Pending</span></td>
+                        <td class="p-4 text-end">
+                            <button class="btn btn-sm btn-light text-primary"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-light text-success"><i class="fas fa-check"></i></button>
+                        </td>
+                    </tr>
+
+                    <!-- Row 2 -->
+                    <tr>
+                        <td class="p-4 fw-bold">#1023</td>
+                        <td class="p-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                    style="width: 35px; height: 35px;">AS</div>
+                                <div>
+                                    <h6 class="mb-0">Alice Smith</h6>
+                                    <small class="text-muted">Alumni</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4"><span class="badge bg-warning-subtle text-warning">Account</span></td>
+                        <td class="p-4 text-truncate" style="max-width: 200px;">Cannot update my profile picture...</td>
+                        <td class="p-4 text-muted">Oct 23, 2025</td>
+                        <td class="p-4"><span class="badge bg-info text-dark">In Progress</span></td>
+                        <td class="p-4 text-end">
+                            <button class="btn btn-sm btn-light text-primary"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-light text-success"><i class="fas fa-check"></i></button>
+                        </td>
+                    </tr>
+
+                    <!-- Row 3 -->
+                    <tr>
+                        <td class="p-4 fw-bold">#1022</td>
+                        <td class="p-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                    style="width: 35px; height: 35px;">MK</div>
+                                <div>
+                                    <h6 class="mb-0">Mike K</h6>
+                                    <small class="text-muted">Faculty</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4"><span class="badge bg-info-subtle text-info">Feature</span></td>
+                        <td class="p-4 text-truncate" style="max-width: 200px;">Request to add more event categories...
+                        </td>
+                        <td class="p-4 text-muted">Oct 22, 2025</td>
+                        <td class="p-4"><span class="badge bg-success">Resolved</span></td>
+                        <td class="p-4 text-end">
+                            <button class="btn btn-sm btn-light text-primary"><i class="fas fa-eye"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="p-3 border-top bg-light text-center">
+            <button class="btn btn-link text-decoration-none">View All Reports</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

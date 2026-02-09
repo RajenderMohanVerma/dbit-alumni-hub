@@ -1,6 +1,7 @@
 
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask_socketio import SocketIO
 import random
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_mail import Mail, Message
@@ -11,6 +12,8 @@ import os
 from config import config
 import time
 import base64
+from extensions import mail
+from db_utils import get_db_connection
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -28,7 +31,14 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 # Set sender name as "Alumni Hub" with email
 app.config['MAIL_DEFAULT_SENDER'] = ('Alumni Hub', os.getenv('MAIL_USERNAME', 'alumnihub26@gmail.com'))
 
-mail = Mail(app)
+from extensions import mail
+
+# Initialize SocketIO for real-time messaging
+socketio = SocketIO(app, cors_allowed_origins="*", ping_timeout=60, ping_interval=25, async_mode='threading')
+
+mail.init_app(app)
+
+
 
 
 DB_NAME = app.config['DB_NAME']
@@ -42,15 +52,21 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-def get_db_connection():
-    conn = sqlite3.connect(DB_NAME, timeout=20.0)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    return conn
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def normalize_profile_pic(profile_pic, name='User'):
+    """
+    Normalize profile picture path. If empty or invalid, return None
+    to trigger fallback to ui-avatars in frontend
+    """
+    if not profile_pic or profile_pic == 'default.jpg' or profile_pic == '':
+        return None
+    if profile_pic.startswith('/'):
+        return profile_pic
+    return None
 
 def log_registration(conn, user_id, name, email, phone, role, enrollment_no=None,
                     employee_id=None, department=None, degree=None, pass_year=None,
@@ -77,12 +93,17 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 class User(UserMixin):
-    def __init__(self, id, name, email, role, profile_pic):
+    def __init__(self, id, name, email, role, profile_pic, is_verified=1):
         self.id = id
         self.name = name
         self.email = email
         self.role = role
         self.profile_pic = profile_pic
+        self.is_verified = is_verified
+
+    @property
+    def is_active(self):
+        return True
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -92,7 +113,9 @@ def load_user(user_id):
     if user:
         # Avatar generation logic
         avatar = user['profile_pic'] if user['profile_pic'] else f"https://ui-avatars.com/api/?name={user['name']}&background=0D6EFD&color=fff"
-        return User(user['id'], user['name'], user['email'], user['role'], avatar)
+        # Handle verification status (default to True for old users if column missing/null)
+        is_verified = user['is_verified'] if 'is_verified' in user.keys() else 1
+        return User(user['id'], user['name'], user['email'], user['role'], avatar, is_verified)
     return None
 
 # --- DATABASE SETUP ---
@@ -113,9 +136,25 @@ def init_db():
                 phone TEXT,
                 role TEXT NOT NULL,
                 profile_pic TEXT,
+                is_verified BOOLEAN DEFAULT 0,
+                otp_code TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
+        
+        # Migration: Add columns if they don't exist (for existing databases)
+        try:
+            c.execute("ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT 0")
+            c.execute("UPDATE users SET is_verified = 1") # Auto-verify existing users
+            print("✓ Added is_verified column to users")
+        except sqlite3.OperationalError:
+            pass # Column likely exists
+
+        try:
+            c.execute("ALTER TABLE users ADD COLUMN otp_code TEXT")
+            print("✓ Added otp_code column to users")
+        except sqlite3.OperationalError:
+            pass # Column likely exists
 
         # Student Profile Table
         c.execute('''
@@ -472,7 +511,12 @@ def login():
             user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
 
             if user and check_password_hash(user['password'], password):
-                user_obj = User(user['id'], user['name'], user['email'], user['role'], None)
+                # Admin bypass for OTP verification
+                if user['is_verified'] == 0 and user['role'] != 'admin':
+                    flash('Please verify your email address first.', 'warning')
+                    return render_template('verify_otp.html', email=email)
+
+                user_obj = User(user['id'], user['name'], user['email'], user['role'], None, user['is_verified'])
                 login_user(user_obj)
                 if user['role'] == 'admin':
                     return redirect(url_for('dashboard_admin'))
@@ -485,6 +529,8 @@ def login():
             if conn:
                 conn.close()
     return render_template('login.html')
+
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -503,95 +549,95 @@ def register():
                 flash('Name, Email, Phone, and Password are required!', 'warning')
                 return redirect(url_for('register', role=role))
 
-            password_hash = generate_password_hash(password)
-
+            # Check if email already exists
             conn = get_db_connection()
-            c = conn.cursor()
+            existing_user = conn.execute('SELECT id FROM users WHERE email = ?', (email,)).fetchone()
+            if existing_user:
+                flash('Email already registered! Please login.', 'warning')
+                return redirect(url_for('login'))
 
-            # Insert user
-            c.execute('INSERT INTO users (name, email, password, phone, role) VALUES (?, ?, ?, ?, ?)',
-                     (name, email, password_hash, phone, role))
-            conn.commit()
-
-            user_id = c.lastrowid
-
-            # Role-specific data insertion
+            password_hash = generate_password_hash(password)
+            
+            # Collect Role-Specific Data
+            profile_data = {}
             if role == 'student':
-                enrollment_no = request.form.get('enrollment_no', '').strip()
-                department = request.form.get('department', '').strip()
-                degree = request.form.get('degree', '').strip()
-                semester = request.form.get('semester', '')
-
-                if not all([enrollment_no, department, degree]):
+                profile_data['enrollment_no'] = request.form.get('enrollment_no', '').strip()
+                profile_data['department'] = request.form.get('department', '').strip()
+                profile_data['degree'] = request.form.get('degree', '').strip()
+                profile_data['semester'] = request.form.get('semester', '')
+                
+                if not all([profile_data['enrollment_no'], profile_data['department'], profile_data['degree']]):
                     flash('Student details are incomplete!', 'warning')
                     return redirect(url_for('register', role='student'))
 
-                c.execute('''INSERT INTO student_profile
-                    (user_id, enrollment_no, department, degree, semester)
-                    VALUES (?, ?, ?, ?, ?)''',
-                    (user_id, enrollment_no, department, degree, semester))
-
-                # Log registration with student details
-                log_registration(conn, user_id, name, email, phone, role,
-                               enrollment_no=enrollment_no, department=department, degree=degree)
-
             elif role == 'alumni':
-                enrollment_no = request.form.get('enrollment_no', '').strip()
-                department = request.form.get('department', '').strip()
-                degree = request.form.get('degree', '').strip()
-                pass_year = request.form.get('pass_year', '')
-                company_name = request.form.get('company_name', '')
-                designation = request.form.get('designation', '')
-                experience_years = request.form.get('experience_years', '')
+                profile_data['enrollment_no'] = request.form.get('enrollment_no', '').strip()
+                profile_data['department'] = request.form.get('department', '').strip()
+                profile_data['degree'] = request.form.get('degree', '').strip()
+                profile_data['pass_year'] = request.form.get('pass_year', '')
+                profile_data['company_name'] = request.form.get('company_name', '')
+                profile_data['designation'] = request.form.get('designation', '')
+                profile_data['experience_years'] = request.form.get('experience_years', '')
 
-                if not all([enrollment_no, department, degree, pass_year]):
+                if not all([profile_data['enrollment_no'], profile_data['department'], profile_data['degree'], profile_data['pass_year']]):
                     flash('Alumni details are incomplete!', 'warning')
                     return redirect(url_for('register', role='alumni'))
 
-                c.execute('''INSERT INTO alumni_profile
-                    (user_id, enrollment_no, department, degree, pass_year, company_name, designation)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                    (user_id, enrollment_no, department, degree, pass_year, company_name, designation))
-
-                # Log registration with alumni details
-                log_registration(conn, user_id, name, email, phone, role,
-                               enrollment_no=enrollment_no, department=department, degree=degree,
-                               pass_year=int(pass_year) if pass_year else None,
-                               company_name=company_name, designation=designation,
-                               experience_years=int(experience_years) if experience_years else None)
-
             elif role == 'faculty':
-                employee_id = request.form.get('employee_id', '').strip()
-                department = request.form.get('department', '').strip()
-                designation = request.form.get('designation', '').strip()
-                qualification = request.form.get('qualification', '').strip()
-                experience_years = request.form.get('experience_years', '')
+                profile_data['employee_id'] = request.form.get('employee_id', '').strip()
+                profile_data['department'] = request.form.get('department', '').strip()
+                profile_data['designation'] = request.form.get('designation', '').strip()
+                profile_data['qualification'] = request.form.get('qualification', '').strip()
+                profile_data['experience_years'] = request.form.get('experience_years', '')
 
-                if not all([employee_id, department, designation, qualification]):
+                if not all([profile_data['employee_id'], profile_data['department'], profile_data['designation'], profile_data['qualification']]):
                     flash('Faculty details are incomplete!', 'warning')
                     return redirect(url_for('register', role='faculty'))
 
-                c.execute('''INSERT INTO faculty_profile
-                    (user_id, employee_id, department, designation, qualification)
-                    VALUES (?, ?, ?, ?, ?)''',
-                    (user_id, employee_id, department, designation, qualification))
+            # Generate OTP
+            otp = str(random.randint(100000, 999999))
 
-                # Log registration with faculty details
-                log_registration(conn, user_id, name, email, phone, role,
-                               employee_id=employee_id, department=department,
-                               designation=designation, experience_years=int(experience_years) if experience_years else None)
+            # Store in Session
+            session['temp_registration'] = {
+                'name': name,
+                'email': email,
+                'phone': phone,
+                'password_hash': password_hash, # Already hashed
+                'role': role,
+                'otp': otp,
+                'profile_data': profile_data,
+                'timestamp': time.time()
+            }
+            
+            # Send OTP Email
+            try:
+                msg = Message(
+                    subject='Verify Your Email - Alumni Hub',
+                    recipients=[email],
+                    body=f'Your verification code is: {otp}',
+                    html=f'''
+                    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+                        <div style="background-color: white; padding: 30px; border-radius: 10px; max-width: 600px; margin: 0 auto;">
+                            <h2 style="color: #1e3a8a; text-align: center;">Verify Your Email</h2>
+                            <p style="font-size: 16px; color: #333;">Welcome to Alumni Hub! Please use the following One-Time Password (OTP) to verify your email address. Your account will be created upon verification.</p>
+                            <div style="background-color: #f0f9ff; padding: 15px; border-radius: 5px; text-align: center; margin: 20px 0;">
+                                <h1 style="color: #0ea5e9; letter-spacing: 5px; margin: 0;">{otp}</h1>
+                            </div>
+                            <p style="font-size: 14px; color: #666; text-align: center;">This code is valid for 10 minutes.</p>
+                        </div>
+                    </div>
+                    '''
+                )
+                mail.send(msg)
+                flash(f'Verification code sent to {email}. Please verify to complete registration.', 'info')
+                return redirect(url_for('verify_otp', email=email))
+                
+            except Exception as e:
+                print(f"Error sending OTP: {e}")
+                flash('Failed to send verification email. Please try again.', 'danger')
+                return redirect(url_for('register', role=role))
 
-            conn.commit()
-            flash(f'{role.capitalize()} Registration Successful! Please Login.', 'success')
-            return redirect(url_for('login'))
-
-        except sqlite3.IntegrityError as e:
-            if conn:
-                conn.rollback()
-            flash('Email or ID already registered!', 'warning')
         except Exception as e:
-            if conn:
-                conn.rollback()
             print(f"Registration error: {e}")
             flash(f'Registration error: {str(e)}', 'danger')
         finally:
@@ -605,6 +651,174 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
+@app.route('/verify-otp', methods=['POST'])
+def verify_otp():
+    email = request.form.get('email')
+    otp = request.form.get('otp')
+    
+    # 1. Check Session for New Registration
+    if 'temp_registration' in session and session['temp_registration']['email'] == email:
+        temp_data = session['temp_registration']
+        
+        if temp_data['otp'] == otp:
+            # Create User in DB
+            conn = None
+            try:
+                conn = get_db_connection()
+                c = conn.cursor()
+                
+                # Insert User
+                c.execute('INSERT INTO users (name, email, password, phone, role, is_verified, otp_code) VALUES (?, ?, ?, ?, ?, 1, NULL)',
+                         (temp_data['name'], temp_data['email'], temp_data['password_hash'], temp_data['phone'], temp_data['role']))
+                conn.commit()
+                user_id = c.lastrowid
+                
+                # Insert Profile Data
+                role = temp_data['role']
+                p_data = temp_data['profile_data']
+                
+                if role == 'student':
+                    c.execute('''INSERT INTO student_profile
+                        (user_id, enrollment_no, department, degree, semester)
+                        VALUES (?, ?, ?, ?, ?)''',
+                        (user_id, p_data['enrollment_no'], p_data['department'], p_data['degree'], p_data['semester']))
+                        
+                    log_registration(conn, user_id, temp_data['name'], temp_data['email'], temp_data['phone'], role,
+                                   enrollment_no=p_data['enrollment_no'], department=p_data['department'], degree=p_data['degree'])
+                                   
+                elif role == 'alumni':
+                    c.execute('''INSERT INTO alumni_profile
+                        (user_id, enrollment_no, department, degree, pass_year, company_name, designation)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                        (user_id, p_data['enrollment_no'], p_data['department'], p_data['degree'], 
+                         p_data['pass_year'], p_data['company_name'], p_data['designation']))
+                         
+                    log_registration(conn, user_id, temp_data['name'], temp_data['email'], temp_data['phone'], role,
+                                   enrollment_no=p_data['enrollment_no'], department=p_data['department'], degree=p_data['degree'],
+                                   pass_year=int(p_data['pass_year']) if p_data['pass_year'] else None,
+                                   company_name=p_data['company_name'], designation=p_data['designation'],
+                                   experience_years=int(p_data['experience_years']) if p_data['experience_years'] else None)
+
+                elif role == 'faculty':
+                    c.execute('''INSERT INTO faculty_profile
+                        (user_id, employee_id, department, designation, qualification)
+                        VALUES (?, ?, ?, ?, ?)''',
+                        (user_id, p_data['employee_id'], p_data['department'], p_data['designation'], p_data['qualification']))
+                        
+                    log_registration(conn, user_id, temp_data['name'], temp_data['email'], temp_data['phone'], role,
+                                   employee_id=p_data['employee_id'], department=p_data['department'],
+                                   designation=p_data['designation'], experience_years=int(p_data['experience_years']) if p_data['experience_years'] else None)
+                
+                conn.commit()
+                
+                # Clear Session
+                session.pop('temp_registration', None)
+                
+                # Login
+                user_obj = User(user_id, temp_data['name'], temp_data['email'], role, None, 1)
+                login_user(user_obj)
+                
+                flash('Account created and verified successfully!', 'success')
+                
+                if role == 'admin':
+                    return redirect(url_for('dashboard_admin'))
+                if role == 'alumni':
+                    return redirect(url_for('dashboard_alumni'))
+                return redirect(url_for('dashboard_student'))
+                
+            except Exception as e:
+                if conn: conn.rollback()
+                print(f"Registration Verification Error: {e}")
+                flash(f'Error creating account: {e}', 'danger')
+                return render_template('verify_otp.html', email=email)
+            finally:
+                if conn: conn.close()
+        else:
+            flash('Invalid OTP! Please try again.', 'danger')
+            return render_template('verify_otp.html', email=email)
+
+    # 2. Legacy/Resend Flow (Check DB)
+    conn = None
+    try:
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+        
+        if user:
+            if user['otp_code'] == otp:
+                # Success
+                conn.execute('UPDATE users SET is_verified = 1, otp_code = NULL WHERE id = ?', (user['id'],))
+                conn.commit()
+                
+                # Login the user
+                # Fetch fresh user data to ensure is_verified is 1
+                user_obj = User(user['id'], user['name'], user['email'], user['role'], None, 1)
+                login_user(user_obj)
+                
+                flash('Email verified successfully!', 'success')
+                
+                if user['role'] == 'admin':
+                    return redirect(url_for('dashboard_admin'))
+                if user['role'] == 'alumni':
+                    return redirect(url_for('dashboard_alumni'))
+                return redirect(url_for('dashboard_student'))
+            else:
+                flash('Invalid OTP! Please try again.', 'danger')
+        else:
+            flash('User not found!', 'danger')
+            
+        return render_template('verify_otp.html', email=email)
+    except Exception as e:
+        print(f"OTP Verification Error: {e}")
+        flash('An error occurred. Please try again.', 'danger')
+        return render_template('verify_otp.html', email=email)
+    finally:
+        if conn:
+            conn.close()
+
+@app.route('/resend-otp', methods=['POST'])
+def resend_otp():
+    email = request.form.get('email')
+    conn = None
+    try:
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+        
+        if user:
+            new_otp = str(random.randint(100000, 999999))
+            conn.execute('UPDATE users SET otp_code = ? WHERE id = ?', (new_otp, user['id']))
+            conn.commit()
+            
+            # Send Email
+            try:
+                msg = Message(
+                    subject='Resend: Verify Your Email - Alumni Hub',
+                    recipients=[email],
+                    body=f'Your new verification code is: {new_otp}',
+                    html=f'''
+                    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+                        <div style="background-color: white; padding: 30px; border-radius: 10px; max-width: 600px; margin: 0 auto;">
+                            <h2 style="color: #1e3a8a; text-align: center;">Verify Your Email</h2>
+                            <p style="font-size: 16px; color: #333;">Here is your new One-Time Password (OTP) to verify your email address:</p>
+                            <div style="background-color: #f0f9ff; padding: 15px; border-radius: 5px; text-align: center; margin: 20px 0;">
+                                <h1 style="color: #0ea5e9; letter-spacing: 5px; margin: 0;">{new_otp}</h1>
+                            </div>
+                        </div>
+                    </div>
+                    '''
+                )
+                mail.send(msg)
+                flash('OTP resent successfully!', 'success')
+            except Exception as e:
+                print(f"Error sending OTP: {e}")
+                flash('Failed to send OTP.', 'danger')
+        else:
+            flash('User not found.', 'danger')
+            
+        return render_template('verify_otp.html', email=email)
+    finally:
+        if conn:
+            conn.close()
 
 # --- PROFILE ROUTES ---
 
@@ -740,6 +954,8 @@ def admin_view_users(role):
     finally:
         if conn:
             conn.close()
+
+
 
 # --- DASHBOARDS ---
 
@@ -991,6 +1207,51 @@ def dashboard_admin():
             conn.close()
 
 # --- ALUMNI MEET ROUTES ---
+
+# --- MESSAGING ROUTES ---
+
+@app.route('/messages')
+@login_required
+def messaging_dashboard():
+    """Display messaging dashboard with public messages and inbox"""
+    return render_template('messaging_dashboard.html')
+
+
+@app.route('/chat/<int:other_user_id>')
+@login_required
+def private_chat(other_user_id):
+    """Display private chat with another user"""
+    conn = get_db_connection()
+    c = conn.cursor()
+
+    # Get other user details
+    other_user = c.execute('SELECT id, name, email, role, phone, profile_pic FROM users WHERE id = ?',
+                          (other_user_id,)).fetchone()
+
+    conn.close()
+
+    if not other_user:
+        flash('User not found', 'danger')
+        return redirect(url_for('messaging_dashboard'))
+
+    return render_template('private_chat.html',
+                         other_user_id=other_user_id,
+                         other_user_name=other_user['name'],
+                         other_user_role=other_user['role'],
+                         other_user_phone=other_user['phone'],
+                         other_user_pic=other_user['profile_pic'])
+
+
+@app.route('/admin/messaging-control')
+@login_required
+def admin_messaging_control():
+    """Admin messaging control panel"""
+    if current_user.role != 'admin':
+        flash('Unauthorized access', 'danger')
+        return redirect(url_for('dashboard_admin'))
+
+    return render_template('admin_messaging_control.html')
+
 
 @app.route('/alumni/meet/register', methods=['GET', 'POST'])
 @login_required
@@ -1468,7 +1729,7 @@ def forgot_password():
                     return redirect(url_for('forgot_password'))
 
                 flash('OTP sent to your email!', 'success')
-                return redirect(url_for('verify_otp', email=email))
+                return redirect(url_for('verify_reset_otp', email=email))
             else:
                 flash('Email not found!', 'danger')
         finally:
@@ -1477,8 +1738,8 @@ def forgot_password():
                 
     return render_template('forgot_password.html')
 
-@app.route('/verify-otp', methods=['GET', 'POST'])
-def verify_otp():
+@app.route('/verify-reset-otp', methods=['GET', 'POST'])
+def verify_reset_otp():
     email = request.args.get('email', '')
     if request.method == 'POST':
         email = request.form.get('email', '')
@@ -1501,7 +1762,7 @@ def verify_otp():
             if conn:
                 conn.close()
                 
-    return render_template('verify_otp.html', email=email)
+    return render_template('verify_otp.html', email=email, action_url='/verify-reset-otp')
 
 @app.route('/reset-password-final', methods=['GET', 'POST'])
 def reset_password_final():
@@ -2268,8 +2529,11 @@ def get_alumni_details(user_id):
         if not user or not profile:
             return jsonify({'error': 'Alumni not found'}), 404
 
+        user_dict = dict(user)
+        user_dict['profile_pic'] = normalize_profile_pic(user_dict['profile_pic'], user_dict['name'])
+
         return jsonify({
-            'user': dict(user),
+            'user': user_dict,
             'profile': dict(profile)
         })
     finally:
@@ -2289,8 +2553,11 @@ def get_student_details(user_id):
         if not user or not profile:
             return jsonify({'error': 'Student not found'}), 404
 
+        user_dict = dict(user)
+        user_dict['profile_pic'] = normalize_profile_pic(user_dict['profile_pic'], user_dict['name'])
+
         return jsonify({
-            'user': dict(user),
+            'user': user_dict,
             'profile': dict(profile)
         })
     finally:
@@ -2822,6 +3089,150 @@ def report_issue():
     return render_template('report_issue.html')
 
 
+@app.route('/send-email', methods=['POST'])
+@login_required
+def send_email():
+    recipient_email = request.form.get('recipient_email')
+    subject = request.form.get('subject')
+    message_body = request.form.get('message')
+    
+    if not all([recipient_email, subject, message_body]):
+        flash('All fields are required!', 'warning')
+        return redirect(request.referrer or url_for('home'))
+        
+    try:
+        msg = Message(
+            subject=f"[Alumni Hub] {subject}",
+            recipients=[recipient_email],
+            sender=("Alumni Hub", app.config['MAIL_DEFAULT_SENDER']),
+            reply_to=current_user.email,
+            body=f"Message from {current_user.name} ({current_user.email}):\n\n{message_body}\n\n--\nSent via Alumni Hub"
+        )
+        mail.send(msg)
+        flash('Email sent successfully!', 'success')
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        flash('Failed to send email. Please try again later.', 'danger')
+        
+    return redirect(request.referrer or url_for('home'))
+
+
+# --- PUBLIC & SHARED ROUTES ---
+
+@app.route('/events')
+def events():
+    return render_template('events.html')
+
+@app.route('/settings')
+@login_required
+def settings():
+    return render_template('settings.html')
+
+
+
+# --- STUDENT ROUTES ---
+
+@app.route('/mentorship')
+@login_required
+def mentorship():
+    if current_user.role != 'student':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('home'))
+    return render_template('mentorship.html')
+
+@app.route('/jobs')
+@login_required
+def jobs():
+    if current_user.role != 'student':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('home'))
+    return render_template('jobs.html')
+
+@app.route('/upgrade')
+@login_required
+def upgrade():
+    if current_user.role != 'student':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('home'))
+    return render_template('upgrade_to_alumni.html')
+
+# --- ALUMNI ROUTES ---
+
+@app.route('/post-job')
+@login_required
+def post_job():
+    if current_user.role != 'alumni':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('home'))
+    return render_template('post_job.html')
+
+@app.route('/spotlight')
+@login_required
+def spotlight():
+    if current_user.role != 'alumni':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('home'))
+    return render_template('spotlight.html')
+
+# --- FACULTY/ADMIN ROUTES ---
+
+@app.route('/announcements')
+@login_required
+def announcements():
+    if current_user.role not in ['faculty', 'admin']:
+        flash('Access denied!', 'danger')
+        return redirect(url_for('home'))
+    return render_template('announcements.html')
+
+@app.route('/reports')
+@login_required
+def reports():
+    if current_user.role not in ['faculty', 'admin']:
+        flash('Access denied!', 'danger')
+        return redirect(url_for('home'))
+    return render_template('reports.html')
+
+# --- ADMIN ROUTES ---
+
+@app.route('/admin/approve-requests')
+@login_required
+def admin_approve_requests():
+    if current_user.role != 'admin':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('home'))
+    return render_template('admin_approve_requests.html')
+
+@app.route('/admin/events')
+@login_required
+def admin_events():
+    if current_user.role != 'admin':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('home'))
+    return render_template('admin_events.html')
+
+@app.route('/admin/stats')
+@login_required
+def admin_stats():
+    if current_user.role != 'admin':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('home'))
+    return render_template('admin_stats.html')
+
 if __name__ == '__main__':
     init_db()
-    app.run(debug=app.config['DEBUG'])
+
+    # Import and register messaging blueprint
+    from routes.messaging_routes import messaging_bp
+    from routes.websocket_routes import setup_websocket_handlers
+
+    app.register_blueprint(messaging_bp, url_prefix='/api')
+    setup_websocket_handlers(socketio)
+
+    # Register Connection Routes
+    try:
+        from routes.connection_routes import connection_bp
+        app.register_blueprint(connection_bp)
+    except Exception as e:
+        print(f"Warning: connection_routes blueprint not found: {e}")
+
+    socketio.run(app, debug=app.config['DEBUG'], host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)

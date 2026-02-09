@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify, request, render_template, url_for
+from flask import Blueprint, jsonify, request, render_template, url_for, current_app
 from flask_login import login_required, current_user
 import sqlite3
-from flask_mail import Mail, Message
+from extensions import mail
+from flask_mail import Message
 from datetime import datetime
-from app import app, get_db_connection, mail
+from db_utils import get_db_connection
 
 connection_bp = Blueprint('connection', __name__, url_prefix='/api/connection-request')
 
@@ -99,7 +100,7 @@ def send_connection_request():
                     subject=subject,
                     recipients=[receiver['email']],
                     html=html_body,
-                    sender=("Alumni Hub", app.config['MAIL_DEFAULT_SENDER'])
+                    sender=("Alumni Hub", current_app.config['MAIL_DEFAULT_SENDER'])
                 )
                 try:
                     mail.send(msg)
@@ -178,7 +179,7 @@ def accept_connection_request(request_id):
                 subject=subject,
                 recipients=[sender['email']],
                 html=html_body,
-                sender=("Alumni Hub", app.config['MAIL_DEFAULT_SENDER'])
+                sender=("Alumni Hub", current_app.config['MAIL_DEFAULT_SENDER'])
             )
             try:
                 mail.send(msg)

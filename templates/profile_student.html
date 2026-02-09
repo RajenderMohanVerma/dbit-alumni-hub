@@ -101,6 +101,10 @@
                                 onclick="sendConnectionRequest({{ user['id'] }})">
                                 <i class="fas fa-user-plus"></i> Send Connection Request
                             </button>
+                            <button type="button" class="btn btn-outline-primary mt-2" data-bs-toggle="modal"
+                                data-bs-target="#emailModal">
+                                <i class="fas fa-envelope"></i> Send Email
+                            </button>
                         </div>
                         {% endif %}
                     </div>
@@ -218,446 +222,477 @@
             </div>
         </div>
     </div>
+</div>
 
-    <style>
-        /* Global Typography & Mesh */
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #f8fafc;
-            overflow-x: hidden;
+<!-- Email Modal -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card border-0" style="background: rgba(255, 255, 255, 0.95);">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Send Email to {{ user['name'] }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/send-email" method="POST">
+                    <input type="hidden" name="recipient_email" value="{{ user['email'] }}">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Subject</label>
+                        <input type="text" name="subject" class="form-control rounded-3" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Message</label>
+                        <textarea name="message" class="form-control rounded-3" rows="5" required></textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary fw-bold py-2">
+                            <i class="fas fa-paper-plane me-2"></i> Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Global Typography & Mesh */
+    body {
+        font-family: 'Outfit', sans-serif;
+        background-color: #f8fafc;
+        overflow-x: hidden;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .profile-wrapper {
+        position: relative;
+        overflow: hidden;
+        min-height: 100vh;
+    }
+
+    .mesh-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+        background: #f8fafc;
+        pointer-events: none;
+    }
+
+    .mesh-ball {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.12;
+        animation: mesh-float 20s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
+    }
+
+    .ball-1 {
+        width: 600px;
+        height: 600px;
+        background: #6366f1;
+        top: -10%;
+        left: -10%;
+        animation-duration: 25s;
+    }
+
+    .ball-2 {
+        width: 500px;
+        height: 500px;
+        background: #a855f7;
+        bottom: 10%;
+        right: -5%;
+        animation-duration: 30s;
+    }
+
+    .ball-3 {
+        width: 400px;
+        height: 400px;
+        background: #ec4899;
+        top: 40%;
+        left: 30%;
+        animation-duration: 22s;
+    }
+
+    @keyframes mesh-float {
+        0% {
+            transform: translate(0, 0) rotate(0deg);
         }
 
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+        100% {
+            transform: translate(100px, 100px) rotate(180deg);
+        }
+    }
+
+    /* Hero Section */
+    .profile-hero {
+        padding: 100px 0 80px;
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        position: relative;
+        overflow: hidden;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .hero-particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+    }
+
+    .hero-glow-point {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+        filter: blur(50px);
+        z-index: 1;
+    }
+
+    .text-holographic {
+        background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6, #60a5fa);
+        background-size: 300% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: holographic-move 8s linear infinite;
+    }
+
+    @keyframes holographic-move {
+        0% {
+            background-position: 0% 50%;
         }
 
-        .profile-wrapper {
-            position: relative;
-            overflow: hidden;
-            min-height: 100vh;
+        100% {
+            background-position: 300% 50%;
+        }
+    }
+
+    /* Reveal Animations */
+    .reveal-text {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .reveal-fade {
+        opacity: 0;
+        transform: scale(0.95);
+        transition: all 1s ease;
+    }
+
+    .revealed {
+        opacity: 1 !important;
+        transform: translate(0, 0) scale(1) !important;
+    }
+
+    /* Glass Cards */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        border-radius: 30px !important;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04) !important;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .glass-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(99, 102, 241, 0.1) !important;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .holographic-border {
+        position: relative;
+    }
+
+    .holographic-border::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        z-index: -1;
+        background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6, #60a5fa);
+        background-size: 300% 100%;
+        border-radius: 32px;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        animation: holographic-move 8s linear infinite;
+    }
+
+    .holographic-border:hover::before {
+        opacity: 0.5;
+    }
+
+    /* Avatar & Tags */
+    .avatar-container {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        margin: -80px auto 1.5rem;
+        z-index: 10;
+    }
+
+    .avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 6px solid #fff;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    .glass-tag {
+        position: absolute;
+        bottom: 5px;
+        right: -15px;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .tag-dot {
+        width: 6px;
+        height: 6px;
+        background: #fff;
+        border-radius: 50%;
+        animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 1;
         }
 
-        .mesh-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            background: #f8fafc;
-            pointer-events: none;
+        50% {
+            transform: scale(1.3);
+            opacity: 0.6;
         }
+    }
 
-        .mesh-ball {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.12;
-            animation: mesh-float 20s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
-        }
+    /* Card Header Premium */
+    .card-header-premium {
+        background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+        padding: 1.5rem 2rem;
+        border: none;
+        border-radius: 30px 30px 0 0;
+    }
 
-        .ball-1 {
-            width: 600px;
-            height: 600px;
-            background: #6366f1;
-            top: -10%;
-            left: -10%;
-            animation-duration: 25s;
-        }
+    .card-header-premium.color-2 {
+        background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+    }
 
-        .ball-2 {
-            width: 500px;
-            height: 500px;
-            background: #a855f7;
-            bottom: 10%;
-            right: -5%;
-            animation-duration: 30s;
-        }
+    .bg-gradient-success {
+        background: linear-gradient(90deg, #10b981, #34d399) !important;
+    }
 
-        .ball-3 {
-            width: 400px;
-            height: 400px;
-            background: #ec4899;
-            top: 40%;
-            left: 30%;
-            animation-duration: 22s;
-        }
+    .skill-tag-premium {
+        background: rgba(99, 102, 241, 0.08);
+        color: #4338ca;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
 
-        @keyframes mesh-float {
-            0% {
-                transform: translate(0, 0) rotate(0deg);
-            }
+    .skill-tag-premium:hover {
+        background: #6366f1;
+        color: #fff;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+    }
 
-            100% {
-                transform: translate(100px, 100px) rotate(180deg);
-            }
-        }
+    /* Info Box Premium */
+    .info-box-premium {
+        background: #fff;
+        border-radius: 20px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        border: 1px solid #f1f5f9;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
 
-        /* Hero Section */
-        .profile-hero {
-            padding: 100px 0 80px;
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-            position: relative;
-            overflow: hidden;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
+    .info-box-premium:hover {
+        transform: translateX(8px);
+        border-color: #6366f1;
+    }
 
-        .hero-particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
-        }
+    .info-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
 
-        .hero-glow-point {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
-            filter: blur(50px);
-            z-index: 1;
-        }
+    .info-icon.icon-blue {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
 
-        .text-holographic {
-            background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6, #60a5fa);
-            background-size: 300% 100%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: holographic-move 8s linear infinite;
-        }
+    .info-icon.icon-green {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
 
-        @keyframes holographic-move {
-            0% {
-                background-position: 0% 50%;
-            }
+    .info-icon.icon-orange {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
 
-            100% {
-                background-position: 300% 50%;
-            }
-        }
+    .info-details small {
+        display: block;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.75rem;
+        margin-bottom: 2px;
+        text-transform: uppercase;
+    }
 
-        /* Reveal Animations */
-        .reveal-text {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
+    .info-details h6 {
+        margin: 0;
+        color: #1e293b;
+        font-weight: 700;
+    }
 
-        .reveal-fade {
-            opacity: 0;
-            transform: scale(0.95);
-            transition: all 1s ease;
-        }
+    /* Achievement Item Premium */
+    .achievement-item-premium {
+        background: #fff;
+        border-radius: 16px;
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        border: 1px solid #f1f5f9;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
 
-        .revealed {
-            opacity: 1 !important;
-            transform: translate(0, 0) scale(1) !important;
-        }
+    .achievement-item-premium:hover {
+        transform: translateX(8px);
+        border-color: #f59e0b;
+    }
 
-        /* Glass Cards */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.4) !important;
-            border-radius: 30px !important;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04) !important;
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
+    .achievement-icon {
+        color: #f59e0b;
+        font-size: 1.1rem;
+    }
 
-        .glass-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 30px 60px rgba(99, 102, 241, 0.1) !important;
-            background: rgba(255, 255, 255, 0.9);
-        }
+    .small-text {
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+</style>
 
-        .holographic-border {
-            position: relative;
-        }
-
-        .holographic-border::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            z-index: -1;
-            background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6, #60a5fa);
-            background-size: 300% 100%;
-            border-radius: 32px;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            animation: holographic-move 8s linear infinite;
-        }
-
-        .holographic-border:hover::before {
-            opacity: 0.5;
-        }
-
-        /* Avatar & Tags */
-        .avatar-container {
-            position: relative;
-            width: 140px;
-            height: 140px;
-            margin: -80px auto 1.5rem;
-            z-index: 10;
-        }
-
-        .avatar-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 6px solid #fff;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-
-        .glass-tag {
-            position: absolute;
-            bottom: 5px;
-            right: -15px;
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .tag-dot {
-            width: 6px;
-            height: 6px;
-            background: #fff;
-            border-radius: 50%;
-            animation: pulse-dot 2s infinite;
-        }
-
-        @keyframes pulse-dot {
-
-            0%,
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            50% {
-                transform: scale(1.3);
-                opacity: 0.6;
-            }
-        }
-
-        /* Card Header Premium */
-        .card-header-premium {
-            background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
-            padding: 1.5rem 2rem;
-            border: none;
-            border-radius: 30px 30px 0 0;
-        }
-
-        .card-header-premium.color-2 {
-            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
-        }
-
-        .bg-gradient-success {
-            background: linear-gradient(90deg, #10b981, #34d399) !important;
-        }
-
-        .skill-tag-premium {
-            background: rgba(99, 102, 241, 0.08);
-            color: #4338ca;
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .skill-tag-premium:hover {
-            background: #6366f1;
-            color: #fff;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
-        }
-
-        /* Info Box Premium */
-        .info-box-premium {
-            background: #fff;
-            border-radius: 20px;
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            border: 1px solid #f1f5f9;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .info-box-premium:hover {
-            transform: translateX(8px);
-            border-color: #6366f1;
-        }
-
-        .info-icon {
-            width: 50px;
-            height: 50px;
-            background: rgba(99, 102, 241, 0.1);
-            color: #6366f1;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .info-icon.icon-blue {
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-        }
-
-        .info-icon.icon-green {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-
-        .info-icon.icon-orange {
-            background: rgba(245, 158, 11, 0.1);
-            color: #f59e0b;
-        }
-
-        .info-details small {
-            display: block;
-            color: #64748b;
-            font-weight: 600;
-            font-size: 0.75rem;
-            margin-bottom: 2px;
-            text-transform: uppercase;
-        }
-
-        .info-details h6 {
-            margin: 0;
-            color: #1e293b;
-            font-weight: 700;
-        }
-
-        /* Achievement Item Premium */
-        .achievement-item-premium {
-            background: #fff;
-            border-radius: 16px;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-            border: 1px solid #f1f5f9;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .achievement-item-premium:hover {
-            transform: translateX(8px);
-            border-color: #f59e0b;
-        }
-
-        .achievement-icon {
-            color: #f59e0b;
-            font-size: 1.1rem;
-        }
-
-        .small-text {
-            font-size: 0.75rem;
-            color: #94a3b8;
-        }
-    </style>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Reveal Animations
-            const revealCallback = (entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('revealed');
-                        if (entry.target.classList.contains('progress-bar')) {
-                            const target = (parseInt(entry.target.dataset.semester) / 6) * 100;
-                            entry.target.style.width = target + '%';
-                        }
-                        observer.unobserve(entry.target);
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Reveal Animations
+        const revealCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    if (entry.target.classList.contains('progress-bar')) {
+                        const target = (parseInt(entry.target.dataset.semester) / 6) * 100;
+                        entry.target.style.width = target + '%';
                     }
-                });
-            };
-
-            const observer = new IntersectionObserver(revealCallback, { threshold: 0.1 });
-            document.querySelectorAll('.reveal-text, .reveal-fade, .progress-bar').forEach(el => observer.observe(el));
-
-            // Typing Effect for Profile Title
-            const typingText = document.querySelector('.text-holographic');
-            if (typingText) {
-                const originalText = typingText.innerHTML;
-                typingText.innerHTML = '';
-                let i = 0;
-                const type = () => {
-                    if (i < originalText.length) {
-                        typingText.innerHTML += originalText.charAt(i);
-                        i++;
-                        setTimeout(type, 100);
-                    }
-                };
-                setTimeout(type, 500);
-            }
-        });
-
-        async function sendConnectionRequest(receiverId) {
-            const btn = document.getElementById('connection-btn');
-            if (!btn) return;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-
-            try {
-                const response = await fetch('/api/connection-request/send', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ receiver_id: receiverId })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    btn.classList.remove('btn-success');
-                    btn.classList.add('btn-secondary');
-                    btn.innerHTML = '<i class="fas fa-check"></i> Request Sent';
-                    showToast('Connection request sent! ✓', 'success');
-                } else {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-user-plus"></i> Send Connection Request';
-                    showToast(data.error || 'Error sending request', 'danger');
+                    observer.unobserve(entry.target);
                 }
-            } catch (error) {
+            });
+        };
+
+        const observer = new IntersectionObserver(revealCallback, { threshold: 0.1 });
+        document.querySelectorAll('.reveal-text, .reveal-fade, .progress-bar').forEach(el => observer.observe(el));
+
+        // Typing Effect for Profile Title
+        const typingText = document.querySelector('.text-holographic');
+        if (typingText) {
+            const originalText = typingText.innerHTML;
+            typingText.innerHTML = '';
+            let i = 0;
+            const type = () => {
+                if (i < originalText.length) {
+                    typingText.innerHTML += originalText.charAt(i);
+                    i++;
+                    setTimeout(type, 100);
+                }
+            };
+            setTimeout(type, 500);
+        }
+    });
+
+    async function sendConnectionRequest(receiverId) {
+        const btn = document.getElementById('connection-btn');
+        if (!btn) return;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+        try {
+            const response = await fetch('/api/connection-request/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ receiver_id: receiverId })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-secondary');
+                btn.innerHTML = '<i class="fas fa-check"></i> Request Sent';
+                showToast('Connection request sent! ✓', 'success');
+            } else {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-user-plus"></i> Send Connection Request';
-                showToast('Error: ' + error.message, 'danger');
+                showToast(data.error || 'Error sending request', 'danger');
             }
+        } catch (error) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-user-plus"></i> Send Connection Request';
+            showToast('Error: ' + error.message, 'danger');
         }
+    }
 
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `alert alert-${type} position-fixed bottom-0 end-0 m-3 shadow-lg`;
-            toast.style.zIndex = '9999';
-            toast.style.borderRadius = '12px';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-    </script>
-    {% endblock %}
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} position-fixed bottom-0 end-0 m-3 shadow-lg`;
+        toast.style.zIndex = '9999';
+        toast.style.borderRadius = '12px';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+</script>
+{% endblock %}

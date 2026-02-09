@@ -21,7 +21,7 @@ c.execute('''CREATE TABLE IF NOT EXISTS users (
     password TEXT NOT NULL,
     role TEXT NOT NULL,
     phone TEXT,
-    profile_pic TEXT DEFAULT 'default.jpg',
+    profile_pic TEXT DEFAULT '',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )''')
 

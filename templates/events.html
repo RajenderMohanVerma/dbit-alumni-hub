@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Upcoming Events - Alumni Hub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5 align-items-center animate__animated animate__fadeInDown">
+        <div class="col-md-8">
+            <h1 class="fw-bold gradient-text display-5 mb-3">Upcoming Events</h1>
+            <p class="lead text-muted">Join our webinars, meetups, and reunions to stay connected.</p>
+        </div>
+    </div>
+
+    <!-- Event Cards -->
+    <div class="row g-4">
+        <!-- Event 1 -->
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="--delay: 0.1s">
+            <div class="glass-card h-100 p-0 overflow-hidden hover-card">
+                <div class="event-img-container position-relative"
+                    style="height: 200px; background: linear-gradient(45deg, #1e3a8a, #0ea5e9);">
+                    <div class="position-absolute bottom-0 start-0 m-3 bg-white text-center rounded p-2 shadow-sm"
+                        style="min-width: 60px;">
+                        <span class="d-block fw-bold text-danger h5 mb-0">15</span>
+                        <small class="d-block text-muted fw-bold">MAR</small>
+                    </div>
+                    <div class="position-absolute top-0 end-0 m-3">
+                        <span class="badge bg-success shadow-sm">Upcoming</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <span class="text-primary fw-bold small text-uppercase mb-2 d-block">Webinar</span>
+                    <h4 class="mb-2 fw-bold">AI in 2026: The Future of Tech</h4>
+                    <p class="text-muted small mb-3"><i class="far fa-clock me-2"></i> 10:00 AM - 12:00 PM</p>
+                    <p class="text-muted mb-4">Join industry leaders discussing the impact of Artificial Intelligence on
+                        software engineering.</p>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted small ms-1">Online Event</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary rounded-pill">Register</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event 2 -->
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="--delay: 0.2s">
+            <div class="glass-card h-100 p-0 overflow-hidden hover-card">
+                <div class="event-img-container position-relative"
+                    style="height: 200px; background: linear-gradient(45deg, #dc2626, #f59e0b);">
+                    <div class="position-absolute bottom-0 start-0 m-3 bg-white text-center rounded p-2 shadow-sm"
+                        style="min-width: 60px;">
+                        <span class="d-block fw-bold text-danger h5 mb-0">22</span>
+                        <small class="d-block text-muted fw-bold">MAR</small>
+                    </div>
+                    <div class="position-absolute top-0 end-0 m-3">
+                        <span class="badge bg-warning text-dark shadow-sm">Workshop</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <span class="text-warning fw-bold small text-uppercase mb-2 d-block">Workshop</span>
+                    <h4 class="mb-2 fw-bold">Resume Building Masterclass</h4>
+                    <p class="text-muted small mb-3"><i class="far fa-clock me-2"></i> 02:00 PM - 04:00 PM</p>
+                    <p class="text-muted mb-4">Learn how to craft a perfect resume that gets you hired by top companies.
+                    </p>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted small ms-1">College Auditorium</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary rounded-pill">RSVP</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event 3 -->
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="--delay: 0.3s">
+            <div class="glass-card h-100 p-0 overflow-hidden hover-card">
+                <div class="event-img-container position-relative"
+                    style="height: 200px; background: linear-gradient(45deg, #059669, #10b981);">
+                    <div class="position-absolute bottom-0 start-0 m-3 bg-white text-center rounded p-2 shadow-sm"
+                        style="min-width: 60px;">
+                        <span class="d-block fw-bold text-danger h5 mb-0">10</span>
+                        <small class="d-block text-muted fw-bold">APR</small>
+                    </div>
+                    <div class="position-absolute top-0 end-0 m-3">
+                        <span class="badge bg-primary shadow-sm">Social</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <span class="text-success fw-bold small text-uppercase mb-2 d-block">Reunion</span>
+                    <h4 class="mb-2 fw-bold">Annual Alumni Meet 2026</h4>
+                    <p class="text-muted small mb-3"><i class="far fa-clock me-2"></i> 06:00 PM Onwards</p>
+                    <p class="text-muted mb-4">Reconnect with old friends and professors at the biggest event of the
+                        year.</p>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted small ms-1">Campus Grounds</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary rounded-pill">Get Tickets</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
