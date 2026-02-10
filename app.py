@@ -1050,7 +1050,7 @@ def admin_profile(user_id):
             flash('Admin not found!', 'danger')
             return redirect(url_for('home'))
 
-        return render_template('profile_admin.html', user=user)
+        return render_template('admin/profile_admin.html', user=user)
     except Exception as e:
         print(f"Admin profile error: {e}")
         flash('Error loading profile!', 'danger')
@@ -1068,8 +1068,27 @@ def admin_view_users(role):
     conn = None
     try:
         conn = get_db_connection()
-        users = conn.execute('SELECT * FROM users WHERE role = ? ORDER BY id DESC', (role,)).fetchall()
-        return render_template('admin_view_users.html', users=users, role=role)
+        if role == 'all':
+            users = conn.execute('SELECT * FROM users ORDER BY id DESC').fetchall()
+        else:
+            users = conn.execute('SELECT * FROM users WHERE role = ? ORDER BY id DESC', (role,)).fetchall()
+        return render_template('admin/admin_view_users.html', users=users, role=role)
+    finally:
+        if conn:
+            conn.close()
+
+@app.route('/admin/approve-requests')
+@login_required
+def admin_approve_requests():
+    if current_user.role != 'admin':
+        return redirect(url_for('home'))
+
+    conn = None
+    try:
+        conn = get_db_connection()
+        # Fetch pending users (is_approved = 0)
+        users = conn.execute('SELECT * FROM users WHERE is_approved = 0 ORDER BY created_at DESC').fetchall()
+        return render_template('admin/admin_view_users.html', users=users, role='pending')
     finally:
         if conn:
             conn.close()
@@ -1333,7 +1352,7 @@ def dashboard_admin():
         # Total event registrations for stat card
         event_total = sum(events_data)
         
-        return render_template('dashboard_admin.html', 
+        return render_template('admin/dashboard_admin.html', 
                                users=users, 
                                a_count=a_count, 
                                s_count=s_count, 
@@ -1384,7 +1403,7 @@ def admin_messaging_control():
         flash('Unauthorized access', 'danger')
         return redirect(url_for('dashboard_admin'))
 
-    return render_template('admin_messaging_control.html')
+    return render_template('admin/admin_messaging_control.html')
 
 
 @app.route('/alumni/meet/register', methods=['GET', 'POST'])
@@ -1744,7 +1763,7 @@ def edit_admin_profile(user_id):
             if not name or not email or not phone:
                 user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
                 flash('Name, Email, and Phone are required!', 'warning')
-                return render_template('edit_admin_profile.html', user=user)
+                return render_template('admin/edit_admin_profile.html', user=user)
 
             # Handle profile photo upload
             profile_pic = None
@@ -1773,7 +1792,7 @@ def edit_admin_profile(user_id):
             flash('Admin not found!', 'danger')
             return redirect(url_for('home'))
 
-        return render_template('edit_admin_profile.html', user=user)
+        return render_template('admin/edit_admin_profile.html', user=user)
 
     except Exception as e:
         if conn:
@@ -2054,6 +2073,7 @@ def verify_user(user_id, action):
         conn = get_db_connection()
 
         if action == 'approve':
+            conn.execute('UPDATE users SET is_approved = 1 WHERE id = ?', (user_id,))
             flash('User verified successfully!', 'success')
         elif action == 'block':
             conn.execute('DELETE FROM users WHERE id = ?', (user_id,))
@@ -2092,7 +2112,7 @@ def admin_analytics():
             'meet_registrations': conn.execute("SELECT COUNT(*) FROM alumni_meet_registration").fetchone()[0],
         }
 
-        return render_template('admin_analytics.html', stats=stats)
+        return render_template('admin/admin_analytics.html', stats=stats)
 
     except Exception as e:
         flash(f'Error: {str(e)}', 'danger')
@@ -2142,7 +2162,7 @@ def admin_registrations():
             'total': c.execute("SELECT COUNT(*) FROM registration_log").fetchone()[0],
         }
 
-        return render_template('admin_registrations.html',
+        return render_template('admin/admin_registrations.html',
                              registrations=registrations,
                              stats=stats,
                              current_filter=role_filter,
@@ -3360,35 +3380,11 @@ def reports():
     if current_user.role not in ['faculty', 'admin']:
         flash('Access denied!', 'danger')
         return redirect(url_for('home'))
-    return render_template('reports.html')
+    return render_template('admin/reports.html')
 
 # --- ADMIN ROUTES ---
 
-@app.route('/admin/approve-requests')
-@login_required
-def admin_approve_requests():
-    if current_user.role != 'admin':
-        flash('Access denied!', 'danger')
-        return redirect(url_for('home'))
-    
-    conn = get_db_connection()
-    # Fetch pending users with their profile details
-    pending_users = conn.execute('''
-        SELECT u.*, 
-               CASE 
-                   WHEN u.role = 'alumni' THEN ap.department || ' (' || ap.pass_year || ')'
-                   WHEN u.role = 'faculty' THEN fp.department || ' (' || fp.designation || ')'
-                   ELSE 'N/A'
-               END as detail_summary
-        FROM users u
-        LEFT JOIN alumni_profile ap ON u.id = ap.user_id
-        LEFT JOIN faculty_profile fp ON u.id = fp.user_id
-        WHERE u.is_approved = 0
-        ORDER BY u.created_at DESC
-    ''').fetchall()
-    conn.close()
-    
-    return render_template('admin_approve_requests.html', users=pending_users)
+
 
 @app.route('/api/approve-user/<int:user_id>', methods=['POST'])
 @login_required
@@ -3433,7 +3429,7 @@ def admin_events():
     if current_user.role != 'admin':
         flash('Access denied!', 'danger')
         return redirect(url_for('home'))
-    return render_template('admin_events.html')
+    return render_template('admin/admin_events.html')
 
 @app.route('/admin/stats')
 @login_required
@@ -3441,7 +3437,7 @@ def admin_stats():
     if current_user.role != 'admin':
         flash('Access denied!', 'danger')
         return redirect(url_for('home'))
-    return render_template('admin_stats.html')
+    return render_template('admin/admin_stats.html')
 
 if __name__ == '__main__':
     init_db()

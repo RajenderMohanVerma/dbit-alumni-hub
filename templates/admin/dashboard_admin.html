@@ -312,8 +312,11 @@
     /* Table Enhancements */
     .table-responsive-container {
         border-radius: 20px;
-        overflow: hidden;
+        overflow-x: auto;
+        /* Enable horizontal scroll */
         border: 1px solid #e2e8f0;
+        -webkit-overflow-scrolling: touch;
+        /* Smooth scroll on iOS */
     }
 
     .table {
@@ -444,17 +447,70 @@
     }
 
     /* Responsive adjustments */
+    /* Responsive adjustments */
     @media (max-width: 991px) {
         .page-header {
             padding: 2rem;
+            border-radius: 16px;
         }
 
         .page-header h1 {
-            font-size: 2.2rem;
+            font-size: 2rem;
+        }
+
+        .admin-container {
+            padding-top: 80px;
+            /* Reduced top padding */
+            padding-left: 1rem;
+            padding-right: 1rem;
         }
 
         .section-card {
             padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .page-header {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .page-header .row {
+            flex-direction: column-reverse;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+        }
+
+        .action-card {
+            padding: 1rem;
+        }
+
+        .action-btn-circle {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+
+        .chart-container {
+            padding: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
         }
     }
 
@@ -534,8 +590,8 @@
     </div>
 
     <!-- Stats Cards Row -->
-    <div class="row g-4 mb-5">
-        <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+    <div class="row g-3 mb-4 mb-lg-5">
+        <div class="col-6 col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
             <div class="stat-card students">
                 <div>
                     <div class="d-flex justify-content-between align-items-start">
@@ -550,7 +606,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+        <div class="col-6 col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
             <div class="stat-card alumni">
                 <div>
                     <div class="d-flex justify-content-between align-items-start">
@@ -565,7 +621,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+        <div class="col-6 col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
             <div class="stat-card faculty">
                 <div>
                     <div class="d-flex justify-content-between align-items-start">
@@ -580,7 +636,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+        <div class="col-6 col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
             <div class="stat-card funds">
                 <div>
                     <div class="d-flex justify-content-between align-items-start">
@@ -598,29 +654,29 @@
     </div>
 
     <!-- Quick Actions Row -->
-    <div class="row g-4 mb-5 animate__animated animate__fadeInUp">
-        <div class="col-md-3">
-            <div class="action-card btn-action-nav" data-url="/announcements">
+    <div class="row g-3 mb-4 mb-lg-5 animate__animated animate__fadeInUp">
+        <div class="col-6 col-md-3">
+            <div class="action-card btn-action-coming-soon">
                 <div class="action-btn-circle bg-primary"><i class="fas fa-bullhorn"></i></div>
                 <h6 class="fw-bold mb-1">Push Alert</h6>
                 <p class="small text-muted mb-0">Blast common news</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="action-card btn-action-nav" data-url="/admin/events">
+        <div class="col-6 col-md-3">
+            <div class="action-card btn-action-coming-soon">
                 <div class="action-btn-circle bg-success"><i class="fas fa-calendar-plus"></i></div>
                 <h6 class="fw-bold mb-1">New Event</h6>
                 <p class="small text-muted mb-0">Draft a new meetup</p>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="action-card btn-action-nav" data-url="/admin/messaging-control">
                 <div class="action-btn-circle bg-warning"><i class="fas fa-user-shield"></i></div>
                 <h6 class="fw-bold mb-1">Moderation</h6>
                 <p class="small text-muted mb-0">Check reported msgs</p>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="action-card btn-maintenance">
                 <div class="action-btn-circle bg-danger"><i class="fas fa-pause-circle"></i></div>
                 <h6 class="fw-bold mb-1">Maintenance</h6>
@@ -765,8 +821,8 @@
                                     class="action-btn view-btn" style="text-decoration: none;">
                                     <i class="fas fa-eye"></i> View Details
                                 </a>
-                                <button class="action-btn delete-btn btn-delete-user" data-user-id="{{ user['id'] }}"
-                                    data-user-name="{{ user['name'] }}">
+                                <button class="action-btn delete-btn btn-delete-user"
+                                    onclick="confirmDelete('{{ user.id }}', '{{ user.name }}')">
                                     <i class="fas fa-trash"></i> Delete
                                 </button>
                                 {% endif %}
@@ -867,13 +923,37 @@
     let userIdToDelete = null;
     let deleteModal = null;
 
+    // Simplified Delete Function - Direct & Robust
     function confirmDelete(id, name) {
-        userIdToDelete = id;
-        document.getElementById('deleteUserName').textContent = name;
-        if (!deleteModal) {
-            deleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        // Use native confirm for maximum reliability
+        if (confirm(`⚠ ADMIN WARNING ⚠\n\nAre you sure you want to PERMANENTLY delete user:\n\n${name}\n\nThis action cannot be undone.`)) {
+
+            // Show loading state (cursor)
+            document.body.style.cursor = 'wait';
+
+            fetch(`/api/delete-user/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.body.style.cursor = 'default';
+                    if (data.success) {
+                        // Success feedback
+                        alert('✅ User deleted successfully.');
+                        location.reload();
+                    } else {
+                        alert('❌ Error: ' + (data.error || 'Unknown error occurred'));
+                    }
+                })
+                .catch(error => {
+                    document.body.style.cursor = 'default';
+                    console.error('Delete Error:', error);
+                    alert('❌ System Error: ' + error.message);
+                });
         }
-        deleteModal.show();
     }
 
     // Initialize Charts and other functionality
@@ -1160,13 +1240,13 @@
             });
         }
 
-        document.querySelectorAll('.btn-delete-user').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const userId = btn.getAttribute('data-user-id');
-                const userName = btn.getAttribute('data-user-name');
-                confirmDelete(userId, userName);
+        document.querySelectorAll('.btn-action-coming-soon').forEach(card => {
+            card.addEventListener('click', () => {
+                alert('🚀 Feature Coming Soon!\n\nThis module is currently under development and will be available in the next update.');
             });
         });
+
+
 
         document.querySelectorAll('.download-btn').forEach(btn => {
             const onclickAttr = btn.getAttribute('onclick');

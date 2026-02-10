@@ -242,6 +242,20 @@
         gap: 5px;
     }
 
+    .status-pending {
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.1);
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+
+    .status-verified {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+
     .row-actions {
         display: flex;
         gap: 8px;
@@ -312,6 +326,10 @@
                 class="role-nav-link {% if role == 'faculty' %}active{% endif %}">
                 <i class="fas fa-chalkboard-teacher"></i> Mentors
             </a>
+            <a href="{{ url_for('admin_approve_requests') }}"
+                class="role-nav-link {% if role == 'pending' %}active{% endif %}">
+                <i class="fas fa-clock"></i> Pending
+            </a>
         </div>
 
         <!-- Search & Control -->
@@ -371,12 +389,25 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="status-badge">
+                                <span
+                                    class="status-badge {% if user['is_approved'] == 0 %}status-pending{% else %}status-verified{% endif %}">
+                                    {% if user['is_approved'] == 0 %}
+                                    <i class="fas fa-clock"></i> PENDING
+                                    {% else %}
                                     <i class="fas fa-check-circle"></i> VERIFIED
+                                    {% endif %}
                                 </span>
                             </td>
                             <td>
                                 <div class="row-actions">
+                                    {% if user['is_approved'] == 0 %}
+                                    <a href="{{ url_for('verify_user', user_id=user['id'], action='approve') }}"
+                                        class="action-circle btn-approve" title="Approve Access"
+                                        style="color: #10b981; border-color: #10b981; background: #ecfdf5;">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    {% endif %}
+                                    Command
                                     <a href="{% if user['role'] == 'student' %}{{ url_for('student_profile', user_id=user['id']) }}{% elif user['role'] == 'alumni' %}{{ url_for('alumni_profile', user_id=user['id']) }}{% else %}{{ url_for('faculty_profile', user_id=user['id']) }}{% endif %}"
                                         class="action-circle" title="Inspect Identity">
                                         <i class="fas fa-fingerprint"></i>
@@ -405,70 +436,47 @@
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0"
-            style="border-radius: 24px; overflow: hidden; background: rgba(255,255,255,0.98); backdrop-filter: blur(10px);">
-            <div class="modal-header border-0 bg-danger text-white p-4">
-                <h5 class="modal-title fw-bold"><i class="fas fa-user-shield me-2"></i> SYSTEM ALERT</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4 text-center">
-                <div class="mb-3">
-                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3.5rem;"></i>
-                </div>
-                <h4 class="fw-bold">Member Redaction</h4>
-                <p class="text-muted">Initiating permanent lifecycle termination for <br><span id="deleteUserName"
-                        class="fw-bold text-dark fs-5"></span></p>
 
-                <div class="d-grid gap-2 mt-4">
-                    <button class="btn btn-danger py-3 fw-bold" id="finalDeleteBtn" style="border-radius: 14px;">CONFIRM
-                        REDACTION</button>
-                    <button class="btn btn-light py-3 fw-bold" data-bs-dismiss="modal"
-                        style="border-radius: 14px;">ABORT COMMAND</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
-    let userIdToDelete = null;
-    let deleteModal = null;
-
     function confirmDelete(id, name) {
-        userIdToDelete = id;
-        document.getElementById('deleteUserName').textContent = name;
-        if (!deleteModal) {
-            deleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        if (confirm(`⚠ ADMIN WARNING ⚠\n\nAre you sure you want to PERMANENTLY delete user:\n\n${name}\n\nThis action cannot be undone.`)) {
+
+            // Visual feedback
+            const deleteBtn = document.querySelector(`.action-delete[data-user-id="${id}"]`);
+            if (deleteBtn) {
+                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                deleteBtn.disabled = true;
+            }
+
+            fetch(`/api/delete-user/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ User deleted successfully.');
+                        location.reload();
+                    } else {
+                        alert('❌ Error: ' + (data.error || 'Unknown error'));
+                        if (deleteBtn) {
+                            deleteBtn.innerHTML = '<i class="fas fa-user-slash"></i>';
+                            deleteBtn.disabled = false;
+                        }
+                    }
+                })
+                .catch(err => {
+                    alert('System Alert: ' + err.message);
+                    if (deleteBtn) {
+                        deleteBtn.innerHTML = '<i class="fas fa-user-slash"></i>';
+                        deleteBtn.disabled = false;
+                    }
+                });
         }
-        deleteModal.show();
     }
 
-    document.getElementById('finalDeleteBtn').addEventListener('click', function () {
-        if (!userIdToDelete) return;
-        const btn = this;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Redacting...';
-
-        fetch(`/api/delete-user/${userIdToDelete}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    deleteModal.hide();
-                    location.reload();
-                } else throw new Error(data.error);
-            })
-            .catch(err => {
-                alert('System Alert: ' + err.message);
-                btn.disabled = false;
-                btn.innerHTML = `CONFIRM REDACTION`;
-            });
-    });
+    document.getElementById('finalDeleteBtn')?.remove(); // Cleanup if exists
 
     document.getElementById('userSearch').addEventListener('input', function (e) {
         const searchTerm = e.target.value.toLowerCase();
@@ -476,5 +484,16 @@
             row.style.display = row.innerText.toLowerCase().includes(searchTerm) ? '' : 'none';
         });
     });
+
+    // Add event listeners to delete buttons
+    document.querySelectorAll('.action-delete').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const userId = this.getAttribute('data-user-id');
+            const userName = this.getAttribute('data-user-name');
+            confirmDelete(userId, userName);
+        });
+    });
+
+
 </script>
 {% endblock %}

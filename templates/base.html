@@ -395,54 +395,73 @@
                     </li>
                     {% elif current_user.role == 'admin' %}
                     <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="{{ url_for('dashboard_admin') }}">
-                            <i class="fas fa-chart-line"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/admin/approve-requests">
-                            <i class="fas fa-check-double"></i> Approve
+                        <a class="nav-link nav-pill-link {% if request.endpoint == 'dashboard_admin' %}active{% endif %}"
+                            href="{{ url_for('dashboard_admin') }}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
                         </a>
                     </li>
 
-                    <!-- Admin Tools Dropdown -->
+                    <!-- Users Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="usersDropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-tools"></i> Management
+                            <i class="fas fa-users-cog"></i> Users
                         </a>
-                        <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="adminDropdown">
+                        <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="usersDropdown">
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('admin_view_users', role='all') }}">
-                                    <i class="fas fa-users-cog me-2"></i> Users
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('admin_messaging_control') }}">
-                                    <i class="fas fa-comments me-2"></i> Messaging
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="/announcements">
-                                    <i class="fas fa-bullhorn me-2"></i> Announcements
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="/admin/events">
-                                    <i class="fas fa-calendar-check me-2"></i> Events
+                                    <i class="fas fa-list me-2 text-primary"></i> All Users
                                 </a>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a class="dropdown-item" href="/reports">
-                                    <i class="fas fa-file-invoice me-2"></i> Reports
+                                <a class="dropdown-item" href="{{ url_for('admin_view_users', role='student') }}">
+                                    <i class="fas fa-user-graduate me-2 text-info"></i> Students
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="/admin/stats">
-                                    <i class="fas fa-chart-pie me-2"></i> Statistics
+                                <a class="dropdown-item" href="{{ url_for('admin_view_users', role='alumni') }}">
+                                    <i class="fas fa-user-tie me-2 text-warning"></i> Alumni
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('admin_view_users', role='faculty') }}">
+                                    <i class="fas fa-chalkboard-teacher me-2 text-success"></i> Faculty
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('admin_approve_requests') }}">
+                                    <i class="fas fa-user-check me-2 text-danger"></i> Review Pending
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- System Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="systemDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-cogs"></i> System
+                        </a>
+                        <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="systemDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('admin_messaging_control') }}">
+                                    <i class="fas fa-comments me-2 text-indigo"></i> Messaging
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('admin_analytics') }}">
+                                    <i class="fas fa-chart-line me-2 text-purple"></i> Analytics
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('admin_registrations') }}">
+                                    <i class="fas fa-clipboard-list me-2 text-orange"></i> Registration Logs
                                 </a>
                             </li>
                         </ul>
@@ -468,7 +487,22 @@
                             <li><a class="dropdown-item" href="/upgrade"><i class="fas fa-crown"></i> Upgrade to Pro</a>
                             </li>
                             {% endif %}
-                            <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog"></i> Settings</a></li>
+                            {% if current_user.role == 'student' %}
+                            <li><a class="dropdown-item" href="{{ url_for('settings') }}"><i class="fas fa-cog"></i>
+                                    Settings</a></li>
+                            {% elif current_user.role == 'admin' %}
+                            <li><a class="dropdown-item"
+                                    href="{{ url_for('edit_admin_profile', user_id=current_user.id) }}"><i
+                                        class="fas fa-cog"></i> Settings</a></li>
+                            {% elif current_user.role == 'alumni' %}
+                            <li><a class="dropdown-item"
+                                    href="{{ url_for('edit_alumni_profile', user_id=current_user.id) }}"><i
+                                        class="fas fa-cog"></i> Settings</a></li>
+                            {% elif current_user.role == 'faculty' %}
+                            <li><a class="dropdown-item"
+                                    href="{{ url_for('edit_faculty_profile', user_id=current_user.id) }}"><i
+                                        class="fas fa-cog"></i> Settings</a></li>
+                            {% endif %}
                             <li><a class="dropdown-item" href="/change_password"><i class="fas fa-lock"></i> Change
                                     Password</a></li>
                             <li>
@@ -778,8 +812,7 @@
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 
     <!-- AOS JS -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -942,6 +975,8 @@
     <script src="{{ url_for('static', filename='js/sparkles.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
     <script src="{{ url_for('static', filename='js/custom_cursor.js') }}"></script>
+    <!-- Bootstrap 5 Bundle (includes Popper) (Local) -->
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 </body>
 
 </html>
