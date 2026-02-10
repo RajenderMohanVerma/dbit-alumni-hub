@@ -28,6 +28,7 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar-professional.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/social_pages.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ui-enhancements.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
@@ -107,6 +108,8 @@
                 <span class="brand-text">Alumni Hub</span>
             </a>
 
+
+            <!-- Open Button -->
             <button class="navbar-toggler custom-toggler" type="button" aria-controls="navbarNav" aria-expanded="false"
                 aria-label="Toggle navigation" id="navbarToggler">
                 <div class="hamburger-lines">
@@ -290,9 +293,8 @@
         <!-- Mobile Menu Overlay -->
         <div class="mobile-menu-overlay" id="mobileMenuOverlay">
             <!-- Close Button -->
-            <button class="btn btn-circle btn-light position-absolute top-0 end-0 m-4 shadow-sm" id="closeMobileMenu"
-                style="width: 45px; height: 45px; z-index: 10;">
-                <i class="fas fa-times text-danger"></i>
+            <button class="btn position-absolute top-0 end-0 m-4 shadow-lg mobile-close-btn" id="closeMobileMenu">
+                <i class="fas fa-times"></i>
             </button>
 
             <div class="mobile-menu-content">
@@ -330,6 +332,8 @@
                             class="fas fa-info-circle me-2"></i> About</a>
                     <a href="/services" class="mobile-nav-link" style="--delay: 0.4s"><i
                             class="fas fa-briefcase me-2"></i> Services</a>
+                    <a href="/events" class="mobile-nav-link" style="--delay: 0.45s"><i
+                            class="fas fa-calendar-alt me-2"></i> Events</a>
                     <a href="/contact" class="mobile-nav-link" style="--delay: 0.5s"><i
                             class="fas fa-envelope me-2"></i> Contact</a>
                 </div>
@@ -483,7 +487,7 @@
                 </div>
             </div>
         </div>
-
+        \]\ \
         <!-- Footer Bottom -->
         <div class="footer-bottom">
             <div class="container">
