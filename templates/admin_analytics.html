@@ -1,130 +1,290 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid mt-5 mb-5">
-    <div class="row mb-4">
-        <div class="col-lg-12">
-            <h1 class="mb-4"><i class="fas fa-chart-line"></i> Analytics & Reports</h1>
-        </div>
-    </div>
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
-    <!-- Statistics Cards -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="card shadow-sm text-center" style="border-radius: 15px;">
-                <div class="card-body py-4">
-                    <i class="fas fa-users" style="font-size: 2.5rem; color: #0D6EFD;"></i>
-                    <h3 class="mt-3 mb-0">{{ stats['total_users'] }}</h3>
-                    <p class="text-muted mb-0">Total Users</p>
+<style>
+    :root {
+        --primary-glass: rgba(255, 255, 255, 0.9);
+        --accent-indigo: #6366f1;
+        --accent-emerald: #10b981;
+        --accent-amber: #f59e0b;
+        --accent-rose: #f43f5e;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+    }
+
+    .premium-admin-base {
+        min-height: 100vh;
+        background: radial-gradient(circle at top right, #f8fafc 0%, #f1f5f9 100%);
+        padding: 40px 20px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .header-section {
+        margin-bottom: 40px;
+        animation: fadeInDown 0.8s ease;
+    }
+
+    .header-title {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        font-size: 2.8rem;
+        background: linear-gradient(135deg, #1e3a8a 0%, #6366f1 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+
+    .glass-card {
+        background: var(--primary-glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 28px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+        transition: all 0.3s;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        background: #f1f5f9;
+        color: var(--accent-indigo);
+    }
+
+    .stat-value {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        font-size: 2.2rem;
+        display: block;
+        color: var(--text-dark);
+    }
+
+    .stat-label {
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+    }
+
+    .progress-track {
+        background: #f1f5f9;
+        height: 12px;
+        border-radius: 20px;
+        overflow: hidden;
+        margin: 10px 0 25px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 20px;
+        transition: width 1.5s cubic-bezier(0.1, 0, 0.2, 1);
+    }
+
+    .action-btn {
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .btn-indigo {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--accent-indigo);
+    }
+
+    .btn-emerald {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent-emerald);
+    }
+
+    .btn-amber {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--accent-amber);
+    }
+
+    .btn-indigo:hover {
+        background: var(--accent-indigo);
+        color: white;
+    }
+
+    .btn-emerald:hover {
+        background: var(--accent-emerald);
+        color: white;
+    }
+
+    .btn-amber:hover {
+        background: var(--accent-amber);
+        color: white;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="premium-admin-base">
+    <div class="container">
+        <!-- Header -->
+        <div class="header-section text-center">
+            <h1 class="header-title">Ecosystem Analytics</h1>
+            <p class="text-muted fw-medium">Operational intelligence and multi-dimensional segment telemetry</p>
+        </div>
+
+        <!-- Top Stats Row -->
+        <div class="row g-4 mb-4 animate__animated animate__fadeIn">
+            <div class="col-md-3">
+                <div class="glass-card text-center">
+                    <div class="stat-circle mx-auto"><i class="fas fa-users"></i></div>
+                    <span class="stat-value">{{ stats['total_users'] }}</span>
+                    <span class="stat-label">Collective Units</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card text-center">
+                    <div class="stat-circle mx-auto"
+                        style="background: rgba(16, 185, 129, 0.1); color: var(--accent-emerald);"><i
+                            class="fas fa-award"></i></div>
+                    <span class="stat-value text-emerald">{{ stats['alumni'] }}</span>
+                    <span class="stat-label">Legacy Nodes</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card text-center">
+                    <div class="stat-circle mx-auto"
+                        style="background: rgba(99, 102, 241, 0.1); color: var(--accent-indigo);"><i
+                            class="fas fa-user-graduate"></i></div>
+                    <span class="stat-value text-indigo">{{ stats['students'] }}</span>
+                    <span class="stat-label">Active Learners</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card text-center">
+                    <div class="stat-circle mx-auto"
+                        style="background: rgba(245, 158, 11, 0.1); color: var(--accent-amber);"><i
+                            class="fas fa-chalkboard-teacher"></i></div>
+                    <span class="stat-value text-amber">{{ stats['faculty'] }}</span>
+                    <span class="stat-label">Mentorship Core</span>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm text-center" style="border-radius: 15px;">
-                <div class="card-body py-4">
-                    <i class="fas fa-graduation-cap" style="font-size: 2.5rem; color: #0D6EFD;"></i>
-                    <h3 class="mt-3 mb-0">{{ stats['students'] }}</h3>
-                    <p class="text-muted mb-0">Students</p>
-                </div>
-            </div>
-        </div>
+        <!-- Detailed Breakdown -->
+        <div class="row g-4">
+            <div class="col-lg-7 animate__animated animate__fadeInLeft" style="animation-delay: 0.1s;">
+                <div class="glass-card h-100">
+                    <h5 class="fw-bold mb-4"><i class="fas fa-layer-group me-2"></i> Population Density Matrix</h5>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm text-center" style="border-radius: 15px;">
-                <div class="card-body py-4">
-                    <i class="fas fa-users-tie" style="font-size: 2.5rem; color: #28A745;"></i>
-                    <h3 class="mt-3 mb-0">{{ stats['alumni'] }}</h3>
-                    <p class="text-muted mb-0">Alumni</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card shadow-sm text-center" style="border-radius: 15px;">
-                <div class="card-body py-4">
-                    <i class="fas fa-chalkboard-user" style="font-size: 2.5rem; color: #FFC107;"></i>
-                    <h3 class="mt-3 mb-0">{{ stats['faculty'] }}</h3>
-                    <p class="text-muted mb-0">Faculty</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detailed Statistics -->
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="card shadow-sm" style="border-radius: 15px;">
-                <div class="card-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
-                    <h5 class="mb-0">User Breakdown</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Students</span>
-                            <strong>{{ stats['students'] }}</strong>
+                    <div class="mb-4">
+                        {% set student_pct = (stats['students'] / stats['total_users'] * 100) | int if
+                        stats['total_users'] > 0 else 0 %}
+                        <div class="d-flex justify-content-between fw-bold small text-muted">
+                            <span>Learner Segment (Students)</span>
+                            <span>{{ stats['students'] }} / {{ stats['total_users'] }}</span>
                         </div>
-                        <div class="progress" style="height: 20px;">
-                            <div class="progress-bar bg-primary" style="width: {% if stats['total_users'] > 0 %}{{ (stats['students'] / stats['total_users'] * 100) | int }}%{% else %}0%{% endif %}"></div>
+                        <div class="progress-track">
+                            <div class="progress-fill"
+                                style="background: var(--accent-indigo); width: {{ student_pct }}%;"></div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Alumni</span>
-                            <strong>{{ stats['alumni'] }}</strong>
+                    <div class="mb-4">
+                        {% set alumni_pct = (stats['alumni'] / stats['total_users'] * 100) | int if stats['total_users']
+                        > 0 else 0 %}
+                        <div class="d-flex justify-content-between fw-bold small text-muted">
+                            <span>Legacy Segment (Alumni)</span>
+                            <span>{{ stats['alumni'] }} / {{ stats['total_users'] }}</span>
                         </div>
-                        <div class="progress" style="height: 20px;">
-                            <div class="progress-bar bg-success" style="width: {% if stats['total_users'] > 0 %}{{ (stats['alumni'] / stats['total_users'] * 100) | int }}%{% else %}0%{% endif %}"></div>
+                        <div class="progress-track">
+                            <div class="progress-fill"
+                                style="background: var(--accent-emerald); width: {{ alumni_pct }}%;"></div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Faculty</span>
-                            <strong>{{ stats['faculty'] }}</strong>
+                    <div class="mb-4">
+                        {% set faculty_pct = (stats['faculty'] / stats['total_users'] * 100) | int if
+                        stats['total_users'] > 0 else 0 %}
+                        <div class="d-flex justify-content-between fw-bold small text-muted">
+                            <span>Academic Segment (Faculty)</span>
+                            <span>{{ stats['faculty'] }} / {{ stats['total_users'] }}</span>
                         </div>
-                        <div class="progress" style="height: 20px;">
-                            <div class="progress-bar bg-warning" style="width: {% if stats['total_users'] > 0 %}{{ (stats['faculty'] / stats['total_users'] * 100) | int }}%{% else %}0%{% endif %}"></div>
+                        <div class="progress-track">
+                            <div class="progress-fill"
+                                style="background: var(--accent-amber); width: {{ faculty_pct }}%;"></div>
                         </div>
                     </div>
 
                     <div class="mb-0">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Admin</span>
-                            <strong>{{ stats['admin'] }}</strong>
+                        {% set admin_pct = (stats['admin'] / stats['total_users'] * 100) | int if stats['total_users'] >
+                        0 else 0 %}
+                        <div class="d-flex justify-content-between fw-bold small text-muted">
+                            <span>Administrative Core (Admins)</span>
+                            <span>{{ stats['admin'] }} / {{ stats['total_users'] }}</span>
                         </div>
-                        <div class="progress" style="height: 20px;">
-                            <div class="progress-bar bg-danger" style="width: {% if stats['total_users'] > 0 %}{{ (stats['admin'] / stats['total_users'] * 100) | int }}%{% else %}0%{% endif %}"></div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="background: var(--accent-rose); width: {{ admin_pct }}%;">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-lg-6">
-            <div class="card shadow-sm" style="border-radius: 15px;">
-                <div class="card-header bg-success text-white" style="border-radius: 15px 15px 0 0;">
-                    <h5 class="mb-0">Events & Activities</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-calendar-check"></i> Alumni Meet Registrations</span>
-                            <badge class="badge bg-success">{{ stats['meet_registrations'] }}</badge>
+            <div class="col-lg-5 animate__animated animate__fadeInRight" style="animation-delay: 0.2s;">
+                <div class="glass-card h-100">
+                    <h5 class="fw-bold mb-4"><i class="fas fa-bolt me-2"></i> Operational Pulse</h5>
+
+                    <div class="p-3 bg-light rounded-4 mb-4 border border-white">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="fw-bold mb-1">Meet Engagement</h6>
+                                <p class="small text-muted mb-0">Total registrations for Alumni Meet 2026</p>
+                            </div>
+                            <span class="fs-4 fw-black text-emerald">{{ stats['meet_registrations'] }}</span>
                         </div>
                     </div>
-                    <hr>
-                    <div class="mb-3">
-                        <h6>Quick Actions</h6>
-                        <a href="{{ url_for('admin_view_users', role='student') }}" class="btn btn-sm btn-primary">
-                            <i class="fas fa-list"></i> View All Students
+
+                    <h6 class="fw-bold mb-3 small text-muted">RAPID SYNCHRONIZATION</h6>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin_view_users', role='student') }}" class="action-btn btn-indigo">
+                            <i class="fas fa-list-ul"></i> Inspect Student Cluster
                         </a>
-                        <a href="{{ url_for('admin_view_users', role='alumni') }}" class="btn btn-sm btn-success">
-                            <i class="fas fa-list"></i> View All Alumni
+                        <a href="{{ url_for('admin_view_users', role='alumni') }}" class="action-btn btn-emerald">
+                            <i class="fas fa-list-ul"></i> Inspect Alumni Cluster
                         </a>
-                        <a href="{{ url_for('admin_view_users', role='faculty') }}" class="btn btn-sm btn-warning">
-                            <i class="fas fa-list"></i> View All Faculty
+                        <a href="{{ url_for('admin_view_users', role='faculty') }}" class="action-btn btn-amber">
+                            <i class="fas fa-list-ul"></i> Inspect Faculty Cluster
                         </a>
                     </div>
                 </div>
@@ -132,16 +292,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    .card {
-        border: none;
-        transition: all 0.3s ease;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
-    }
-</style>
 {% endblock %}

@@ -1,54 +1,161 @@
 {% extends "base.html" %}
 
-{% block title %}System Statistics - Alumni Hub{% endblock %}
+{% block title %}Telemetry Core - Alumni Hub{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="mb-5 animate__animated animate__fadeInDown">
-        <h1 class="fw-bold gradient-text display-5 mb-2">System Statistics</h1>
-        <p class="lead text-muted">Real-time insights and analytics.</p>
-    </div>
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Stats Cards -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="glass-card p-4 text-center">
-                <div class="display-4 fw-bold text-primary mb-2">1,250</div>
-                <div class="text-muted small text-uppercase fw-bold">Total Users</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="glass-card p-4 text-center">
-                <div class="display-4 fw-bold text-success mb-2">850</div>
-                <div class="text-muted small text-uppercase fw-bold">Alumni</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="glass-card p-4 text-center">
-                <div class="display-4 fw-bold text-info mb-2">350</div>
-                <div class="text-muted small text-uppercase fw-bold">Students</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="glass-card p-4 text-center">
-                <div class="display-4 fw-bold text-warning mb-2">50</div>
-                <div class="text-muted small text-uppercase fw-bold">Faculty</div>
-            </div>
-        </div>
-    </div>
+<style>
+    :root {
+        --primary-glass: rgba(255, 255, 255, 0.9);
+        --accent-indigo: #6366f1;
+        --accent-blue: #0ea5e9;
+        --accent-emerald: #10b981;
+        --accent-amber: #f59e0b;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+    }
 
-    <!-- Charts -->
-    <div class="row g-4">
-        <div class="col-lg-8 animate__animated animate__fadeInUp">
-            <div class="glass-card p-4">
-                <h5 class="fw-bold mb-4">User Growth (Last 6 Months)</h5>
-                <canvas id="userGrowthChart" height="150"></canvas>
+    .premium-admin-base {
+        min-height: 100vh;
+        background: radial-gradient(circle at top right, #f8fafc 0%, #f1f5f9 100%);
+        padding: 40px 20px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .header-section {
+        margin-bottom: 40px;
+        animation: fadeInDown 0.8s ease;
+    }
+
+    .header-title {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        font-size: 2.8rem;
+        background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+
+    .glass-card {
+        background: var(--primary-glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 28px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        height: 100%;
+        transition: all 0.3s;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-mini {
+        padding: 20px;
+        border-radius: 22px;
+        background: white;
+        border: 1px solid #f1f5f9;
+        text-align: center;
+    }
+
+    .mini-value {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        font-size: 1.8rem;
+        display: block;
+    }
+
+    .mini-label {
+        font-weight: 700;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="premium-admin-base">
+    <div class="container">
+        <!-- Header -->
+        <div class="header-section text-center">
+            <h1 class="header-title">Telemetry Overview</h1>
+            <p class="text-muted fw-medium">Real-time platform heartbeat and ecosystem growth metrics</p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row g-4 mb-5 animate__animated animate__fadeIn">
+            <div class="col-md-3">
+                <div class="stat-mini">
+                    <span class="mini-value text-indigo">1,250</span>
+                    <span class="mini-label">Total Units</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-mini">
+                    <span class="mini-value text-emerald">850</span>
+                    <span class="mini-label">Legacy Segment</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-mini">
+                    <span class="mini-value text-blue">350</span>
+                    <span class="mini-label">Learner Segment</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-mini">
+                    <span class="mini-value text-amber">50</span>
+                    <span class="mini-label">Mentorship Core</span>
+                </div>
             </div>
         </div>
-        <div class="col-lg-4 animate__animated animate__fadeInUp" style="--delay: 0.1s">
-            <div class="glass-card p-4">
-                <h5 class="fw-bold mb-4">User Role Distribution</h5>
-                <canvas id="roleDistChart" height="250"></canvas>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-8 animate__animated animate__fadeInUp">
+                <div class="glass-card">
+                    <h5 class="fw-bold mb-4"><i class="fas fa-chart-line me-2"></i> Temporal Growth Curve</h5>
+                    <canvas id="userGrowthChart" height="150"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                <div class="glass-card">
+                    <h5 class="fw-bold mb-4"><i class="fas fa-chart-pie me-2"></i> Segment Density</h5>
+                    <canvas id="roleDistChart" height="250"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -56,38 +163,46 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Line Chart
-        const ctx1 = document.getElementById('userGrowthChart').getContext('2d');
-        new Chart(ctx1, {
+        const growthCtx = document.getElementById('userGrowthChart').getContext('2d');
+        new Chart(growthCtx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN'],
                 datasets: [{
-                    label: 'New Registrations',
+                    label: 'Registrations',
                     data: [65, 59, 80, 81, 56, 155],
-                    borderColor: '#0ea5e9',
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    fill: true,
                     tension: 0.4
                 }]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { display: false } }
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { display: false } },
+                    x: { grid: { display: false } }
+                }
             }
         });
 
-        // Doughnut Chart
-        const ctx2 = document.getElementById('roleDistChart').getContext('2d');
-        new Chart(ctx2, {
+        const roleCtx = document.getElementById('roleDistChart').getContext('2d');
+        new Chart(roleCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Alumni', 'Students', 'Faculty'],
+                labels: ['ALUMNI', 'STUDENTS', 'FACULTY'],
                 datasets: [{
                     data: [850, 350, 50],
-                    backgroundColor: ['#10b981', '#0ea5e9', '#f59e0b']
+                    backgroundColor: ['#10b981', '#0ea5e9', '#f59e0b'],
+                    borderWidth: 0,
+                    hoverOffset: 20
                 }]
             },
             options: {
-                responsive: true
+                responsive: true,
+                cutout: '70%',
+                plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold' }, padding: 20 } } }
             }
         });
     });

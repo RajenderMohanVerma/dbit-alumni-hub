@@ -1,58 +1,290 @@
 {% extends "base.html" %}
 
-{% block title %}Manage Events - Alumni Hub{% endblock %}
+{% block title %}Event Orchestration - Alumni Hub{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown">
-        <div>
-            <h1 class="fw-bold gradient-text display-5 mb-2">Manage Events</h1>
-            <p class="lead text-muted">Create, edit, and manage all platform events.</p>
-        </div>
-        <button class="btn btn-premium-gradient btn-lg shadow-premium">
-            <i class="fas fa-calendar-plus me-2"></i> Create Event
-        </button>
-    </div>
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
-    <!-- Events List -->
-    <div class="glass-card p-0 overflow-hidden animate__animated animate__fadeInUp">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="p-4 border-0">Event Name</th>
-                        <th class="p-4 border-0">Date</th>
-                        <th class="p-4 border-0">Type</th>
-                        <th class="p-4 border-0">Attendees</th>
-                        <th class="p-4 border-0">Status</th>
-                        <th class="p-4 border-0 text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="p-4 fw-bold">Annual Alumni Meet 2026</td>
-                        <td class="p-4">April 10, 2026</td>
-                        <td class="p-4"><span class="badge bg-primary">Reunion</span></td>
-                        <td class="p-4">120 / 500</td>
-                        <td class="p-4"><span class="badge bg-success">Published</span></td>
-                        <td class="p-4 text-end">
-                            <button class="btn btn-sm btn-light text-primary me-1"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-light text-danger"><i class="fas fa-trash-alt"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="p-4 fw-bold">Intro to Cloud Computing</td>
-                        <td class="p-4">March 15, 2026</td>
-                        <td class="p-4"><span class="badge bg-info text-dark">Webinar</span></td>
-                        <td class="p-4">45 / 100</td>
-                        <td class="p-4"><span class="badge bg-warning text-dark">Draft</span></td>
-                        <td class="p-4 text-end">
-                            <button class="btn btn-sm btn-light text-primary me-1"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-light text-danger"><i class="fas fa-trash-alt"></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+<style>
+    :root {
+        --primary-glass: rgba(255, 255, 255, 0.9);
+        --accent-indigo: #6366f1;
+        --accent-emerald: #10b981;
+        --accent-rose: #f43f5e;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+    }
+
+    .premium-admin-base {
+        min-height: 100vh;
+        background: radial-gradient(circle at top right, #f1f5f9 0%, #e2e8f0 100%);
+        padding: 40px 20px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .header-section {
+        margin-bottom: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        animation: fadeInDown 0.8s ease;
+    }
+
+    .header-title {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        font-size: 2.8rem;
+        background: linear-gradient(135deg, #1e3a8a 0%, #6366f1 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+
+    .glass-card {
+        background: var(--primary-glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 28px;
+        padding: 0;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease;
+    }
+
+    .premium-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .premium-table thead th {
+        background: rgba(248, 250, 252, 0.5);
+        padding: 20px 25px;
+        color: var(--text-muted);
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .event-row {
+        transition: all 0.2s;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .event-row:hover {
+        background: rgba(99, 102, 241, 0.02);
+    }
+
+    .event-row td {
+        padding: 20px 25px;
+        vertical-align: middle;
+    }
+
+    .event-name {
+        font-weight: 800;
+        color: var(--text-dark);
+        display: block;
+        font-size: 1.05rem;
+    }
+
+    .event-meta {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .type-pill {
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .pill-reunion {
+        background: #eef2ff;
+        color: #4338ca;
+    }
+
+    .pill-webinar {
+        background: #ecfeff;
+        color: #0891b2;
+    }
+
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .status-published {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-draft {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .action-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        color: var(--text-muted);
+        transition: all 0.2s;
+        border: 1px solid #f1f5f9;
+        margin-left: 5px;
+    }
+
+    .action-circle:hover {
+        transform: scale(1.1);
+        background: var(--accent-indigo);
+        color: white;
+        border-color: var(--accent-indigo);
+    }
+
+    .action-delete:hover {
+        background: var(--accent-rose);
+        border-color: var(--accent-rose);
+    }
+
+    .btn-create {
+        padding: 14px 28px;
+        border-radius: 18px;
+        font-weight: 800;
+        font-family: 'Outfit', sans-serif;
+        background: linear-gradient(135deg, #1e3a8a 0%, #6366f1 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+        transition: all 0.3s;
+    }
+
+    .btn-create:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3);
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="premium-admin-base">
+    <div class="container">
+        <!-- Header -->
+        <div class="header-section">
+            <div>
+                <h1 class="header-title">Event Orchestration</h1>
+                <p class="text-muted fw-medium mb-0">Strategic planning and lifecycle management of platform activities
+                </p>
+            </div>
+            <button class="btn-create">
+                <i class="fas fa-calendar-plus me-2"></i> INITIATE EVENT
+            </button>
+        </div>
+
+        <!-- Events List -->
+        <div class="glass-card">
+            <div class="table-responsive">
+                <table class="premium-table">
+                    <thead>
+                        <tr>
+                            <th>Mission Objective</th>
+                            <th>Deployment Date</th>
+                            <th>Classification</th>
+                            <th>Engagement</th>
+                            <th>Operational Status</th>
+                            <th class="text-end">Command</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="event-row">
+                            <td>
+                                <span class="event-name">Annual Alumni Meet 2026</span>
+                                <span class="event-meta">Flagship Institutional Reunion</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark small"><i
+                                        class="far fa-calendar-alt me-1 text-indigo"></i> April 10, 2026</div>
+                            </td>
+                            <td><span class="type-pill pill-reunion">REUNION</span></td>
+                            <td>
+                                <div class="small fw-bold text-muted">120 / 500 <span class="text-indigo">(24%)</span>
+                                </div>
+                                <div class="progress mt-1" style="height: 4px; border-radius: 10px;">
+                                    <div class="progress-bar bg-primary" style="width: 24%"></div>
+                                </div>
+                            </td>
+                            <td><span class="status-badge status-published">PUBLISHED</span></td>
+                            <td class="text-end">
+                                <button class="action-circle" title="Edit Parameters"><i
+                                        class="fas fa-sliders-h"></i></button>
+                                <button class="action-circle action-delete" title="Abort Mission"><i
+                                        class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                        <tr class="event-row">
+                            <td>
+                                <span class="event-name">Intro to Cloud Computing</span>
+                                <span class="event-meta">Technical Knowledge Transfer</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark small"><i
+                                        class="far fa-calendar-alt me-1 text-indigo"></i> March 15, 2026</div>
+                            </td>
+                            <td><span class="type-pill pill-webinar">WEBINAR</span></td>
+                            <td>
+                                <div class="small fw-bold text-muted">45 / 100 <span class="text-indigo">(45%)</span>
+                                </div>
+                                <div class="progress mt-1" style="height: 4px; border-radius: 10px;">
+                                    <div class="progress-bar bg-info" style="width: 45%"></div>
+                                </div>
+                            </td>
+                            <td><span class="status-badge status-draft">DRAFT</span></td>
+                            <td class="text-end">
+                                <button class="action-circle" title="Edit Parameters"><i
+                                        class="fas fa-sliders-h"></i></button>
+                                <button class="action-circle action-delete" title="Abort Mission"><i
+                                        class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

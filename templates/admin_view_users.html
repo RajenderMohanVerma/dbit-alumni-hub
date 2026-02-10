@@ -1,402 +1,433 @@
 {% extends "base.html" %}
 
 {% block content %}
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
 <style>
     :root {
-        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        --glass-bg: rgba(255, 255, 255, 0.95);
-        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        --primary-glass: rgba(255, 255, 255, 0.9);
+        --accent-indigo: #6366f1;
+        --accent-blue: #0ea5e9;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
     }
 
-    .admin-container {
-        max-width: 1400px;
-        margin: 2rem auto;
-        padding: 0 1.5rem;
+    .premium-admin-base {
+        min-height: 100vh;
+        background: radial-gradient(circle at top right, #f8fafc 0%, #f1f5f9 100%);
+        padding: 40px 20px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* Header Styling */
-    .management-header {
-        background: var(--primary-gradient);
-        border-radius: 24px;
-        padding: 3rem;
-        color: white;
-        margin-bottom: 2rem;
-        box-shadow: 0 15px 35px rgba(99, 102, 241, 0.2);
-        position: relative;
-        overflow: hidden;
+    .header-section {
+        margin-bottom: 40px;
+        animation: fadeInDown 0.8s ease;
     }
 
-    .management-header::after {
-        content: '';
-        position: absolute;
-        top: -20%;
-        right: -5%;
-        width: 300px;
-        height: 300px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
+    .header-title {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        font-size: 2.8rem;
+        background: linear-gradient(135deg, #1e3a8a 0%, #6366f1 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
     }
 
-    /* Tab Styling */
-    .role-tabs {
+    .glass-card {
+        background: var(--primary-glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 28px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+    }
+
+    .role-navbar {
         display: flex;
-        gap: 1rem;
-        margin-bottom: 2rem;
+        gap: 12px;
         background: #f1f5f9;
-        padding: 0.5rem;
-        border-radius: 16px;
+        padding: 6px;
+        border-radius: 18px;
         width: fit-content;
+        margin: 0 auto 40px;
     }
 
-    .role-tab {
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
+    .role-nav-link {
+        padding: 10px 24px;
+        border-radius: 14px;
         text-decoration: none;
-        color: #64748b;
+        color: var(--text-muted);
         font-weight: 700;
-        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 8px;
     }
 
-    .role-tab.active {
+    .role-nav-link.active {
         background: white;
-        color: #4f46e5;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        color: var(--accent-indigo);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+        transform: scale(1.02);
     }
 
-    .role-tab:hover:not(.active) {
-        background: rgba(255, 255, 255, 0.5);
-        color: #1e293b;
+    .search-dock {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
     }
 
-    /* Main Card */
-    .users-card {
-        background: white;
-        border-radius: 24px;
-        padding: 2rem;
-        box-shadow: var(--card-shadow);
-        border: 1px solid #f1f5f9;
-    }
-
-    /* Search & Filter Bar */
-    .search-wrapper {
+    .dock-input-wrapper {
         position: relative;
         flex: 1;
-        max-width: 450px;
     }
 
-    .search-input {
+    .dock-input {
         width: 100%;
-        padding: 0.8rem 1rem 0.8rem 3rem;
-        border-radius: 14px;
+        padding: 14px 20px 14px 50px;
+        border-radius: 16px;
         border: 2px solid #f1f5f9;
-        background: #f8fafc;
-        transition: all 0.3s ease;
+        background: white;
+        font-weight: 500;
+        transition: all 0.3s;
     }
 
-    .search-input:focus {
-        background: white;
-        border-color: #6366f1;
+    .dock-input:focus {
+        border-color: var(--accent-indigo);
         box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         outline: none;
     }
 
-    .search-icon {
+    .dock-icon {
         position: absolute;
-        left: 1.2rem;
+        left: 20px;
         top: 50%;
         transform: translateY(-50%);
         color: #94a3b8;
     }
 
-    /* Table Styling */
-    .custom-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0 0.75rem;
+    .btn-premium {
+        padding: 12px 24px;
+        border-radius: 14px;
+        font-weight: 700;
+        transition: all 0.3s;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
-    .custom-table thead th {
-        background: transparent;
-        border: none;
-        color: #94a3b8;
-        font-weight: 700;
+    .btn-indigo {
+        background: var(--accent-indigo);
+        color: white;
+    }
+
+    .btn-white {
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: var(--text-dark);
+    }
+
+    .btn-indigo:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .premium-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+    }
+
+    .premium-table thead th {
+        padding: 15px 25px;
+        color: var(--text-muted);
+        font-weight: 800;
         text-transform: uppercase;
         font-size: 0.75rem;
         letter-spacing: 1px;
-        padding: 1rem 1.5rem;
     }
 
     .user-row {
         background: white;
-        transition: all 0.3s ease;
-    }
-
-    .user-row td {
-        background: #fff;
-        padding: 1.25rem 1.5rem;
-        vertical-align: middle;
-        border-top: 1px solid #f1f5f9;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .user-row td:first-child {
-        border-left: 1px solid #f1f5f9;
-        border-top-left-radius: 16px;
-        border-bottom-left-radius: 16px;
-    }
-
-    .user-row td:last-child {
-        border-right: 1px solid #f1f5f9;
-        border-top-right-radius: 16px;
-        border-bottom-right-radius: 16px;
+        transition: all 0.3s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
     }
 
     .user-row:hover {
         transform: scale(1.005);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.06);
     }
 
-    .user-row:hover td {
-        background: #fafafa;
-        border-color: #e2e8f0;
+    .user-row td {
+        padding: 20px 25px;
+        vertical-align: middle;
     }
 
-    /* Avatar & Identifiers */
-    .member-avatar {
-        width: 48px;
-        height: 48px;
+    .user-row td:first-child {
+        border-top-left-radius: 20px;
+        border-bottom-left-radius: 20px;
+    }
+
+    .user-row td:last-child {
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px;
+    }
+
+    .u-avatar {
+        width: 50px;
+        height: 50px;
         border-radius: 14px;
         object-fit: cover;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border: 2px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
-    .member-info h6 {
-        margin: 0;
-        font-weight: 700;
-        color: #1e293b;
+    .u-name {
+        font-weight: 800;
+        color: var(--text-dark);
+        display: block;
     }
 
-    .member-info p {
-        margin: 0;
+    .u-email {
         font-size: 0.85rem;
-        color: #64748b;
+        color: var(--text-muted);
     }
 
-    /* Badges */
-    .status-badge {
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
-        font-weight: 700;
-        font-size: 0.8rem;
+    .role-pill {
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
+        gap: 6px;
     }
 
-    .status-active {
-        background: rgba(16, 185, 129, 0.1);
+    .pill-student {
+        background: #eff6ff;
+        color: #1e40af;
+    }
+
+    .pill-alumni {
+        background: #fff7ed;
+        color: #9a3412;
+    }
+
+    .pill-faculty {
+        background: #f0fdf4;
+        color: #166534;
+    }
+
+    .pill-admin {
+        background: #fef2f2;
+        color: #991b1b;
+    }
+
+    .status-badge {
+        font-size: 0.8rem;
+        font-weight: 700;
         color: #10b981;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
 
-    /* Action Buttons */
-    .btn-action {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        display: inline-flex;
+    .row-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .action-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.2s ease;
-        border: none;
-        background: #f1f5f9;
-        color: #64748b;
-        text-decoration: none;
-    }
-
-    .btn-view:hover {
-        background: #dbeafe;
-        color: #4f46e5;
-    }
-
-    .btn-delete:hover {
-        background: #fee2e2;
-        color: #ef4444;
-    }
-
-    /* Empty State */
-    .empty-state {
-        padding: 5rem 2rem;
-        text-align: center;
         background: #f8fafc;
-        border-radius: 20px;
-        border: 2px dashed #e2e8f0;
+        color: var(--text-muted);
+        transition: all 0.2s;
+        border: 1px solid #f1f5f9;
     }
 
-    .empty-icon {
-        font-size: 4rem;
-        color: #cbd5e1;
-        margin-bottom: 1.5rem;
+    .action-circle:hover {
+        background: var(--accent-indigo);
+        color: white;
+        transform: scale(1.1);
+        border-color: var(--accent-indigo);
+    }
+
+    .action-delete:hover {
+        background: #ef4444;
+        border-color: #ef4444;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 </style>
 
-<div class="admin-container">
-    <!-- Header -->
-    <div class="management-header animate__animated animate__fadeInDown">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="fw-bold mb-2">Member Management</h1>
-                <p class="mb-0 opacity-75">Directory and oversight for all registered system users.</p>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <div class="display-6 fw-extrabold mb-0">{{ users|length }}</div>
-                <div class="text-uppercase small fw-bold opacity-75">Registered Users</div>
-            </div>
+<div class="premium-admin-base">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="header-section text-center">
+            <h1 class="header-title">Member Directorate</h1>
+            <p class="text-muted fw-medium">Governance and identity lifecycle management for the Alumni ecosystem</p>
         </div>
-    </div>
 
-    <!-- Navigation Tabs -->
-    <div class="role-tabs animate__animated animate__fadeInLeft" style="animation-delay: 0.1s;">
-        <a href="{{ url_for('admin_view_users', role='all') }}"
-            class="role-tab {% if role == 'all' %}active{% endif %}">
-            <i class="fas fa-users"></i> All Users
-        </a>
-        <a href="{{ url_for('admin_view_users', role='student') }}"
-            class="role-tab {% if role == 'student' %}active{% endif %}">
-            <i class="fas fa-graduation-cap"></i> Students
-        </a>
-        <a href="{{ url_for('admin_view_users', role='alumni') }}"
-            class="role-tab {% if role == 'alumni' %}active{% endif %}">
-            <i class="fas fa-user-tie"></i> Alumni
-        </a>
-        <a href="{{ url_for('admin_view_users', role='faculty') }}"
-            class="role-tab {% if role == 'faculty' %}active{% endif %}">
-            <i class="fas fa-chalkboard-teacher"></i> Faculty
-        </a>
-    </div>
-
-    <!-- Tools Bar -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 animate__animated animate__fadeInUp"
-        style="animation-delay: 0.2s;">
-        <div class="search-wrapper">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="userSearch" class="search-input"
-                placeholder="Quick search by name, email or department...">
+        <!-- Role Nav -->
+        <div class="role-navbar animate__animated animate__fadeIn">
+            <a href="{{ url_for('admin_view_users', role='all') }}"
+                class="role-nav-link {% if role == 'all' %}active{% endif %}">
+                <i class="fas fa-users-cog"></i> Collective
+            </a>
+            <a href="{{ url_for('admin_view_users', role='student') }}"
+                class="role-nav-link {% if role == 'student' %}active{% endif %}">
+                <i class="fas fa-user-graduate"></i> Students
+            </a>
+            <a href="{{ url_for('admin_view_users', role='alumni') }}"
+                class="role-nav-link {% if role == 'alumni' %}active{% endif %}">
+                <i class="fas fa-award"></i> Legacy
+            </a>
+            <a href="{{ url_for('admin_view_users', role='faculty') }}"
+                class="role-nav-link {% if role == 'faculty' %}active{% endif %}">
+                <i class="fas fa-chalkboard-teacher"></i> Mentors
+            </a>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary px-4 fw-bold" style="border-radius: 12px;"
-                onclick="location.reload()">
-                <i class="fas fa-sync-alt me-2"></i> Refresh
+
+        <!-- Search & Control -->
+        <div class="search-dock animate__animated animate__fadeInUp">
+            <div class="dock-input-wrapper">
+                <i class="fas fa-fingerprint dock-icon"></i>
+                <input type="text" id="userSearch" class="dock-input"
+                    placeholder="Initiate member search by identity or department...">
+            </div>
+            <button class="btn-premium btn-white" onclick="location.reload()">
+                <i class="fas fa-sync-alt"></i> Sync
             </button>
-            <button class="btn btn-primary px-4 fw-bold" style="border-radius: 12px;" onclick="window.print()">
-                <i class="fas fa-print me-2"></i> Report
+            <button class="btn-premium btn-indigo" onclick="window.print()">
+                <i class="fas fa-file-signature"></i> Intelligence Export
             </button>
         </div>
-    </div>
 
-    <!-- Users Table Container -->
-    <div class="users-card animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
-        {% if users %}
-        <div class="table-responsive">
-            <table class="custom-table" id="usersTable">
-                <thead>
-                    <tr>
-                        <th>Member</th>
-                        <th>Identifier</th>
-                        <th>Joined Date</th>
-                        <th>Status</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users %}
-                    <tr class="user-row">
-                        <td>
-                            <div class="d-flex align-items-center gap-3">
-                                <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&background=6366f1&color=fff&rounded=true&bold=true"
-                                    alt="" class="member-avatar">
-                                <div class="member-info">
-                                    <h6>{{ user['name'] }}</h6>
-                                    <p>{{ user['email'] }}</p>
+        <!-- Directory -->
+        <div class="glass-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+            {% if users %}
+            <div class="table-responsive">
+                <table class="premium-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Identity Matrix</th>
+                            <th>Classification</th>
+                            <th>Lifecycle Start</th>
+                            <th>Operational Status</th>
+                            <th class="text-end">Command</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr class="user-row">
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&background=6366f1&color=fff&rounded=true&bold=true"
+                                        alt="" class="u-avatar">
+                                    <div>
+                                        <span class="u-name">{{ user['name'] }}</span>
+                                        <span class="u-email">{{ user['email'] }}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="badge bg-light text-dark fw-bold" style="border-radius: 8px;">
-                                {% if user['role'] == 'student' %}
-                                <i class="fas fa-graduation-cap text-primary me-1"></i> Student
-                                {% elif user['role'] == 'alumni' %}
-                                <i class="fas fa-user-tie text-warning me-1"></i> Alumni
-                                {% elif user['role'] == 'faculty' %}
-                                <i class="fas fa-chalkboard-teacher text-success me-1"></i> Faculty
-                                {% else %}
-                                <i class="fas fa-shield-alt text-danger me-1"></i> Admin
-                                {% endif %}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="fw-semibold text-muted small">
-                                <i class="far fa-calendar-alt me-1"></i> {{ user['created_at'][:10] }}
-                            </div>
-                        </td>
-                        <td>
-                            <span class="status-badge status-active">
-                                <i class="fas fa-check-circle"></i> Verified
-                            </span>
-                        </td>
-                        <td class="text-end">
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="{% if user['role'] == 'student' %}{{ url_for('student_profile', user_id=user['id']) }}{% elif user['role'] == 'alumni' %}{{ url_for('alumni_profile', user_id=user['id']) }}{% else %}{{ url_for('faculty_profile', user_id=user['id']) }}{% endif %}"
-                                    class="btn-action btn-view" title="View Profile">
-                                    <i class="fas fa-expand-alt"></i>
-                                </a>
-                                {% if user['email'] != 'admindbit195@college.edu' %}
-                                <button class="btn-action btn-delete"
-                                    onclick="confirmDelete({{ user['id'] }}, '{{ user['name'] }}')"
-                                    title="Delete Member">
-                                    <i class="fas fa-user-slash"></i>
-                                </button>
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            </td>
+                            <td>
+                                <span class="role-pill pill-{{ user['role'] }}">
+                                    {% if user['role'] == 'student' %}<i class="fas fa-user-graduate"></i> STUDENT
+                                    {% elif user['role'] == 'alumni' %}<i class="fas fa-award"></i> ALUMNI
+                                    {% elif user['role'] == 'faculty' %}<i class="fas fa-chalkboard-teacher"></i>
+                                    FACULTY
+                                    {% else %}<i class="fas fa-shield-alt"></i> ADMIN{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="text-muted fw-bold small">
+                                    <i class="far fa-clock"></i> {{ user['created_at'][:10] }}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status-badge">
+                                    <i class="fas fa-check-circle"></i> VERIFIED
+                                </span>
+                            </td>
+                            <td>
+                                <div class="row-actions">
+                                    <a href="{% if user['role'] == 'student' %}{{ url_for('student_profile', user_id=user['id']) }}{% elif user['role'] == 'alumni' %}{{ url_for('alumni_profile', user_id=user['id']) }}{% else %}{{ url_for('faculty_profile', user_id=user['id']) }}{% endif %}"
+                                        class="action-circle" title="Inspect Identity">
+                                        <i class="fas fa-fingerprint"></i>
+                                    </a>
+                                    {% if user['email'] != 'admindbit195@college.edu' %}
+                                    <button class="action-circle action-delete"
+                                        onclick="confirmDelete({{ user['id'] }}, '{{ user['name'] }}')"
+                                        title="Redact Member">
+                                        <i class="fas fa-user-slash"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-fingerprint fa-4x text-light-emphasis mb-3"></i>
+                <h4 class="fw-bold">Static Matrix</h4>
+                <p class="text-muted">No entities detected in the current classification segment.</p>
+            </div>
+            {% endif %}
         </div>
-        {% else %}
-        <div class="empty-state">
-            <div class="empty-icon"><i class="fas fa-box-open"></i></div>
-            <h4 class="fw-bold">No Users Found</h4>
-            <p class="text-muted">There are no {{ role }} registered in the system yet.</p>
-        </div>
-        {% endif %}
     </div>
 </div>
 
 <!-- Modal -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0" style="border-radius: 20px; overflow: hidden;">
+        <div class="modal-content border-0"
+            style="border-radius: 24px; overflow: hidden; background: rgba(255,255,255,0.98); backdrop-filter: blur(10px);">
             <div class="modal-header border-0 bg-danger text-white p-4">
-                <h5 class="modal-title fw-bold"><i class="fas fa-user-shield me-2"></i> Critical Action</h5>
+                <h5 class="modal-title fw-bold"><i class="fas fa-user-shield me-2"></i> SYSTEM ALERT</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4 text-center">
                 <div class="mb-3">
-                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3.5rem;"></i>
                 </div>
-                <h4 class="fw-bold">Permanent Deletion</h4>
-                <p class="text-muted">Are you absolutely sure you want to delete <span id="deleteUserName"
-                        class="fw-bold text-dark"></span>? All associated data will be purged.</p>
+                <h4 class="fw-bold">Member Redaction</h4>
+                <p class="text-muted">Initiating permanent lifecycle termination for <br><span id="deleteUserName"
+                        class="fw-bold text-dark fs-5"></span></p>
 
                 <div class="d-grid gap-2 mt-4">
-                    <button class="btn btn-danger btn-lg fw-bold" id="finalDeleteBtn"
-                        style="border-radius: 12px;">Confirm Deletion</button>
-                    <button class="btn btn-light btn-lg fw-bold" data-bs-dismiss="modal"
-                        style="border-radius: 12px;">Cancel Action</button>
+                    <button class="btn btn-danger py-3 fw-bold" id="finalDeleteBtn" style="border-radius: 14px;">CONFIRM
+                        REDACTION</button>
+                    <button class="btn btn-light py-3 fw-bold" data-bs-dismiss="modal"
+                        style="border-radius: 14px;">ABORT COMMAND</button>
                 </div>
             </div>
         </div>
@@ -418,10 +449,9 @@
 
     document.getElementById('finalDeleteBtn').addEventListener('click', function () {
         if (!userIdToDelete) return;
-
         const btn = this;
         btn.disabled = true;
-        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Processing...`;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Redacting...';
 
         fetch(`/api/delete-user/${userIdToDelete}`, {
             method: 'POST',
@@ -432,27 +462,20 @@
                 if (data.success) {
                     deleteModal.hide();
                     location.reload();
-                } else {
-                    throw new Error(data.error || 'Delete failed');
-                }
+                } else throw new Error(data.error);
             })
             .catch(err => {
-                alert('Management Alert: ' + err.message);
+                alert('System Alert: ' + err.message);
                 btn.disabled = false;
-                btn.innerHTML = `Confirm Deletion`;
+                btn.innerHTML = `CONFIRM REDACTION`;
             });
     });
 
-    // Real-time Search
     document.getElementById('userSearch').addEventListener('input', function (e) {
         const searchTerm = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('.user-row');
-
-        rows.forEach(row => {
-            const rowText = row.innerText.toLowerCase();
-            row.style.display = rowText.includes(searchTerm) ? '' : 'none';
+        document.querySelectorAll('.user-row').forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(searchTerm) ? '' : 'none';
         });
     });
 </script>
-{% endblock %}
 {% endblock %}

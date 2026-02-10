@@ -1,381 +1,405 @@
 {% extends "base.html" %}
 
-{% block title %}Registration Logs - Admin{% endblock %}
+{% block title %}Registration Management - Admin{% endblock %}
 
 {% block content %}
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
 <style>
-    .registration-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem 1rem;
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --glass-border: rgba(255, 255, 255, 0.5);
+        --primary-accent: #6366f1;
+        --secondary-accent: #4f46e5;
+        --text-main: #1e293b;
+        --text-light: #64748b;
     }
 
-    .page-header {
-        margin-bottom: 2rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 3px solid #667eea;
+    .premium-admin-container {
+        min-height: 100vh;
+        background: radial-gradient(circle at 0% 0%, #f1f5f9 0%, #e2e8f0 100%);
+        padding: 40px 20px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    .page-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 0.5rem;
+    .header-reveal {
+        margin-bottom: 40px;
+        animation: fadeInUp 0.8s ease;
     }
 
-    .page-header p {
-        font-size: 1.1rem;
-        color: #6b7280;
+    .page-title {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        font-size: 2.8rem;
+        background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        margin-bottom: 8px;
     }
 
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+    .glass-panel {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.04);
+        padding: 30px;
+        margin-bottom: 30px;
+        transition: transform 0.3s ease;
     }
 
-    .stat-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-left: 5px solid;
-        transition: all 0.3s ease;
-    }
-
-    .stat-card:hover {
-        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    .glass-panel:hover {
         transform: translateY(-2px);
     }
 
-    .stat-card.students {
-        border-left-color: #3b82f6;
-        background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
-    }
-
-    .stat-card.alumni {
-        border-left-color: #10b981;
-        background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
-    }
-
-    .stat-card.faculty {
-        border-left-color: #f59e0b;
-        background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
-    }
-
-    .stat-card.total {
-        border-left-color: #8b5cf6;
-        background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
-    }
-
-    .stat-number {
-        font-size: 2rem;
-        font-weight: 700;
-        margin: 0.5rem 0;
-    }
-
-    .stat-students { color: #3b82f6; }
-    .stat-alumni { color: #10b981; }
-    .stat-faculty { color: #f59e0b; }
-    .stat-total { color: #8b5cf6; }
-
-    .stat-label {
-        font-size: 0.95rem;
-        color: #6b7280;
-        font-weight: 500;
-    }
-
-    .filter-section {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .filter-row {
+    .stats-hub {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        align-items: flex-end;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
     }
 
-    .filter-row select,
-    .filter-row input {
-        padding: 0.75rem;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-    }
-
-    .filter-row select:focus,
-    .filter-row input:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .btn-export {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-export:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
-    }
-
-    .table-container {
+    .stat-orb {
         background: white;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .table {
-        margin: 0;
-        width: 100%;
-    }
-
-    .table thead {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-
-    .table thead th {
-        padding: 1.25rem;
-        font-weight: 600;
-        text-align: left;
-        border: none;
-    }
-
-    .table tbody td {
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .table tbody tr {
-        transition: background-color 0.2s ease;
-    }
-
-    .table tbody tr:hover {
-        background-color: #f9fafb;
-    }
-
-    .badge {
-        display: inline-block;
-        padding: 0.4rem 0.8rem;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .badge-student {
-        background-color: #dbeafe;
-        color: #1e40af;
-    }
-
-    .badge-alumni {
-        background-color: #dcfce7;
-        color: #166534;
-    }
-
-    .badge-faculty {
-        background-color: #fef3c7;
-        color: #92400e;
-    }
-
-    .no-data {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: #9ca3af;
-    }
-
-    .no-data svg {
-        width: 64px;
-        height: 64px;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-    }
-
-    .pagination {
+        border-radius: 20px;
+        padding: 24px;
         display: flex;
+        flex-direction: column;
+        border: 1px solid #f1f5f9;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-orb::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
         justify-content: center;
-        gap: 0.5rem;
-        margin-top: 2rem;
-        padding: 1rem 0;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
     }
 
-    .pagination a, .pagination span {
-        padding: 0.5rem 0.75rem;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        text-decoration: none;
-        color: #667eea;
-        transition: all 0.2s ease;
+    .orb-student {
+        color: #3b82f6;
+        background: rgba(59, 130, 246, 0.1);
     }
 
-    .pagination a:hover {
-        background-color: #667eea;
+    .orb-alumni {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+    }
+
+    .orb-faculty {
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.1);
+    }
+
+    .orb-total {
+        color: #6366f1;
+        background: rgba(99, 102, 241, 0.1);
+    }
+
+    .stat-count {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 5px;
+        color: var(--text-main);
+    }
+
+    .stat-desc {
+        font-size: 0.85rem;
+        color: var(--text-light);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .filter-dock {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .dock-input {
+        background: white;
+        border: 2px solid #f1f5f9;
+        border-radius: 14px;
+        padding: 12px 20px;
+        font-size: 0.95rem;
+        color: var(--text-main);
+        transition: all 0.3s;
+        outline: none;
+    }
+
+    .dock-input:focus {
+        border-color: var(--primary-accent);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-dock {
+        background: var(--primary-accent);
         color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 12px 28px;
+        font-weight: 700;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
-    .pagination .active {
-        background-color: #667eea;
-        color: white;
-        border-color: #667eea;
+    .btn-dock:hover {
+        background: var(--secondary-accent);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
     }
 
-    @media (max-width: 768px) {
-        .page-header h1 {
-            font-size: 1.75rem;
+    .btn-dock-outline {
+        background: transparent;
+        border: 2px solid #e2e8f0;
+        color: var(--text-main);
+    }
+
+    .premium-table-container {
+        overflow-x: auto;
+        border-radius: 16px;
+    }
+
+    .premium-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .premium-table thead th {
+        background: transparent;
+        color: var(--text-light);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        padding: 15px 20px;
+        border: none;
+    }
+
+    .premium-table tbody tr {
+        background: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        transition: all 0.2s;
+    }
+
+    .premium-table tbody tr:hover {
+        transform: scale(1.005);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .premium-table td {
+        padding: 20px;
+        font-size: 0.95rem;
+        color: var(--text-main);
+    }
+
+    .premium-table td:first-child {
+        border-top-left-radius: 16px;
+        border-bottom-left-radius: 16px;
+    }
+
+    .premium-table td:last-child {
+        border-top-right-radius: 16px;
+        border-bottom-right-radius: 16px;
+    }
+
+    .role-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .pill-student {
+        background: rgba(59, 130, 246, 0.1);
+        color: #2563eb;
+    }
+
+    .pill-alumni {
+        background: rgba(16, 185, 129, 0.1);
+        color: #059669;
+    }
+
+    .pill-faculty {
+        background: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
         }
 
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
+    }
 
-        .table {
-            font-size: 0.9rem;
-        }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
 
-        .table thead th,
-        .table tbody td {
-            padding: 0.75rem 0.5rem;
-        }
+    .empty-icon {
+        font-size: 4rem;
+        color: #e2e8f0;
+        margin-bottom: 20px;
     }
 </style>
 
-<div class="registration-container">
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1>📊 Registration Management</h1>
-        <p>Track and manage all user registrations by role</p>
-    </div>
+<div class="premium-admin-container">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="header-reveal text-center">
+            <h1 class="page-title">Registration Ecosystem</h1>
+            <p class="text-light fw-medium">Monitor and manage the pulse of Alumni Hub community growth</p>
+        </div>
 
-    <!-- Statistics Cards -->
-    <div class="stats-grid">
-        <div class="stat-card students">
-            <div class="stat-label">👨‍🎓 Total Students</div>
-            <div class="stat-number stat-students">{{ stats.students }}</div>
-            <div class="stat-label">Registered</div>
+        <!-- Stats Hub -->
+        <div class="stats-hub">
+            <div class="stat-orb">
+                <div class="stat-icon orb-student"><i class="fas fa-user-graduate"></i></div>
+                <div class="stat-count">{{ stats.students }}</div>
+                <div class="stat-desc">Academicians</div>
+            </div>
+            <div class="stat-orb">
+                <div class="stat-icon orb-alumni"><i class="fas fa-award"></i></div>
+                <div class="stat-count">{{ stats.alumni }}</div>
+                <div class="stat-desc">Legacy Bearers</div>
+            </div>
+            <div class="stat-orb">
+                <div class="stat-icon orb-faculty"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="stat-count">{{ stats.faculty }}</div>
+                <div class="stat-desc">Mentors</div>
+            </div>
+            <div class="stat-orb">
+                <div class="stat-icon orb-total"><i class="fas fa-globe"></i></div>
+                <div class="stat-count">{{ stats.total }}</div>
+                <div class="stat-desc">Aggregate Users</div>
+            </div>
         </div>
-        <div class="stat-card alumni">
-            <div class="stat-label">🎓 Total Alumni</div>
-            <div class="stat-number stat-alumni">{{ stats.alumni }}</div>
-            <div class="stat-label">Registered</div>
-        </div>
-        <div class="stat-card faculty">
-            <div class="stat-label">👨‍🏫 Total Faculty</div>
-            <div class="stat-number stat-faculty">{{ stats.faculty }}</div>
-            <div class="stat-label">Registered</div>
-        </div>
-        <div class="stat-card total">
-            <div class="stat-label">📈 Grand Total</div>
-            <div class="stat-number stat-total">{{ stats.total }}</div>
-            <div class="stat-label">All Users</div>
-        </div>
-    </div>
 
-    <!-- Filter Section -->
-    <div class="filter-section">
-        <h3 style="margin-bottom: 1.5rem; color: #1f2937;">🔍 Filter Registrations</h3>
-        <form method="POST" action="#" class="filter-row">
-            <select name="role_filter" id="role_filter" onchange="this.form.submit()">
-                <option value="">All Roles</option>
-                <option value="student" {% if current_filter == 'student' %}selected{% endif %}>Students Only</option>
-                <option value="alumni" {% if current_filter == 'alumni' %}selected{% endif %}>Alumni Only</option>
-                <option value="faculty" {% if current_filter == 'faculty' %}selected{% endif %}>Faculty Only</option>
-            </select>
-            <input type="text" name="search" placeholder="Search by name or email..." 
-                   value="{{ search_query or '' }}" style="max-width: 250px;">
-            <button type="submit" class="btn-export">Search</button>
-            <a href="{{ url_for('admin_registrations') }}" class="btn-export" style="text-decoration: none; display: inline-block;">Reset</a>
-        </form>
-    </div>
-
-    <!-- Export Button -->
-    <div style="margin-bottom: 2rem; text-align: right;">
-        <button onclick="generateReports()" class="btn-export">
-            📥 Export All Reports (CSV)
-        </button>
-    </div>
-
-    <!-- Registrations Table -->
-    <div class="table-container">
-        {% if registrations %}
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>User ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Role</th>
-                    <th>Department</th>
-                    <th>Details</th>
-                    <th>Registered</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for reg in registrations %}
-                <tr>
-                    <td><strong>#{{ reg.user_id }}</strong></td>
-                    <td>{{ reg.name }}</td>
-                    <td>{{ reg.email }}</td>
-                    <td>{{ reg.phone }}</td>
-                    <td>
-                        {% if reg.role == 'student' %}
-                            <span class="badge badge-student">Student</span>
-                        {% elif reg.role == 'alumni' %}
-                            <span class="badge badge-alumni">Alumni</span>
-                        {% else %}
-                            <span class="badge badge-faculty">Faculty</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ reg.department or '—' }}</td>
-                    <td>
-                        {% if reg.role == 'student' %}
-                            {{ reg.enrollment_no or '—' }} • {{ reg.degree or '—' }}
-                        {% elif reg.role == 'alumni' %}
-                            {{ reg.company_name or '—' }} • {{ reg.designation or '—' }}
-                        {% else %}
-                            {{ reg.employee_id or '—' }} • {{ reg.designation or '—' }}
-                        {% endif %}
-                    </td>
-                    <td style="font-size: 0.9rem; color: #6b7280;">
-                        {{ reg.registered_at }}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div class="no-data">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-            </svg>
-            <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">No registrations found</p>
-            <p>Registrations will appear here as users join</p>
+        <!-- Filter Dock -->
+        <div class="glass-panel">
+            <form method="GET" action="{{ url_for('admin_registrations') }}" class="filter-dock">
+                <select name="role_filter" class="dock-input" onchange="this.form.submit()">
+                    <option value="">All Cohorts</option>
+                    <option value="student" {% if current_filter=='student' %}selected{% endif %}>Students</option>
+                    <option value="alumni" {% if current_filter=='alumni' %}selected{% endif %}>Alumni</option>
+                    <option value="faculty" {% if current_filter=='faculty' %}selected{% endif %}>Faculty</option>
+                </select>
+                <div class="position-relative flex-grow-1">
+                    <i class="fas fa-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+                    <input type="text" name="search" class="dock-input ps-5 w-100"
+                        placeholder="Search by name or hyper-reference..." value="{{ search_query or '' }}">
+                </div>
+                <button type="submit" class="btn-dock"><i class="fas fa-filter"></i> Apply Matrix</button>
+                <a href="{{ url_for('admin_registrations') }}" class="btn-dock btn-dock-outline text-decoration-none">
+                    <i class="fas fa-redo-alt"></i>
+                </a>
+                <button type="button" onclick="exportData()" class="btn-dock btn-dock-outline ms-auto">
+                    <i class="fas fa-file-export"></i> Cloud Export
+                </button>
+            </form>
         </div>
-        {% endif %}
+
+        <!-- Table -->
+        <div class="premium-table-container">
+            {% if registrations %}
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Identifier</th>
+                        <th>Identity</th>
+                        <th>Classification</th>
+                        <th>Sector/Department</th>
+                        <th>Temporal Log</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in registrations %}
+                    <tr>
+                        <td><span class="fw-bold text-muted">ID: {{ reg.user_id }}</span></td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold fs-6">{{ reg.name }}</span>
+                                <span class="text-muted small">{{ reg.email }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="role-pill pill-{{ reg.role }}">{{ reg.role }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-semibold">{{ reg.department or 'General' }}</span>
+                                <span class="text-muted small">
+                                    {% if reg.role == 'student' %}{{ reg.enrollment_no or 'N/A' }}{% else %}{{
+                                    reg.designation or 'N/A' }}{% endif %}
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-muted">{{ reg.registered_at }}</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-light border" onclick="viewDetails({{ reg.user_id }})">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state glass-panel">
+                <i class="fas fa-radar empty-icon"></i>
+                <h3>No Entities Detected</h3>
+                <p class="text-muted">The registration matrix is currently empty for the selected criteria.</p>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 
 <script>
-function generateReports() {
-    // This would call your report generation endpoint
-    alert('📥 Generating registration reports...\n\nReports will be created in the registration_reports/ folder');
-    // In production, you'd fetch from an endpoint:
-    // window.location.href = '/api/generate-reports';
-}
+    function exportData() {
+        alert('📦 Orchestrating cloud export records...');
+    }
+
+    function viewDetails(userId) {
+        // Redirect to user management or specific profile view
+        window.location.href = `/admin/view-users?user_id=${userId}`;
+    }
 </script>
 {% endblock %}

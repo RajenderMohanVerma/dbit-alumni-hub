@@ -1,237 +1,246 @@
 {% extends "base.html" %}
 
-{% block title %}Approve Requests - Alumni Hub{% endblock %}
+{% block title %}Veracity Protocol - Alumni Hub{% endblock %}
 
 {% block content %}
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
 <style>
     :root {
-        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        --glass-bg: rgba(255, 255, 255, 0.95);
-        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        --primary-glass: rgba(255, 255, 255, 0.9);
+        --accent-amber: #f59e0b;
+        --accent-emerald: #10b981;
+        --accent-rose: #f43f5e;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
     }
 
-    .admin-container {
-        max-width: 1200px;
-        margin: 2rem auto;
-        padding: 0 1.5rem;
+    .premium-admin-base {
+        min-height: 100vh;
+        background: radial-gradient(circle at top left, #fefce8 0%, #f1f5f9 100%);
+        padding: 40px 20px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* Header Styling */
-    .approval-header {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        border-radius: 24px;
-        padding: 3rem;
-        color: white;
-        margin-bottom: 2rem;
-        box-shadow: 0 15px 35px rgba(217, 119, 6, 0.2);
-        position: relative;
-        overflow: hidden;
+    .header-section {
+        margin-bottom: 40px;
+        animation: fadeInDown 0.8s ease;
     }
 
-    .approval-header::after {
-        content: '';
-        position: absolute;
-        top: -10%;
-        right: -5%;
-        width: 250px;
-        height: 250px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
+    .header-title {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        font-size: 2.8rem;
+        background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
     }
 
-    /* Request Card */
-    .request-card {
+    .glass-card {
+        background: var(--primary-glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 28px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+    }
+
+    .request-item {
         background: white;
         border-radius: 20px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        border: 1px solid #f1f5f9;
-        transition: all 0.3s ease;
+        padding: 20px;
+        margin-bottom: 15px;
         display: flex;
         align-items: center;
-        gap: 1.5rem;
-        box-shadow: var(--card-shadow);
+        gap: 20px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
     }
 
-    .request-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
-        border-color: #f59e0b;
+    .request-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(245, 158, 11, 0.1);
+        border-color: var(--accent-amber);
     }
 
-    .user-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 15px;
+    .u-avatar {
+        width: 65px;
+        height: 65px;
+        border-radius: 18px;
         object-fit: cover;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        border: 2px solid white;
     }
 
-    .user-info {
+    .u-info {
         flex: 1;
     }
 
-    .user-info h5 {
-        margin-bottom: 0.25rem;
-        font-weight: 700;
-        color: #1e293b;
+    .u-name {
+        font-weight: 800;
+        color: var(--text-dark);
+        font-size: 1.1rem;
+        display: block;
     }
 
-    .user-info p {
-        margin-bottom: 0;
-        color: #64748b;
+    .u-email {
         font-size: 0.9rem;
+        color: var(--text-muted);
+        font-weight: 500;
     }
 
-    .detail-badge {
+    .detail-pill {
         background: #f8fafc;
-        padding: 0.5rem 1rem;
+        padding: 6px 14px;
         border-radius: 10px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #475569;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-muted);
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 6px;
         border: 1px solid #e2e8f0;
     }
 
-    /* Actions */
     .action-group {
         display: flex;
-        gap: 0.75rem;
+        gap: 10px;
+    }
+
+    .btn-action {
+        padding: 12px 20px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border: none;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .btn-approve {
         background: #dcfce7;
         color: #166534;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        font-weight: 700;
-        transition: all 0.2s ease;
-    }
-
-    .btn-approve:hover {
-        background: #166534;
-        color: white;
-        transform: scale(1.05);
     }
 
     .btn-reject {
         background: #fee2e2;
         color: #991b1b;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        font-weight: 700;
-        transition: all 0.2s ease;
     }
 
-    .btn-reject:hover {
-        background: #991b1b;
+    .btn-approve:hover {
+        background: var(--accent-emerald);
         color: white;
         transform: scale(1.05);
     }
 
-    /* Empty State */
-    .empty-approval {
-        background: white;
-        border-radius: 24px;
-        padding: 5rem 2rem;
+    .btn-reject:hover {
+        background: var(--accent-rose);
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .empty-state {
         text-align: center;
-        box-shadow: var(--card-shadow);
+        padding: 60px 20px;
     }
 
-    .empty-icon {
-        font-size: 5rem;
-        color: #10b981;
-        margin-bottom: 1.5rem;
-        animation: bounce 2s infinite;
+    .status-count {
+        background: white;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-weight: 800;
+        color: var(--accent-amber);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
     }
 
-    @keyframes bounce {
-
-        0%,
-        100% {
-            transform: translateY(0);
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
         }
 
-        50% {
-            transform: translateY(-15px);
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
     }
 </style>
 
-<div class="admin-container">
-    <!-- Header -->
-    <div class="approval-header animate__animated animate__fadeInDown">
-        <div class="row align-items-center">
-            <div class="col-md-9">
-                <h1 class="fw-bold mb-2">Registration Verification</h1>
-                <p class="mb-0 opacity-75">Manual integrity check for new Alumni and Faculty members.</p>
-            </div>
-            <div class="col-md-3 text-md-end">
-                <span class="badge bg-white text-dark fw-bold fs-5 px-3 py-2" style="border-radius: 50px;">
-                    <i class="fas fa-user-clock me-2"></i> {{ users|length }} Pending
+<div class="premium-admin-base">
+    <div class="container">
+        <!-- Header -->
+        <div class="header-section text-center">
+            <h1 class="header-title">Identity Veracity</h1>
+            <p class="text-muted fw-medium">Authorized manual verification for new ecosystem participants</p>
+            <div class="mt-3">
+                <span class="status-count">
+                    <i class="fas fa-fingerprint me-2"></i> {{ users|length }} PENDING COMMANDS
                 </span>
             </div>
         </div>
-    </div>
 
-    {% if users %}
-    <div class="row animate__animated animate__fadeIn">
-        <div class="col-12">
-            {% for user in users %}
-            <div class="request-card" id="user-row-{{ user['id'] }}">
-                <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&background=f59e0b&color=fff&rounded=true&bold=true"
-                    alt="" class="user-avatar">
+        <div class="glass-card animate__animated animate__fadeInUp">
+            {% if users %}
+            <div class="requests-pipeline">
+                {% for user in users %}
+                <div class="request-item" id="user-row-{{ user['id'] }}">
+                    <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&background=f59e0b&color=fff&rounded=true&bold=true"
+                        alt="Identity" class="u-avatar">
 
-                <div class="user-info">
-                    <h5>{{ user['name'] }}</h5>
-                    <p><i class="far fa-envelope me-1"></i> {{ user['email'] }}</p>
-                </div>
-
-                <div class="user-info d-none d-md-block">
-                    <div class="detail-badge">
-                        <i class="fas fa-tag"></i> {{ user['role']|capitalize }}
+                    <div class="u-info">
+                        <span class="u-name">{{ user['name'] }}</span>
+                        <span class="u-email"><i class="far fa-envelope me-1"></i> {{ user['email'] }}</span>
                     </div>
-                    <div class="detail-badge ms-2">
-                        <i class="fas fa-info-circle"></i> {{ user['detail_summary'] }}
+
+                    <div class="u-info d-none d-lg-block">
+                        <div class="detail-pill">
+                            <i class="fas fa-id-card"></i> {{ user['role']|upper }}
+                        </div>
+                        <div class="detail-pill ms-2">
+                            <i class="fas fa-fingerprint"></i> {{ user['detail_summary'] }}
+                        </div>
+                    </div>
+
+                    <div class="action-group">
+                        <button class="btn-action btn-approve" onclick="handleAction({{ user['id'] }}, 'approve')">
+                            <i class="fas fa-check-circle"></i> AUTHORIZE
+                        </button>
+                        <button class="btn-action btn-reject" onclick="handleAction({{ user['id'] }}, 'reject')">
+                            <i class="fas fa-times-circle"></i> DENY
+                        </button>
                     </div>
                 </div>
-
-                <div class="action-group">
-                    <button class="btn-approve" onclick="handleAction({{ user['id'] }}, 'approve')">
-                        <i class="fas fa-check me-2"></i> Approve
-                    </button>
-                    <button class="btn-reject" onclick="handleAction({{ user['id'] }}, 'reject')">
-                        <i class="fas fa-times me-2"></i> Reject
-                    </button>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            {% else %}
+            <div class="empty-state animate__animated animate__zoomIn">
+                <i class="fas fa-shield-check fa-4x text-success mb-4 d-block"
+                    style="color: var(--accent-emerald) !important;"></i>
+                <h3 class="fw-bold text-dark">Ecosystem Synced</h3>
+                <p class="text-muted">No pending identity verification requests found in the pipeline.</p>
+                <a href="/admin/dashboard" class="btn btn-outline-primary px-5 fw-bold mt-4"
+                    style="border-radius: 15px;">RETURN TO COMMAND</a>
+            </div>
+            {% endif %}
         </div>
     </div>
-    {% else %}
-    <div class="empty-approval animate__animated animate__zoomIn">
-        <div class="empty-icon"><i class="fas fa-check-double"></i></div>
-        <h3 class="fw-bold text-dark">All Caught Up!</h3>
-        <p class="text-muted">There are no pending registration requests currently.</p>
-        <a href="/admin/dashboard" class="btn btn-primary px-4 fw-bold mt-3" style="border-radius: 12px;">Back to
-            Dashboard</a>
-    </div>
-    {% endif %}
 </div>
 
 <script>
     function handleAction(userId, action) {
-        const card = document.getElementById(`user-row-${userId}`);
-        const buttons = card.querySelectorAll('button');
+        const item = document.getElementById(`user-row-${userId}`);
+        const buttons = item.querySelectorAll('button');
 
-        // Show loading state
         buttons.forEach(b => b.disabled = true);
-        const originalHtml = card.innerHTML;
 
         fetch(`/api/${action}-user/${userId}`, {
             method: 'POST',
@@ -240,20 +249,17 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Animate removal
-                    card.classList.add('animate__animated', action === 'approve' ? 'animate__fadeOutRight' : 'animate__fadeOutLeft');
+                    item.classList.add('animate__animated', action === 'approve' ? 'animate__fadeOutRight' : 'animate__fadeOutLeft');
                     setTimeout(() => {
-                        card.remove();
-                        if (document.querySelectorAll('.request-card').length === 0) {
-                            location.reload(); // Show empty state
+                        item.remove();
+                        if (document.querySelectorAll('.request-item').length === 0) {
+                            location.reload();
                         }
                     }, 500);
-                } else {
-                    throw new Error(data.error);
-                }
+                } else throw new Error(data.error);
             })
             .catch(err => {
-                alert('Approval Error: ' + err.message);
+                alert('Protocol Error: ' + err.message);
                 buttons.forEach(b => b.disabled = false);
             });
     }

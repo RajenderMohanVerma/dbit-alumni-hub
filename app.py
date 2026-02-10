@@ -148,31 +148,24 @@ def init_db():
         ''')
         
         # Migration: Add columns if they don't exist (for existing databases)
-        try:
-            c.execute("ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT 0")
-            c.execute("UPDATE users SET is_verified = 1") # Auto-verify existing users
-            print("✓ Added is_verified column to users")
-        except sqlite3.OperationalError:
-            pass # Column likely exists
+        columns_to_add = [
+            ("is_verified", "BOOLEAN DEFAULT 0", "UPDATE users SET is_verified = 1"),
+            ("is_approved", "BOOLEAN DEFAULT 1", "UPDATE users SET is_approved = 1"),
+            ("is_suspended", "BOOLEAN DEFAULT 0", None),
+            ("otp_code", "TEXT", None)
+        ]
 
-        try:
-            c.execute("ALTER TABLE users ADD COLUMN is_approved BOOLEAN DEFAULT 1")
-            c.execute("UPDATE users SET is_approved = 1") # Existing users approved
-            print("✓ Added is_approved column to users")
-        except sqlite3.OperationalError:
-            pass # Column likely exists
-
-        try:
-            c.execute("ALTER TABLE users ADD COLUMN is_suspended BOOLEAN DEFAULT 0")
-            print("✓ Added is_suspended column to users")
-        except sqlite3.OperationalError:
-            pass # Column likely exists
-
-        try:
-            c.execute("ALTER TABLE users ADD COLUMN otp_code TEXT")
-            print("✓ Added otp_code column to users")
-        except sqlite3.OperationalError:
-            pass # Column likely exists
+        for col_name, col_def, update_sql in columns_to_add:
+            try:
+                c.execute(f"ALTER TABLE users ADD COLUMN {col_name} {col_def}")
+                if update_sql:
+                    c.execute(update_sql)
+                print(f"✓ Added {col_name} column to users")
+            except sqlite3.OperationalError as e:
+                if "duplicate column name" in str(e).lower():
+                    pass # Column already exists
+                else:
+                    print(f"⚠ Warning adding {col_name}: {e}")
 
         # Student Profile Table
         c.execute('''
@@ -539,26 +532,38 @@ def login():
             user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
 
             if user and check_password_hash(user['password'], password):
+                # Helper to safely get user data even if columns are missing (though init_db should fix this)
+                def get_user_field(key, default=None):
+                    try:
+                        return user[key]
+                    except (IndexError, KeyError):
+                        return default
+
+                u_verified = get_user_field('is_verified', 1)
+                u_approved = get_user_field('is_approved', 1)
+                u_suspended = get_user_field('is_suspended', 0)
+                u_role = get_user_field('role', 'student')
+
                 # Admin bypass for OTP verification
-                if user['is_verified'] == 0 and user['role'] != 'admin':
+                if u_verified == 0 and u_role != 'admin':
                     flash('Please verify your email address first.', 'warning')
                     return render_template('verify_otp.html', email=email)
 
                 # Check for Admin Approval
-                if user['is_approved'] == 0 and user['role'] != 'admin':
+                if u_approved == 0 and u_role != 'admin':
                     flash('Your account is pending admin approval. Please wait for verification.', 'info')
                     return redirect(url_for('login'))
 
                 # Check for Account Suspension
-                if user['is_suspended'] == 1:
+                if u_suspended == 1:
                     flash('Your account has been suspended by an admin for violation of community guidelines.', 'danger')
                     return redirect(url_for('login'))
 
-                user_obj = User(user['id'], user['name'], user['email'], user['role'], None, user['is_verified'], user['is_suspended'])
+                user_obj = User(user['id'], user['name'], user['email'], u_role, None, u_verified, u_suspended)
                 login_user(user_obj)
-                if user['role'] == 'admin':
+                if u_role == 'admin':
                     return redirect(url_for('dashboard_admin'))
-                if user['role'] == 'alumni':
+                if u_role == 'alumni':
                     return redirect(url_for('dashboard_alumni'))
                 return redirect(url_for('dashboard_student'))
             else:
