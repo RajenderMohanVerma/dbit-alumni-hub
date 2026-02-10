@@ -20,7 +20,7 @@
     .premium-admin-base {
         min-height: 100vh;
         background: radial-gradient(circle at top left, #fefce8 0%, #f1f5f9 100%);
-        padding: 40px 20px;
+        padding: 100px 20px 40px;
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
@@ -211,10 +211,10 @@
                     </div>
 
                     <div class="action-group">
-                        <button class="btn-action btn-approve" onclick="handleAction({{ user['id'] }}, 'approve')">
+                        <button class="btn-action btn-approve" data-user-id="{{ user['id'] }}" data-action="approve">
                             <i class="fas fa-check-circle"></i> AUTHORIZE
                         </button>
-                        <button class="btn-action btn-reject" onclick="handleAction({{ user['id'] }}, 'reject')">
+                        <button class="btn-action btn-reject" data-user-id="{{ user['id'] }}" data-action="reject">
                             <i class="fas fa-times-circle"></i> DENY
                         </button>
                     </div>
@@ -263,5 +263,14 @@
                 buttons.forEach(b => b.disabled = false);
             });
     }
+
+    // Action Listener
+    document.querySelectorAll('.btn-action').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const userId = btn.getAttribute('data-user-id');
+            const action = btn.getAttribute('data-action');
+            handleAction(userId, action);
+        });
+    });
 </script>
 {% endblock %}

@@ -19,7 +19,7 @@
     .premium-admin-base {
         min-height: 100vh;
         background: radial-gradient(circle at top right, #f8fafc 0%, #f1f5f9 100%);
-        padding: 40px 20px;
+        padding: 100px 20px 40px;
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
@@ -97,6 +97,7 @@
         height: 100%;
         border-radius: 20px;
         transition: width 1.5s cubic-bezier(0.1, 0, 0.2, 1);
+        width: 0%;
     }
 
     .action-btn {
@@ -215,8 +216,8 @@
                             <span>{{ stats['students'] }} / {{ stats['total_users'] }}</span>
                         </div>
                         <div class="progress-track">
-                            <div class="progress-fill"
-                                style="background: var(--accent-indigo); width: {{ student_pct }}%;"></div>
+                            <div class="progress-fill progress-dynamic" style="background: var(--accent-indigo);"
+                                data-progress="{{ student_pct }}"></div>
                         </div>
                     </div>
 
@@ -228,8 +229,8 @@
                             <span>{{ stats['alumni'] }} / {{ stats['total_users'] }}</span>
                         </div>
                         <div class="progress-track">
-                            <div class="progress-fill"
-                                style="background: var(--accent-emerald); width: {{ alumni_pct }}%;"></div>
+                            <div class="progress-fill progress-dynamic" style="background: var(--accent-emerald);"
+                                data-progress="{{ alumni_pct }}"></div>
                         </div>
                     </div>
 
@@ -241,8 +242,8 @@
                             <span>{{ stats['faculty'] }} / {{ stats['total_users'] }}</span>
                         </div>
                         <div class="progress-track">
-                            <div class="progress-fill"
-                                style="background: var(--accent-amber); width: {{ faculty_pct }}%;"></div>
+                            <div class="progress-fill progress-dynamic" style="background: var(--accent-amber);"
+                                data-progress="{{ faculty_pct }}"></div>
                         </div>
                     </div>
 
@@ -254,8 +255,8 @@
                             <span>{{ stats['admin'] }} / {{ stats['total_users'] }}</span>
                         </div>
                         <div class="progress-track">
-                            <div class="progress-fill" style="background: var(--accent-rose); width: {{ admin_pct }}%;">
-                            </div>
+                            <div class="progress-fill progress-dynamic" style="background: var(--accent-rose);"
+                                data-progress="{{ admin_pct }}"></div>
                         </div>
                     </div>
                 </div>
@@ -263,15 +264,14 @@
 
             <div class="col-lg-5 animate__animated animate__fadeInRight" style="animation-delay: 0.2s;">
                 <div class="glass-card h-100">
-                    <h5 class="fw-bold mb-4"><i class="fas fa-bolt me-2"></i> Operational Pulse</h5>
+                    <h5 class="fw-bold mb-4"><i class="fas fa-bolt me-2"></i> Strategic Actions</h5>
 
-                    <div class="p-3 bg-light rounded-4 mb-4 border border-white">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <h6 class="fw-bold mb-1">Meet Engagement</h6>
-                                <p class="small text-muted mb-0">Total registrations for Alumni Meet 2026</p>
-                            </div>
-                            <span class="fs-4 fw-black text-emerald">{{ stats['meet_registrations'] }}</span>
+                    <div class="alert alert-info border-0 mb-4"
+                        style="background: rgba(99, 102, 241, 0.05); border-radius: 20px;">
+                        <div class="d-flex">
+                            <i class="fas fa-info-circle mt-1 me-3"></i>
+                            <p class="small mb-0 text-muted">Real-time synchronization ensures that all segment data
+                                reflects current registration statuses across the ecosystem.</p>
                         </div>
                     </div>
 
@@ -292,4 +292,14 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Dynamic progress update
+        document.querySelectorAll('.progress-dynamic').forEach(fill => {
+            const pct = fill.getAttribute('data-progress');
+            fill.style.width = pct + '%';
+        });
+    });
+</script>
 {% endblock %}

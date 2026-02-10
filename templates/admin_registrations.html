@@ -20,7 +20,7 @@
     .premium-admin-container {
         min-height: 100vh;
         background: radial-gradient(circle at 0% 0%, #f1f5f9 0%, #e2e8f0 100%);
-        padding: 40px 20px;
+        padding: 100px 20px 40px;
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
@@ -373,7 +373,8 @@
                             <span class="text-muted">{{ reg.registered_at }}</span>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-light border" onclick="viewDetails({{ reg.user_id }})">
+                            <button class="btn btn-sm btn-light border btn-view-details"
+                                data-user-id="{{ reg.user_id }}">
                                 <i class="fas fa-external-link-alt"></i>
                             </button>
                         </td>
@@ -398,8 +399,31 @@
     }
 
     function viewDetails(userId) {
-        // Redirect to user management or specific profile view
-        window.location.href = `/admin/view-users?user_id=${userId}`;
+        window.location.href = `/profile/${userId}`;
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Event listener for role filter dropdown
+        const roleFilterSelect = document.querySelector('select[name="role_filter"]');
+        if (roleFilterSelect) {
+            roleFilterSelect.addEventListener('change', () => {
+                roleFilterSelect.closest('form').submit();
+            });
+        }
+
+        // Event listener for Cloud Export button
+        const exportButton = document.querySelector('[data-action="export-data"]');
+        if (exportButton) {
+            exportButton.addEventListener('click', exportData);
+        }
+
+        // Event listener for View Details buttons
+        document.querySelectorAll('.btn-view-details').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const userId = btn.getAttribute('data-user-id');
+                viewDetails(userId);
+            });
+        });
+    });
 </script>
 {% endblock %}

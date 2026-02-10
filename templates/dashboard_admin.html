@@ -15,7 +15,7 @@
     .admin-container {
         max-width: 1440px;
         margin: 0 auto;
-        padding: 2rem 1.5rem;
+        padding: 100px 1.5rem 2rem;
     }
 
     /* Page Header */
@@ -476,6 +476,34 @@
             display: block;
         }
     }
+
+    /* Chart Styles */
+    .chart-container {
+        background: white;
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: var(--card-shadow);
+        border: 1px solid #f1f5f9;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .chart-container:hover {
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .chart-title {
+        font-size: 1.25rem;
+        font-weight: 750;
+        color: #1e293b;
+    }
 </style>
 
 <div class="admin-container">
@@ -572,28 +600,28 @@
     <!-- Quick Actions Row -->
     <div class="row g-4 mb-5 animate__animated animate__fadeInUp">
         <div class="col-md-3">
-            <div class="action-card" onclick="location.href='/admin/announcements'">
+            <div class="action-card btn-action-nav" data-url="/announcements">
                 <div class="action-btn-circle bg-primary"><i class="fas fa-bullhorn"></i></div>
                 <h6 class="fw-bold mb-1">Push Alert</h6>
                 <p class="small text-muted mb-0">Blast common news</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="action-card" onclick="location.href='/admin/events'">
+            <div class="action-card btn-action-nav" data-url="/admin/events">
                 <div class="action-btn-circle bg-success"><i class="fas fa-calendar-plus"></i></div>
                 <h6 class="fw-bold mb-1">New Event</h6>
                 <p class="small text-muted mb-0">Draft a new meetup</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="action-card" onclick="location.href='/admin/messaging_control'">
+            <div class="action-card btn-action-nav" data-url="/admin/messaging-control">
                 <div class="action-btn-circle bg-warning"><i class="fas fa-user-shield"></i></div>
                 <h6 class="fw-bold mb-1">Moderation</h6>
                 <p class="small text-muted mb-0">Check reported msgs</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="action-card" onclick="alert('Maintenance mode simulated: ON')">
+            <div class="action-card btn-maintenance">
                 <div class="action-btn-circle bg-danger"><i class="fas fa-pause-circle"></i></div>
                 <h6 class="fw-bold mb-1">Maintenance</h6>
                 <p class="small text-muted mb-0">System-wide pause</p>
@@ -629,7 +657,15 @@
                 <div class="chart-header">
                     <div class="chart-title">Growth Analytics</div>
                 </div>
-                <canvas id="growthChart" height="150"></canvas>
+                <!-- Data Injection Point for Charts -->
+                <div id="chart-data" data-years='{{ chart_data.years | tojson }}'
+                    data-students-growth='{{ chart_data.students | tojson }}'
+                    data-alumni-growth='{{ chart_data.alumni | tojson }}'
+                    data-faculty-growth='{{ chart_data.faculty | tojson }}' data-students='{{ s_count }}'
+                    data-alumni='{{ a_count }}' data-faculty='{{ f_count }}' style="display: none;"></div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="growthChart"></canvas>
+                </div>
             </div>
         </div>
         <div class="col-lg-4 animate__animated animate__fadeInRight">
@@ -637,7 +673,9 @@
                 <div class="chart-header">
                     <div class="chart-title">User Mix</div>
                 </div>
-                <canvas id="userChart" height="200"></canvas>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="userChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -727,8 +765,8 @@
                                     class="action-btn view-btn" style="text-decoration: none;">
                                     <i class="fas fa-eye"></i> View Details
                                 </a>
-                                <button class="action-btn delete-btn"
-                                    onclick="confirmDelete({{ user['id'] }}, '{{ user['name'] }}')">
+                                <button class="action-btn delete-btn btn-delete-user" data-user-id="{{ user['id'] }}"
+                                    data-user-name="{{ user['name'] }}">
                                     <i class="fas fa-trash"></i> Delete
                                 </button>
                                 {% endif %}
@@ -849,248 +887,304 @@
         gradPlacements.addColorStop(0, 'rgba(99, 102, 241, 0.2)');
         gradPlacements.addColorStop(1, 'rgba(168, 85, 247, 0)');
 
+        const chartDataEl = document.getElementById('chart-data');
+        const years = JSON.parse(chartDataEl.dataset.years);
+        const studentsGrowth = JSON.parse(chartDataEl.dataset.studentsGrowth);
+        const alumniGrowth = JSON.parse(chartDataEl.dataset.alumniGrowth);
+        const facultyGrowth = JSON.parse(chartDataEl.dataset.facultyGrowth);
+
         new Chart(ctxGrowth, {
             type: 'line',
             data: {
-                labels: {{ chart_data.years | tojson }},
-        datasets: [{
-            label: 'Placements',
-            data: {{ chart_data.placements | tojson }},
-        borderColor: '#6366f1',
-        backgroundColor: gradPlacements,
-        fill: true,
-        tension: 0.4,
-        borderWidth: 3,
-        pointBackgroundColor: '#6366f1',
-        pointBorderColor: '#fff',
-        pointHoverRadius: 6
+                labels: years,
+                datasets: [{
+                    label: 'Students',
+                    data: studentsGrowth,
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#6366f1',
+                    pointBorderColor: '#fff',
+                    pointHoverRadius: 6
                 }, {
-            label: 'Events',
-            data: {{ chart_data.events | tojson }},
-        borderColor: '#f59e0b',
-        backgroundColor: 'rgba(245, 158, 11, 0.05)',
-        fill: true,
-        tension: 0.4,
-        borderWidth: 3,
-        pointBackgroundColor: '#f59e0b',
-        pointBorderColor: '#fff',
-        pointHoverRadius: 6
+                    label: 'Alumni',
+                    data: alumniGrowth,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#f59e0b',
+                    pointBorderColor: '#fff',
+                    pointHoverRadius: 6
+                }, {
+                    label: 'Faculty',
+                    data: facultyGrowth,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointHoverRadius: 6
                 }]
             },
-        options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'top',
-                align: 'end',
-                labels: {
-                    padding: 20,
-                    usePointStyle: true,
-                    font: Object.assign({}, chartFontBase, { size: 12, weight: '600' })
-                }
-            },
-            tooltip: {
-                backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                padding: 12,
-                cornerRadius: 12,
-                titleFont: Object.assign({}, chartFontBase, { size: 14, weight: 'bold' }),
-                bodyFont: Object.assign({}, chartFontBase, { size: 13 })
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                grid: { borderDash: [5, 5], color: '#e2e8f0' },
-                ticks: { font: Object.assign({}, chartFontBase, { size: 11 }) }
-            },
-            x: {
-                grid: { display: false },
-                ticks: { font: Object.assign({}, chartFontBase, { size: 11 }) }
-            }
-        }
-    }
-        });
-
-    // --- User Mix Chart Implementation ---
-    const ctxUser = document.getElementById('userChart').getContext('2d');
-
-    // Doughnut Gradients
-    const gradStudent = ctxUser.createLinearGradient(0, 0, 0, 300);
-    gradStudent.addColorStop(0, '#6366f1');
-    gradStudent.addColorStop(1, '#a855f7');
-
-    const gradAlumni = ctxUser.createLinearGradient(0, 0, 0, 300);
-    gradAlumni.addColorStop(0, '#f59e0b');
-    gradAlumni.addColorStop(1, '#fbbf24');
-
-    const gradFaculty = ctxUser.createLinearGradient(0, 0, 0, 300);
-    gradFaculty.addColorStop(0, '#10b981');
-    gradFaculty.addColorStop(1, '#34d399');
-
-    const centerTextPlugin = {
-        id: 'centerText',
-        afterDraw: (chart) => {
-            const { ctx, chartArea: { left, top, width, height } } = chart;
-            ctx.save();
-            ctx.font = 'bold 28px Outfit';
-            ctx.fillStyle = '#1e293b';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-            ctx.fillText(total, left + width / 2, top + height / 2 - 5);
-
-            ctx.font = '700 12px Outfit';
-            ctx.fillStyle = '#64748b';
-            ctx.fillText('TOTAL USERS', left + width / 2, top + height / 2 + 18);
-            ctx.restore();
-        }
-    };
-
-    new Chart(ctxUser, {
-        type: 'doughnut',
-        data: {
-            labels: ['Students', 'Alumni', 'Faculty'],
-            datasets: [{
-                data: [{{ s_count }}, {{ a_count }}, {{ f_count }}],
-        backgroundColor: [gradStudent, gradAlumni, gradFaculty],
-        hoverOffset: 15,
-        borderWidth: 0,
-        spacing: 8
-            }]
-        },
-        plugins: [centerTextPlugin],
-        options: {
-        cutout: '75%',
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom',
-                labels: {
-                    padding: 20,
-                    usePointStyle: true,
-                    font: Object.assign({}, chartFontBase, { size: 12, weight: '600' })
-                }
-            },
-            tooltip: {
-                backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                padding: 12,
-                cornerRadius: 12,
-                titleFont: Object.assign({}, chartFontBase, { size: 14, weight: 'bold' }),
-                bodyFont: Object.assign({}, chartFontBase, { size: 13 }),
-                callbacks: {
-                    label: function (context) {
-                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        const percentage = ((context.raw / total) * 100).toFixed(1);
-                        return ` ${context.label}: ${context.raw} (${percentage}%)`;
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        align: 'end',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: Object.assign({}, chartFontBase, { size: 12, weight: '600' })
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        padding: 12,
+                        cornerRadius: 12,
+                        titleFont: Object.assign({}, chartFontBase, { size: 14, weight: 'bold' }),
+                        bodyFont: Object.assign({}, chartFontBase, { size: 13 })
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { borderDash: [5, 5], color: '#e2e8f0' },
+                        ticks: { font: Object.assign({}, chartFontBase, { size: 11 }) }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: Object.assign({}, chartFontBase, { size: 11 }) }
                     }
                 }
             }
-        },
-        animation: {
-            animateScale: true,
-            animateRotate: true,
-            duration: 1500,
-            easing: 'easeOutQuart'
-        }
-    }
-    });
-    // Clock Functionality
-    const updateClock = () => {
-        const now = new Date();
-        document.getElementById('digitalClock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        document.getElementById('currentDate').textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-    };
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // Search & Filter Logic
-    const searchInput = document.getElementById('userSearch');
-    const roleFilter = document.getElementById('roleFilter');
-    const userRows = document.querySelectorAll('.user-row');
-
-    const filterTable = () => {
-        const searchTerm = searchInput.value.toLowerCase();
-        const selectedRole = roleFilter.value;
-
-        userRows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            const role = row.dataset.role;
-            const matchesSearch = text.includes(searchTerm);
-            const matchesRole = selectedRole === 'all' || role === selectedRole;
-
-            row.style.display = (matchesSearch && matchesRole) ? '' : 'none';
         });
-    };
 
-    searchInput.addEventListener('input', filterTable);
-    roleFilter.addEventListener('change', filterTable);
+        // --- User Mix Chart Implementation ---
+        const ctxUser = document.getElementById('userChart').getContext('2d');
 
-    // Delete button handler - attach after DOM is loaded
-    document.getElementById('finalDeleteBtn').addEventListener('click', function () {
-        if (!userIdToDelete) {
-            console.error('No user ID set for deletion');
-            return;
+        // Doughnut Gradients
+        const gradStudent = ctxUser.createLinearGradient(0, 0, 0, 300);
+        gradStudent.addColorStop(0, '#6366f1');
+        gradStudent.addColorStop(1, '#a855f7');
+
+        const gradAlumni = ctxUser.createLinearGradient(0, 0, 0, 300);
+        gradAlumni.addColorStop(0, '#f59e0b');
+        gradAlumni.addColorStop(1, '#fbbf24');
+
+        const gradFaculty = ctxUser.createLinearGradient(0, 0, 0, 300);
+        gradFaculty.addColorStop(0, '#10b981');
+        gradFaculty.addColorStop(1, '#34d399');
+
+        const centerTextPlugin = {
+            id: 'centerText',
+            afterDraw: (chart) => {
+                const { ctx, chartArea: { left, top, width, height } } = chart;
+                ctx.save();
+                ctx.font = 'bold 28px Outfit';
+                ctx.fillStyle = '#1e293b';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                ctx.fillText(total, left + width / 2, top + height / 2 - 5);
+
+                ctx.font = '700 12px Outfit';
+                ctx.fillStyle = '#64748b';
+                ctx.fillText('TOTAL USERS', left + width / 2, top + height / 2 + 18);
+                ctx.restore();
+            }
+        };
+
+        new Chart(ctxUser, {
+            type: 'doughnut',
+            data: {
+                labels: ['Students', 'Alumni', 'Faculty'],
+                datasets: [{
+                    data: [
+                        parseInt(chartDataEl.dataset.students),
+                        parseInt(chartDataEl.dataset.alumni),
+                        parseInt(chartDataEl.dataset.faculty)
+                    ],
+                    backgroundColor: [gradStudent, gradAlumni, gradFaculty],
+                    hoverOffset: 15,
+                    borderWidth: 0,
+                    spacing: 8
+                }]
+            },
+            plugins: [centerTextPlugin],
+            options: {
+                cutout: '75%',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: Object.assign({}, chartFontBase, { size: 12, weight: '600' })
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        padding: 12,
+                        cornerRadius: 12,
+                        titleFont: Object.assign({}, chartFontBase, { size: 14, weight: 'bold' }),
+                        bodyFont: Object.assign({}, chartFontBase, { size: 13 }),
+                        callbacks: {
+                            label: function (context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.raw / total) * 100).toFixed(1);
+                                return ` ${context.label}: ${context.raw} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
+                    duration: 1500,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+        // Clock Functionality
+        const updateClock = () => {
+            const now = new Date();
+            document.getElementById('digitalClock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('currentDate').textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        };
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Search & Filter Logic
+        const searchInput = document.getElementById('userSearch');
+        const roleFilter = document.getElementById('roleFilter');
+        const userRows = document.querySelectorAll('.user-row');
+
+        const filterTable = () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedRole = roleFilter.value;
+
+            userRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const role = row.dataset.role;
+                const matchesSearch = text.includes(searchTerm);
+                const matchesRole = selectedRole === 'all' || role === selectedRole;
+
+                row.style.display = (matchesSearch && matchesRole) ? '' : 'none';
+            });
+        };
+
+        searchInput.addEventListener('input', filterTable);
+        roleFilter.addEventListener('change', filterTable);
+
+        // Delete button handler - attach after DOM is loaded
+        document.getElementById('finalDeleteBtn').addEventListener('click', function () {
+            if (!userIdToDelete) {
+                console.error('No user ID set for deletion');
+                return;
+            }
+
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Deleting...`;
+
+            console.log(`Attempting to delete user ID: ${userIdToDelete}`);
+
+            fetch(`/api/delete-user/${userIdToDelete}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(res => {
+                    console.log('Delete response status:', res.status);
+                    console.log('Delete response headers:', res.headers);
+
+                    if (!res.ok) {
+                        return res.text().then(text => {
+                            console.error('Error response body:', text);
+                            try {
+                                const json = JSON.parse(text);
+                                throw new Error(json.error || `Server error: ${res.status}`);
+                            } catch (e) {
+                                throw new Error(`Server error: ${res.status} - ${text}`);
+                            }
+                        });
+                    }
+
+                    return res.json();
+                })
+                .then(data => {
+                    console.log('Delete response data:', data);
+
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    if (data.success) {
+                        console.log('Deletion successful, reloading page...');
+                        deleteModal.hide();
+                        setTimeout(() => location.reload(), 500);
+                    } else {
+                        throw new Error('Unexpected response format');
+                    }
+                })
+                .catch(err => {
+                    console.error('Delete error:', err);
+                    alert(`Error deleting user: ${err.message}\n\nPlease check the browser console for more details.`);
+                    btn.disabled = false;
+                    btn.innerHTML = `Yes, Delete User`;
+                });
+        });
+
+        // --- Event Listeners and Initializers ---
+        document.querySelectorAll('.btn-action-nav').forEach(card => {
+            card.addEventListener('click', () => {
+                window.location.href = card.getAttribute('data-url');
+            });
+        });
+
+        const maintenanceBtn = document.querySelector('.btn-maintenance');
+        if (maintenanceBtn) {
+            maintenanceBtn.addEventListener('click', () => {
+                alert('Maintenance mode simulated: ON');
+            });
         }
 
-        const btn = this;
-        btn.disabled = true;
-        btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Deleting...`;
+        document.querySelectorAll('.btn-delete-user').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const userId = btn.getAttribute('data-user-id');
+                const userName = btn.getAttribute('data-user-name');
+                confirmDelete(userId, userName);
+            });
+        });
 
-        console.log(`Attempting to delete user ID: ${userIdToDelete}`);
-
-        fetch(`/api/delete-user/${userIdToDelete}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(res => {
-                console.log('Delete response status:', res.status);
-                console.log('Delete response headers:', res.headers);
-
-                if (!res.ok) {
-                    return res.text().then(text => {
-                        console.error('Error response body:', text);
-                        try {
-                            const json = JSON.parse(text);
-                            throw new Error(json.error || `Server error: ${res.status}`);
-                        } catch (e) {
-                            throw new Error(`Server error: ${res.status} - ${text}`);
-                        }
+        document.querySelectorAll('.download-btn').forEach(btn => {
+            const onclickAttr = btn.getAttribute('onclick');
+            if (onclickAttr && onclickAttr.includes('downloadData')) {
+                const match = onclickAttr.match(/downloadData\(['"](.*)['"],\s*['"](.*)['"]\)/);
+                if (match) {
+                    btn.removeAttribute('onclick');
+                    btn.addEventListener('click', (e) => {
+                        downloadData(match[1], match[2], e.currentTarget);
                     });
                 }
-
-                return res.json();
-            })
-            .then(data => {
-                console.log('Delete response data:', data);
-
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-
-                if (data.success) {
-                    console.log('Deletion successful, reloading page...');
-                    deleteModal.hide();
-                    setTimeout(() => location.reload(), 500);
-                } else {
-                    throw new Error('Unexpected response format');
-                }
-            })
-            .catch(err => {
-                console.error('Delete error:', err);
-                alert(`Error deleting user: ${err.message}\n\nPlease check the browser console for more details.`);
-                btn.disabled = false;
-                btn.innerHTML = `Yes, Delete User`;
-            });
-    });
+            }
+        });
     });
 
     // Data Download Function 
-    function downloadData(category, type) {
-        const btn = event.currentTarget;
+    function downloadData(category, type, targetBtn) {
+        const btn = targetBtn;
         const originalHtml = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Processing...`;

@@ -1263,18 +1263,36 @@ def dashboard_admin():
         current_year = datetime.now().year
         years = [str(y) for y in range(current_year - 4, current_year + 1)]
         
-        placements_data = []
+        students_data = []
+        alumni_data = []
+        students_data = []
+        alumni_data = []
+        faculty_data = []
         events_data = []
         
         for year in years:
-            # Get placement counts for this year
-            p_count = conn.execute("""
-                SELECT COUNT(*) FROM alumni_profile 
-                WHERE pass_year = ? AND company_name IS NOT NULL AND company_name != ''
-            """, (int(year),)).fetchone()[0]
-            placements_data.append(p_count)
-            
-            # Get event registrations for this year
+            # Student registrations
+            s_count_year = conn.execute("""
+                SELECT COUNT(*) FROM users 
+                WHERE role = 'student' AND strftime('%Y', created_at) = ?
+            """, (year,)).fetchone()[0]
+            students_data.append(s_count_year)
+
+            # Alumni registrations
+            a_count_year = conn.execute("""
+                SELECT COUNT(*) FROM users 
+                WHERE role = 'alumni' AND strftime('%Y', created_at) = ?
+            """, (year,)).fetchone()[0]
+            alumni_data.append(a_count_year)
+
+            # Faculty registrations
+            f_count_year = conn.execute("""
+                SELECT COUNT(*) FROM users 
+                WHERE role = 'faculty' AND strftime('%Y', created_at) = ?
+            """, (year,)).fetchone()[0]
+            faculty_data.append(f_count_year)
+
+            # Event registrations (for stat card)
             e_count = conn.execute("""
                 SELECT COUNT(*) FROM alumni_meet_registration 
                 WHERE strftime('%Y', created_at) = ?
@@ -1283,8 +1301,9 @@ def dashboard_admin():
 
         chart_data = {
             'years': years,
-            'placements': placements_data,
-            'events': events_data
+            'students': students_data,
+            'alumni': alumni_data,
+            'faculty': faculty_data
         }
         
         # Total event registrations for stat card
