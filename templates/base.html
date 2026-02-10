@@ -162,58 +162,61 @@
                     {% if current_user.role == 'student' %}
                     <li class="nav-item">
                         <a class="nav-link nav-pill-link" href="/student/dashboard">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                            <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/profile">
-                            <i class="fas fa-user"></i> My Profile
+                    <!-- Connect Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-users"></i> <span>Connect</span>
                         </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/network"><i class="fas fa-network-wired me-2"></i>
+                                    Network</a></li>
+                            <li><a class="dropdown-item" href="/messages"><i class="fas fa-comment-alt me-2"></i>
+                                    Messages</a></li>
+                            <li><a class="dropdown-item" href="/mentorship"><i class="fas fa-user-graduate me-2"></i>
+                                    Mentorship</a></li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/network">
-                            <i class="fas fa-network-wired"></i> Network
+
+                    <!-- Opportunities Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-briefcase"></i> <span>Opportunities</span>
                         </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/jobs"><i class="fas fa-briefcase me-2"></i> Jobs</a>
+                            </li>
+                            <li><a class="dropdown-item" href="/events"><i class="fas fa-calendar-alt me-2"></i>
+                                    Events</a></li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/messages">
-                            <i class="fas fa-comment-alt"></i> Messages
+
+
+                    <!-- More Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-h"></i> <span>More</span>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/mentorship">
-                            <i class="fas fa-user-graduate"></i> Mentorship
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/jobs">
-                            <i class="fas fa-briefcase"></i> Jobs
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/events">
-                            <i class="fas fa-calendar-alt"></i> Events
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/upgrade">
-                            <i class="fas fa-crown"></i> Upgrade
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/notifications">
-                            <i class="fas fa-bell"></i> Notifications
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/settings">
-                            <i class="fas fa-cog"></i> Settings
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link text-danger" href="/logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/notifications">
+                                    <i class="fas fa-bell"></i> <span>Notifications</span>
+                                </a>
+                            </li>
+                            <li><a class="dropdown-item" href="/upgrade"><i class="fas fa-crown me-2 text-warning"></i>
+                                    Upgrade</a></li>
+                            <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog me-2"></i> Settings</a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="/logout"><i
+                                        class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
                     </li>
                     {% elif current_user.role == 'alumni' %}
                     <li class="nav-item">
@@ -226,11 +229,11 @@
                             <i class="fas fa-user"></i> My Profile
                         </a>
                     </li>
-                    
+
                     <!-- Connect Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="alumniConnectDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="alumniConnectDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-users"></i> <span>Connect</span>
                         </a>
                         <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="alumniConnectDropdown">
@@ -251,7 +254,7 @@
                             </li>
                         </ul>
                     </li>
-                    
+
                     <!-- Contribute Dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="contributeDropdown" role="button"
@@ -271,7 +274,7 @@
                             </li>
                         </ul>
                     </li>
-                    
+
                     <li class="nav-item">
                         <a class="nav-link nav-pill-link" href="/events">
                             <i class="fas fa-calendar-alt"></i> <span>Events</span>
@@ -282,7 +285,7 @@
                             <i class="fas fa-bell"></i> <span>Notifications</span>
                         </a>
                     </li>
-                    
+
                     <!-- More Dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="alumniMoreDropdown" role="button"
@@ -295,7 +298,9 @@
                                     <i class="fas fa-cog me-2"></i> Settings
                                 </a>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li>
                                 <a class="dropdown-item text-danger" href="/logout">
                                     <i class="fas fa-sign-out-alt me-2"></i> Logout
@@ -314,11 +319,11 @@
                             <i class="fas fa-user"></i> <span>My Profile</span>
                         </a>
                     </li>
-                    
+
                     <!-- Connect Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="facultyConnectDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="facultyConnectDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-users"></i> <span>Connect</span>
                         </a>
                         <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="facultyConnectDropdown">
@@ -334,7 +339,7 @@
                             </li>
                         </ul>
                     </li>
-                    
+
                     <!-- Manage Dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="manageDropdown" role="button"
@@ -354,7 +359,7 @@
                             </li>
                         </ul>
                     </li>
-                    
+
                     <li class="nav-item">
                         <a class="nav-link nav-pill-link" href="/events">
                             <i class="fas fa-calendar-alt"></i> <span>Events</span>
@@ -365,11 +370,11 @@
                             <i class="fas fa-bell"></i> <span>Notifications</span>
                         </a>
                     </li>
-                    
+
                     <!-- More Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="facultyMoreDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="facultyMoreDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-ellipsis-h"></i> <span>More</span>
                         </a>
                         <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="facultyMoreDropdown">
@@ -378,7 +383,9 @@
                                     <i class="fas fa-cog me-2"></i> Settings
                                 </a>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li>
                                 <a class="dropdown-item text-danger" href="/logout">
                                     <i class="fas fa-sign-out-alt me-2"></i> Logout
