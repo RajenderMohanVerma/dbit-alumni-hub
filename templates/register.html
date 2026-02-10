@@ -130,7 +130,7 @@
                                 {% endif %}
                                 {% endwith %}
 
-                                <form method="POST" id="registerForm" class="needs-validation">
+                                <form method="POST" id="registerForm" class="needs-validation" onsubmit="return validateRegisterForm()">
 
                                     <!-- Role Selection -->
                                     <div class="mb-4 reveal-fade" style="transition-delay: 0.2s;">
@@ -938,6 +938,67 @@
             formInputs.forEach(updateLabel);
         }, 500);
     });
+
+    // Form Validation Function
+    function validateRegisterForm() {
+        const role = document.querySelector('input[name="role"]:checked')?.value;
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const password = document.getElementById('password').value;
+
+        // Check common fields
+        if (!role) {
+            alert('Please select a role');
+            return false;
+        }
+
+        if (!name || !email || !phone || !password) {
+            alert('Please fill in all basic fields (Name, Email, Phone, Password)');
+            return false;
+        }
+
+        // Check role-specific required fields
+        if (role === 'student') {
+            const enrollment_no = document.getElementById('enrollment_no').value.trim();
+            const category = document.getElementById('category').value;
+            const level = document.getElementById('level').value;
+            const degree = document.getElementById('degree').value;
+            const department = document.getElementById('department').value;
+
+            if (!enrollment_no || !category || !level || !degree || !department) {
+                alert('Please fill in all Student required fields');
+                return false;
+            }
+        }
+        else if (role === 'alumni') {
+            const enrollment_no = document.getElementById('alum_enrollment_no').value.trim();
+            const category = document.getElementById('alum_category').value;
+            const level = document.getElementById('alum_level').value;
+            const degree = document.getElementById('alum_degree').value;
+            const department = document.getElementById('alum_department').value;
+            const pass_year = document.getElementById('pass_year').value;
+
+            if (!enrollment_no || !category || !level || !degree || !department || !pass_year) {
+                alert('Please fill in all Alumni required fields');
+                return false;
+            }
+        }
+        else if (role === 'faculty') {
+            const employee_id = document.getElementById('employee_id').value.trim();
+            const department = document.getElementById('fac_department').value;
+            const designation = document.getElementById('fac_designation').value;
+            const qualification = document.getElementById('qualification').value.trim();
+
+            if (!employee_id || !department || !designation || !qualification) {
+                alert('Please fill in all Faculty required fields');
+                return false;
+            }
+        }
+
+        // Form is valid, allow submission
+        return true;
+    }
 
     // Add CSS for 3D logic dynamically
     const style = document.createElement('style');

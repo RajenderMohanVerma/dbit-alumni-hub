@@ -6,7 +6,6 @@ import random
 import secrets
 import string
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import sqlite3
@@ -16,7 +15,7 @@ import time
 import base64
 from extensions import mail
 from db_utils import get_db_connection
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -33,15 +32,8 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 # Set sender name as "Alumni Hub" with email
 app.config['MAIL_DEFAULT_SENDER'] = ('Alumni Hub', os.getenv('MAIL_USERNAME', 'alumnihub26@gmail.com'))
 
-from extensions import mail
-
 # Initialize SocketIO for real-time messaging
 socketio = SocketIO(app, cors_allowed_origins="*", ping_timeout=60, ping_interval=25, async_mode='threading')
-
-mail.init_app(app)
-
-
-
 
 DB_NAME = app.config['DB_NAME']
 
@@ -69,6 +61,72 @@ def normalize_profile_pic(profile_pic, name='User'):
     if profile_pic.startswith('/'):
         return profile_pic
     return None
+
+def send_email(to_email, subject, html_content):
+    """
+    Reliable email sending function with proper error handling
+    Returns: (bool success, str message)
+    """
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        
+        sender_email = app.config['MAIL_USERNAME']
+        sender_password = app.config['MAIL_PASSWORD']
+        
+        # Remove quotes from password if present
+        if sender_password.startswith('"') and sender_password.endswith('"'):
+            sender_password = sender_password[1:-1]
+        if sender_password.startswith("'") and sender_password.endswith("'"):
+            sender_password = sender_password[1:-1]
+        
+        print(f"\n🔧 Email Debug:")
+        print(f"  From: {sender_email}")
+        print(f"  To: {to_email}")
+        print(f"  Subject: {subject}")
+        print(f"  Server: {app.config['MAIL_SERVER']}:{app.config['MAIL_PORT']}")
+        
+        # Create message
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = f'Alumni Hub <{sender_email}>'
+        msg['To'] = to_email
+        
+        # Attach HTML
+        part = MIMEText(html_content, 'html')
+        msg.attach(part)
+        
+        # Send via SMTP
+        print(f"  📤 Connecting to SMTP server...")
+        with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT'], timeout=10) as server:
+            server.starttls()
+            print(f"  ✓ TLS connection established")
+            
+            server.login(sender_email, sender_password)
+            print(f"  ✓ Authentication successful")
+            
+            server.send_message(msg)
+            print(f"  ✓ Email sent successfully to {to_email}\n")
+            
+        return True, "Email sent successfully"
+        
+    except smtplib.SMTPAuthenticationError as e:
+        error_msg = f"Email authentication failed. Please check MAIL_USERNAME and MAIL_PASSWORD in .env file. Error: {str(e)}"
+        print(f"  ❌ {error_msg}\n")
+        return False, error_msg
+        
+    except smtplib.SMTPException as e:
+        error_msg = f"SMTP error while sending email: {str(e)}"
+        print(f"  ❌ {error_msg}\n")
+        return False, error_msg
+        
+    except Exception as e:
+        error_msg = f"Error sending email: {str(e)}"
+        print(f"  ❌ {error_msg}\n")
+        import traceback
+        traceback.print_exc()
+        return False, error_msg
 
 def log_registration(conn, user_id, name, email, phone, role, enrollment_no=None,
                     employee_id=None, department=None, degree=None, pass_year=None,
@@ -372,145 +430,119 @@ def contact():
                 admin_email = os.getenv('ADMIN_EMAIL', 'alumnihub26@gmail.com')
                 submission_time = datetime.now().strftime('%d %B %Y at %I:%M %p')
 
-                # Email to admin
-                msg = Message(
-                    subject=f'📬 New Contact: {subject} | Alumni Hub',
-                    sender=(f"{name} (via Alumni Hub)", app.config['MAIL_USERNAME']),
-                    recipients=[admin_email],
-                    html=f'''
-                    <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); padding: 30px; border-radius: 15px;">
-                        <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-top: 5px solid #1e3a8a; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                            <h1 style="color: #1e3a8a; margin: 0 0 15px 0; font-size: 1.8rem;">📧 New Contact Message Received</h1>
+                # Email to admin using send_email function
+                admin_html = f'''
+                <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); padding: 30px; border-radius: 15px;">
+                    <div style="background: white; padding: 30px; border-radius: 12px; margin-bottom: 20px; border-top: 5px solid #f59e0b; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                        <h1 style="color: #f59e0b; margin: 0 0 15px 0; font-size: 1.8rem;">📨 New Contact Form Submission</h1>
 
-                            <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0ea5e9;">
-                                <p style="margin: 0 0 8px 0; color: #0ea5e9; font-weight: 700; font-size: 0.9rem;">📌 PROJECT SOURCE</p>
-                                <p style="margin: 0; color: #1e3a8a; font-size: 1.2rem; font-weight: 800;">🎓 ALUMNI HUB MANAGEMENT SYSTEM</p>
-                                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.85rem;">Contact Form Submission</p>
-                            </div>
-                        </div>
-
-                        <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
-                            <h3 style="color: #1e3a8a; margin: 0 0 15px 0; border-bottom: 2px solid #f59e0b; padding-bottom: 10px; font-size: 1.1rem;">👤 Sender Information</h3>
-
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr style="border-bottom: 1px solid #e5e7eb;">
-                                    <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a; width: 30%;">Name:</td>
-                                    <td style="padding: 12px 0; color: #333;">{name}</td>
-                                </tr>
-                                <tr style="border-bottom: 1px solid #e5e7eb;">
-                                    <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Email:</td>
-                                    <td style="padding: 12px 0; color: #333;"><a href="mailto:{email}" style="color: #0ea5e9; text-decoration: none; font-weight: 600;">{email}</a></td>
-                                </tr>
-                                <tr style="border-bottom: 1px solid #e5e7eb;">
-                                    <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Subject:</td>
-                                    <td style="padding: 12px 0; color: #333; font-weight: 600;">{subject}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Submitted:</td>
-                                    <td style="padding: 12px 0; color: #666; font-size: 0.9rem;">{submission_time}</td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #f59e0b; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
-                            <h3 style="color: #1e3a8a; margin: 0 0 15px 0; font-size: 1.1rem;">💬 Message Content</h3>
-                            <p style="margin: 0; color: #333; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word;">{message}</p>
-                        </div>
-
-                        <div style="background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%); padding: 20px; border-radius: 12px; margin-bottom: 15px; color: white; text-align: center;">
-                            <p style="margin: 0; font-size: 0.95rem; font-weight: 600;">Quick Reply</p>
-                            <p style="margin: 10px 0 0 0; font-size: 0.85rem; opacity: 0.9;">Reply directly to this email or contact {name} at {email}</p>
-                        </div>
-
-                        <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; text-align: center;">
-                            <p style="margin: 0; color: #666; font-size: 0.85rem;">
-                                <strong style="color: #1e3a8a;">Alumni Hub</strong> • Contact Management System<br>
-                                This message was sent from the Alumni Hub contact form.
-                            </p>
+                        <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0ea5e9;">
+                            <p style="margin: 0 0 8px 0; color: #0ea5e9; font-weight: 700; font-size: 0.9rem;">📱 ALUMNI HUB</p>
+                            <p style="margin: 0; color: #1e3a8a; font-size: 1.1rem; font-weight: 800;">Someone has sent you a contact message</p>
                         </div>
                     </div>
-                    ''',
-                    reply_to=email
-                )
 
-                mail.send(msg)
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #f59e0b; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
+                        <h3 style="color: #1e3a8a; margin: 0 0 15px 0; font-size: 1.1rem;">👤 Sender Information</h3>
 
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a; width: 30%;">Name:</td>
+                                <td style="padding: 12px 0; color: #333;">{name}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Email:</td>
+                                <td style="padding: 12px 0; color: #333;"><a href="mailto:{email}" style="color: #0ea5e9; text-decoration: none; font-weight: 600;">{email}</a></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Subject:</td>
+                                <td style="padding: 12px 0; color: #333; font-weight: 600;">{subject}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Submitted:</td>
+                                <td style="padding: 12px 0; color: #666; font-size: 0.9rem;">{submission_time}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #f59e0b; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
+                        <h3 style="color: #1e3a8a; margin: 0 0 15px 0; font-size: 1.1rem;">💬 Message Content</h3>
+                        <p style="margin: 0; color: #333; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word;">{message}</p>
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%); padding: 20px; border-radius: 12px; margin-bottom: 15px; color: white; text-align: center;">
+                        <p style="margin: 0; font-size: 0.95rem; font-weight: 600;">Quick Reply</p>
+                        <p style="margin: 10px 0 0 0; font-size: 0.85rem; opacity: 0.9;">Reply directly to this email or contact {name} at {email}</p>
+                    </div>
+
+                    <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; text-align: center;">
+                        <p style="margin: 0; color: #666; font-size: 0.85rem;">
+                            <strong style="color: #1e3a8a;">Alumni Hub</strong> • Contact Management System<br>
+                            This message was sent from the Alumni Hub contact form.
+                        </p>
+                    </div>
+                </div>
+                '''
+                
+                send_email(admin_email, f'📨 New Contact: {subject}', admin_html)
                 # Email to user (confirmation)
-                user_msg = Message(
-                    subject='✓ Message Received - Alumni Hub',
-                    recipients=[email],
-                    html=f'''
-                    <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); padding: 30px; border-radius: 15px;">
-                        <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-top: 5px solid #10b981; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                            <h1 style="color: #10b981; margin: 0 0 15px 0; font-size: 1.8rem;">✓ Message Received Successfully!</h1>
-
-                            <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0ea5e9;">
-                                <p style="margin: 0 0 8px 0; color: #0ea5e9; font-weight: 700; font-size: 0.9rem;">📌 PROJECT</p>
-                                <p style="margin: 0; color: #1e3a8a; font-size: 1.2rem; font-weight: 800;">🎓 ALUMNI HUB MANAGEMENT SYSTEM</p>
-                                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.85rem;">Your contact message has been submitted</p>
-                            </div>
-                        </div>
-
-                        <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
-                            <p style="color: #333; line-height: 1.8; margin: 0 0 15px 0;">Dear <strong>{name}</strong>,</p>
-
-                            <p style="color: #333; line-height: 1.8; margin: 0;">
-                                Thank you for reaching out to us through the Alumni Hub contact form! We have successfully received your message and appreciate you taking the time to get in touch with us.
-                            </p>
-                        </div>
-
-                        <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(10, 150, 105, 0.08) 100%); padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #10b981; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
-                            <h3 style="color: #1e3a8a; margin: 0 0 15px 0; font-size: 1.1rem;">📋 Your Submission Details</h3>
-
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr style="border-bottom: 1px solid #e5e7eb;">
-                                    <td style="padding: 10px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a; width: 35%;">Subject:</td>
-                                    <td style="padding: 10px 0; color: #333;">{subject}</td>
-                                </tr>
-                                <tr style="border-bottom: 1px solid #e5e7eb;">
-                                    <td style="padding: 10px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Submitted On:</td>
-                                    <td style="padding: 10px 0; color: #666; font-size: 0.95rem;">{submission_time}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 10px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Source:</td>
-                                    <td style="padding: 10px 0; color: #333; font-weight: 600;">🎓 Alumni Hub Contact Form</td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
-                            <h3 style="color: #1e3a8a; margin: 0 0 15px 0; font-size: 1.1rem;">⏱️ What's Next?</h3>
-                            <ul style="margin: 0; padding-left: 20px; color: #333; line-height: 1.8;">
-                                <li style="margin-bottom: 8px;">Our team will review your message</li>
-                                <li style="margin-bottom: 8px;">We'll respond within 24-48 business hours</li>
-                                <li style="margin-bottom: 8px;">Check your email for our reply</li>
-                                <li>If urgent, you can reach us directly</li>
-                            </ul>
-                        </div>
-
-                        <div style="background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%); padding: 20px; border-radius: 12px; margin-bottom: 15px; color: white; text-align: center;">
-                            <p style="margin: 0; font-size: 0.95rem; font-weight: 600;">Contact Information</p>
-                            <p style="margin: 10px 0 0 0; font-size: 0.9rem; opacity: 0.95;">
-                                📧 support@alumnihub.com | 📞 +91-9876-543-210
-                            </p>
-                        </div>
-
-                        <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; text-align: center;">
-                            <p style="color: #333; margin: 0; line-height: 1.6; font-size: 0.95rem;">
-                                <strong style="color: #1e3a8a;">Alumni Hub</strong><br>
-                                <span style="color: #666; font-size: 0.9rem;">Building Connections, Creating Opportunities</span>
-                            </p>
-                            <p style="margin: 10px 0 0 0; color: #999; font-size: 0.85rem;">
-                                © 2026 Alumni Hub. All rights reserved.
-                            </p>
-                        </div>
-                    </div>
-                    '''
-                )
-
-                mail.send(user_msg)
+                user_html = f'''
+<div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); padding: 30px; border-radius: 15px;">
+    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-top: 5px solid #10b981; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+        <h1 style="color: #10b981; margin: 0 0 15px 0; font-size: 1.8rem;">✓ Message Received Successfully!</h1>
+        <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0ea5e9;">
+            <p style="margin: 0 0 8px 0; color: #0ea5e9; font-weight: 700; font-size: 0.9rem;">📌 PROJECT</p>
+            <p style="margin: 0; color: #1e3a8a; font-size: 1.2rem; font-weight: 800;">🎓 ALUMNI HUB MANAGEMENT SYSTEM</p>
+            <p style="margin: 5px 0 0 0; color: #666; font-size: 0.85rem;">Your contact message has been submitted</p>
+        </div>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
+        <p style="color: #333; line-height: 1.8; margin: 0 0 15px 0;">Dear <strong>{name}</strong>,</p>
+        <p style="color: #333; line-height: 1.8; margin: 0;">Thank you for reaching out to us through the Alumni Hub contact form! We have successfully received your message and appreciate you taking the time to get in touch with us.</p>
+    </div>
+    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(10, 150, 105, 0.08) 100%); padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #10b981; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
+        <h3 style="color: #1e3a8a; margin: 0 0 15px 0; font-size: 1.1rem;">📋 Your Submission Details</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 10px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a; width: 35%;">Subject:</td>
+                <td style="padding: 10px 0; color: #333;">{subject}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 10px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Submitted On:</td>
+                <td style="padding: 10px 0; color: #666; font-size: 0.95rem;">{submission_time}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Source:</td>
+                <td style="padding: 10px 0; color: #333; font-weight: 600;">🎓 Alumni Hub Contact Form</td>
+            </tr>
+        </table>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
+        <h3 style="color: #1e3a8a; margin: 0 0 15px 0; font-size: 1.1rem;">⏱️ What's Next?</h3>
+        <ul style="margin: 0; padding-left: 20px; color: #333; line-height: 1.8;">
+            <li style="margin-bottom: 8px;">Our team will review your message</li>
+            <li style="margin-bottom: 8px;">We'll respond within 24-48 business hours</li>
+            <li style="margin-bottom: 8px;">Check your email for our reply</li>
+            <li>If urgent, you can reach us directly</li>
+        </ul>
+    </div>
+    <div style="background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%); padding: 20px; border-radius: 12px; margin-bottom: 15px; color: white; text-align: center;">
+        <p style="margin: 0; font-size: 0.95rem; font-weight: 600;">Contact Information</p>
+        <p style="margin: 10px 0 0 0; font-size: 0.9rem; opacity: 0.95;">📧 support@alumnihub.com | 📞 +91-9876-543-210</p>
+    </div>
+    <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; text-align: center;">
+        <p style="color: #333; margin: 0; line-height: 1.6; font-size: 0.95rem;">
+            <strong style="color: #1e3a8a;">Alumni Hub</strong><br>
+            <span style="color: #666; font-size: 0.9rem;">Building Connections, Creating Opportunities</span>
+        </p>
+        <p style="margin: 10px 0 0 0; color: #999; font-size: 0.85rem;">© 2026 Alumni Hub. All rights reserved.</p>
+    </div>
+</div>
+                '''
+                send_email(email, '✓ Message Received - Alumni Hub', user_html)
 
             except Exception as email_error:
+
                 print(f"Email sending error: {email_error}")
                 # Continue even if email fails
 
@@ -544,12 +576,7 @@ def login():
                 u_suspended = get_user_field('is_suspended', 0)
                 u_role = get_user_field('role', 'student')
 
-                # Admin bypass for OTP verification
-                if u_verified == 0 and u_role != 'admin':
-                    flash('Please verify your email address first.', 'warning')
-                    return render_template('verify_otp.html', email=email)
-
-                # Check for Admin Approval
+                # Check for Admin Approval (Alumni and Faculty require approval)
                 if u_approved == 0 and u_role != 'admin':
                     flash('Your account is pending admin approval. Please wait for verification.', 'info')
                     return redirect(url_for('login'))
@@ -640,45 +667,88 @@ def register():
             # Generate Secure 6-digit OTP
             otp = ''.join(secrets.choice(string.digits) for _ in range(6))
 
-            # Store in Session
-            session['temp_registration'] = {
-                'name': name,
-                'email': email,
-                'phone': phone,
-                'password_hash': password_hash, # Already hashed
-                'role': role,
-                'otp': otp,
-                'profile_data': profile_data,
-                'timestamp': time.time()
-            }
+            # Store in temporary database table (temp_users)
+            # First, create temp_users table if it doesn't exist
+            conn.execute('''
+                CREATE TABLE IF NOT EXISTS temp_users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    phone TEXT NOT NULL,
+                    role TEXT NOT NULL,
+                    otp TEXT NOT NULL,
+                    profile_data TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    otp_expires_at TIMESTAMP
+                )
+            ''')
+            conn.commit()
+
+            # Delete old temp entry if exists
+            conn.execute('DELETE FROM temp_users WHERE email = ?', (email,))
+            conn.commit()
+
+            # Insert temporary user
+            otp_expires = datetime.utcnow() + timedelta(minutes=10)
+            import json
+            conn.execute(
+                '''INSERT INTO temp_users (name, email, password, phone, role, otp, profile_data, otp_expires_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                (name, email, password_hash, phone, role, otp, json.dumps(profile_data), otp_expires)
+            )
+            conn.commit()
             
             # Send OTP Email
-            try:
-                msg = Message(
-                    subject='Verify Your Email - Alumni Hub',
-                    recipients=[email],
-                    body=f'Your verification code is: {otp}',
-                    html=f'''
-                    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
-                        <div style="background-color: white; padding: 30px; border-radius: 10px; max-width: 600px; margin: 0 auto;">
-                            <h2 style="color: #1e3a8a; text-align: center;">Verify Your Email</h2>
-                            <p style="font-size: 16px; color: #333;">Welcome to Alumni Hub! Please use the following One-Time Password (OTP) to verify your email address. Your account will be created upon verification.</p>
-                            <div style="background-color: #f0f9ff; padding: 15px; border-radius: 5px; text-align: center; margin: 20px 0;">
-                                <h1 style="color: #0ea5e9; letter-spacing: 5px; margin: 0;">{otp}</h1>
-                            </div>
-                            <p style="font-size: 14px; color: #666; text-align: center;">This code is valid for 10 minutes.</p>
+            html_content = f'''
+            <html>
+                <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+                    <div style="background-color: white; padding: 30px; border-radius: 10px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h2 style="color: #1e3a8a; margin: 0; font-size: 28px;">Alumni Hub</h2>
+                            <p style="color: #666; font-size: 14px; margin: 5px 0 0 0;">Email Verification</p>
+                        </div>
+                        
+                        <h3 style="color: #333; text-align: center; margin-top: 0;">Verify Your Email Address</h3>
+                        
+                        <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                            Welcome to Alumni Hub! Please use the following One-Time Password (OTP) to verify your email address. Your account will be created upon verification.
+                        </p>
+                        
+                        <div style="background-color: #f0f9ff; padding: 20px; border-radius: 5px; text-align: center; margin: 30px 0; border-left: 4px solid #0ea5e9;">
+                            <p style="margin: 0; color: #666; font-size: 14px;">Your OTP Code:</p>
+                            <h1 style="color: #0ea5e9; letter-spacing: 5px; margin: 10px 0; font-size: 32px; font-family: 'Courier New', monospace;">{otp}</h1>
+                            <p style="margin: 0; color: #999; font-size: 12px;">This code is valid for 10 minutes.</p>
+                        </div>
+                        
+                        <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                            <p style="color: #856404; font-size: 13px; margin: 0;">
+                                <strong>Security Note:</strong> Never share this OTP with anyone. Alumni Hub staff will never ask for your OTP.
+                            </p>
+                        </div>
+                        
+                        <p style="color: #666; font-size: 14px; line-height: 1.6;">
+                            If you did not create an Alumni Hub account, please ignore this email.
+                        </p>
+                        
+                        <div style="border-top: 1px solid #eee; margin-top: 30px; padding-top: 20px; text-align: center; color: #999; font-size: 12px;">
+                            <p style="margin: 0;">© 2024 Alumni Hub. All rights reserved.</p>
                         </div>
                     </div>
-                    '''
-                )
-                mail.send(msg)
-                flash(f'Verification code sent to {email}. Please verify to complete registration.', 'info')
+                </body>
+            </html>
+            '''
+            
+            # Send email using new function
+            email_sent, email_message = send_email(email, 'Verify Your Email - Alumni Hub', html_content)
+            
+            if email_sent:
+                flash(f'✓ Verification code sent to {email}. Please check your email and enter the OTP.', 'success')
                 return redirect(url_for('verify_otp', email=email))
-                
-            except Exception as e:
-                print(f"Error sending OTP: {e}")
-                flash('Failed to send verification email. Please try again.', 'danger')
-                return redirect(url_for('register', role=role))
+            else:
+                # Still redirect even if email fails (for testing)
+                flash(f'⚠ OTP: {otp} (Check console). {email_message}', 'warning')
+                return redirect(url_for('verify_otp', email=email))
 
         except Exception as e:
             print(f"Registration error: {e}")
@@ -695,221 +765,172 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
-@app.route('/verify-otp', methods=['POST'])
+@app.route('/verify-otp', methods=['GET', 'POST'])
 def verify_otp():
-    email = request.form.get('email')
-    otp = request.form.get('otp')
+    email = request.args.get('email') or request.form.get('email')
     
-    # 1. Check Session for New Registration
-    if 'temp_registration' in session and session['temp_registration']['email'] == email:
-        temp_data = session['temp_registration']
+    if request.method == 'GET':
+        return render_template('verify_otp.html', email=email)
+    
+    if request.method == 'POST':
+        otp = request.form.get('otp', '').strip()
+        conn = None
         
-        # Check for OTP Expiry (10 minutes = 600 seconds)
-        if time.time() - temp_data['timestamp'] > 600:
-            session.pop('temp_registration', None)
-            flash('OTP has expired! Please register again.', 'danger')
-            return redirect(url_for('register'))
-
-        if temp_data['otp'] == otp:
-            # Create User in DB
-            conn = None
-            try:
-                conn = get_db_connection()
-                c = conn.cursor()
-                
-                # Insert User
-                # Manual approval required for Alumni and Faculty
-                is_approved = 0 if temp_data['role'] in ['alumni', 'faculty'] else 1
-                
-                c.execute('INSERT INTO users (name, email, password, phone, role, is_verified, is_approved, otp_code) VALUES (?, ?, ?, ?, ?, 1, ?, NULL)',
-                         (temp_data['name'], temp_data['email'], temp_data['password_hash'], temp_data['phone'], temp_data['role'], is_approved))
-                conn.commit()
-                user_id = c.lastrowid
-                
-                # Insert Profile Data
-                role = temp_data['role']
-                p_data = temp_data['profile_data']
-                
-                if role == 'student':
-                    c.execute('''INSERT INTO student_profile
-                        (user_id, enrollment_no, department, degree, semester)
-                        VALUES (?, ?, ?, ?, ?)''',
-                        (user_id, p_data['enrollment_no'], p_data['department'], p_data['degree'], p_data['semester']))
-                        
-                    log_registration(conn, user_id, temp_data['name'], temp_data['email'], temp_data['phone'], role,
-                                   enrollment_no=p_data['enrollment_no'], department=p_data['department'], degree=p_data['degree'])
-                                   
-                elif role == 'alumni':
-                    c.execute('''INSERT INTO alumni_profile
-                        (user_id, enrollment_no, department, degree, pass_year, company_name, designation)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                        (user_id, p_data['enrollment_no'], p_data['department'], p_data['degree'], 
-                         p_data['pass_year'], p_data['company_name'], p_data['designation']))
-                         
-                    log_registration(conn, user_id, temp_data['name'], temp_data['email'], temp_data['phone'], role,
-                                   enrollment_no=p_data['enrollment_no'], department=p_data['department'], degree=p_data['degree'],
-                                   pass_year=int(p_data['pass_year']) if p_data['pass_year'] else None,
-                                   company_name=p_data['company_name'], designation=p_data['designation'],
-                                   experience_years=int(p_data['experience_years']) if p_data['experience_years'] else None)
-
-                elif role == 'faculty':
-                    c.execute('''INSERT INTO faculty_profile
-                        (user_id, employee_id, department, designation, qualification)
-                        VALUES (?, ?, ?, ?, ?)''',
-                        (user_id, p_data['employee_id'], p_data['department'], p_data['designation'], p_data['qualification']))
-                        
-                    log_registration(conn, user_id, temp_data['name'], temp_data['email'], temp_data['phone'], role,
-                                   employee_id=p_data['employee_id'], department=p_data['department'],
-                                   designation=p_data['designation'], experience_years=int(p_data['experience_years']) if p_data['experience_years'] else None)
-                
-                conn.commit()
-                
-                # Clear Session
-                session.pop('temp_registration', None)
-                
-                if is_approved == 0:
-                    flash('Email verified! Your account is now pending admin approval.', 'info')
-                    return redirect(url_for('login'))
-
-                # Login
-                user_obj = User(user_id, temp_data['name'], temp_data['email'], role, None, 1)
-                login_user(user_obj)
-                
-                flash('Account created and verified successfully!', 'success')
-                
-                if role == 'admin':
-                    return redirect(url_for('dashboard_admin'))
-                if role == 'alumni':
-                    return redirect(url_for('dashboard_alumni'))
-                return redirect(url_for('dashboard_student'))
-                
-            except Exception as e:
-                if conn: conn.rollback()
-                print(f"Registration Verification Error: {e}")
-                flash(f'Error creating account: {e}', 'danger')
-                return render_template('verify_otp.html', email=email)
-            finally:
-                if conn: conn.close()
-        else:
-            flash('Invalid OTP! Please try again.', 'danger')
-            return render_template('verify_otp.html', email=email)
-
-    # 2. Legacy/Resend Flow (Check DB)
-    conn = None
-    try:
-        conn = get_db_connection()
-        user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
-        
-        if user:
-            if user['otp_code'] == otp:
-                # Success - verify user and clear OTP
-                conn.execute('UPDATE users SET is_verified = 1, otp_code = NULL WHERE id = ?', (user['id'],))
-                conn.commit()
-                
-                # Login the user
-                # Fetch fresh user data to ensure is_verified is 1
-                user_obj = User(user['id'], user['name'], user['email'], user['role'], None, 1)
-                login_user(user_obj)
-                
-                flash('Email verified successfully!', 'success')
-                
-                if user['role'] == 'admin':
-                    return redirect(url_for('dashboard_admin'))
-                if user['role'] == 'alumni':
-                    return redirect(url_for('dashboard_alumni'))
-                return redirect(url_for('dashboard_student'))
-            else:
-                flash('Invalid OTP! Please try again.', 'danger')
-        else:
-            flash('User not found!', 'danger')
+        try:
+            conn = get_db_connection()
             
-        return render_template('verify_otp.html', email=email)
-    except Exception as e:
-        print(f"OTP Verification Error: {e}")
-        flash('An error occurred. Please try again.', 'danger')
-        return render_template('verify_otp.html', email=email)
-    finally:
-        if conn:
-            conn.close()
+            # Check temp_users table for registration OTP
+            temp_user = conn.execute('SELECT * FROM temp_users WHERE email = ?', (email,)).fetchone()
+            
+            if temp_user:
+                # Check OTP expiry
+                otp_expiry = datetime.fromisoformat(temp_user['otp_expires_at'])
+                if datetime.utcnow() > otp_expiry:
+                    # Delete expired OTP
+                    conn.execute('DELETE FROM temp_users WHERE email = ?', (email,))
+                    conn.commit()
+                    flash('OTP has expired! Please register again.', 'danger')
+                    return render_template('verify_otp.html', email=email)
+                
+                # Verify OTP
+                if temp_user['otp'] != otp:
+                    flash('Invalid OTP! Please try again.', 'danger')
+                    return render_template('verify_otp.html', email=email)
+                
+                # OTP is correct - create actual user account
+                import json
+                profile_data = json.loads(temp_user['profile_data']) if temp_user['profile_data'] else {}
+                
+                # Determine approval status (Alumni & Faculty need approval)
+                is_approved = 1 if temp_user['role'] not in ['alumni', 'faculty'] else 0
+                
+                try:
+                    c = conn.cursor()
+                    
+                    # Insert user into main users table
+                    c.execute('''INSERT INTO users (name, email, password, phone, role, is_verified, is_approved, otp_code)
+                                 VALUES (?, ?, ?, ?, ?, 1, ?, NULL)''',
+                             (temp_user['name'], temp_user['email'], temp_user['password'], 
+                              temp_user['phone'], temp_user['role'], is_approved))
+                    conn.commit()
+                    user_id = c.lastrowid
+                    
+                    # Insert role-specific profile data
+                    if temp_user['role'] == 'student':
+                        c.execute('''INSERT INTO student_profile
+                                    (user_id, enrollment_no, department, degree, semester)
+                                    VALUES (?, ?, ?, ?, ?)''',
+                                (user_id, profile_data.get('enrollment_no'), profile_data.get('department'),
+                                 profile_data.get('degree'), profile_data.get('semester')))
+                        
+                    elif temp_user['role'] == 'alumni':
+                        c.execute('''INSERT INTO alumni_profile
+                                    (user_id, enrollment_no, department, degree, pass_year, company_name, designation)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                                (user_id, profile_data.get('enrollment_no'), profile_data.get('department'),
+                                 profile_data.get('degree'), profile_data.get('pass_year'),
+                                 profile_data.get('company_name'), profile_data.get('designation')))
+                        
+                    elif temp_user['role'] == 'faculty':
+                        c.execute('''INSERT INTO faculty_profile
+                                    (user_id, employee_id, department, designation, qualification)
+                                    VALUES (?, ?, ?, ?, ?)''',
+                                (user_id, profile_data.get('employee_id'), profile_data.get('department'),
+                                 profile_data.get('designation'), profile_data.get('qualification')))
+                    
+                    conn.commit()
+                    
+                    # Delete from temp_users
+                    conn.execute('DELETE FROM temp_users WHERE email = ?', (email,))
+                    conn.commit()
+                    
+                    # Auto-login if approved, else redirect to login
+                    if is_approved:
+                        user_obj = User(user_id, temp_user['name'], temp_user['email'], temp_user['role'], None, 1)
+                        login_user(user_obj)
+                        flash('✓ Email verified! Account created successfully. Welcome!', 'success')
+                        
+                        if temp_user['role'] == 'student':
+                            return redirect(url_for('dashboard_student'))
+                        elif temp_user['role'] == 'alumni':
+                            return redirect(url_for('dashboard_alumni'))
+                        elif temp_user['role'] == 'admin':
+                            return redirect(url_for('dashboard_admin'))
+                    else:
+                        flash('✓ Email verified! Your account is pending admin approval. Please wait.', 'info')
+                        return redirect(url_for('login'))
+                        
+                except Exception as e:
+                    conn.rollback()
+                    print(f"Error creating user account: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    flash(f'Error creating account: {str(e)}', 'danger')
+                    return render_template('verify_otp.html', email=email)
+            else:
+                flash('No registration found for this email. Please register first.', 'danger')
+                return render_template('verify_otp.html', email=email)
+                
+        except Exception as e:
+            print(f"OTP Verification Error: {e}")
+            import traceback
+            traceback.print_exc()
+            flash(f'An error occurred: {str(e)}', 'danger')
+            return render_template('verify_otp.html', email=email)
+        finally:
+            if conn:
+                conn.close()
 
 @app.route('/resend-otp', methods=['POST'])
 def resend_otp():
     email = request.form.get('email')
-    
-    # 1. Handle New Registration (Session)
-    if 'temp_registration' in session and session['temp_registration']['email'] == email:
-        try:
-            new_otp = ''.join(secrets.choice(string.digits) for _ in range(6))
-            # Update session with new OTP and timestamp
-            session['temp_registration']['otp'] = new_otp
-            session['temp_registration']['timestamp'] = time.time()
-            session.modified = True
-            
-            # Send Email
-            msg = Message(
-                subject='Resend: Verify Your Email - Alumni Hub',
-                recipients=[email],
-                body=f'Your new verification code is: {new_otp}',
-                html=f'''
-                <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
-                    <div style="background-color: white; padding: 30px; border-radius: 10px; max-width: 600px; margin: 0 auto;">
-                        <h2 style="color: #1e3a8a; text-align: center;">Verify Your Email</h2>
-                        <p style="font-size: 16px; color: #333;">Here is your new One-Time Password (OTP) to verify your email address:</p>
-                        <div style="background-color: #f0f9ff; padding: 15px; border-radius: 5px; text-align: center; margin: 20px 0;">
-                            <h1 style="color: #0ea5e9; letter-spacing: 5px; margin: 0;">{new_otp}</h1>
-                        </div>
-                        <p style="font-size: 14px; color: #666; text-align: center;">This code is valid for 10 minutes.</p>
-                    </div>
-                </div>
-                '''
-            )
-            mail.send(msg)
-            flash('Verification code resent successfully!', 'success')
-            return render_template('verify_otp.html', email=email)
-            
-        except Exception as e:
-            print(f"Error resending OTP (Session): {e}")
-            flash('Failed to resend OTP. Please try again.', 'danger')
-            return render_template('verify_otp.html', email=email)
-
-    # 2. Handle Existing Users (DB)
     conn = None
+    
     try:
         conn = get_db_connection()
-        user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
         
-        if user:
+        # Check temp_users table first (new registration flow)
+        temp_user = conn.execute('SELECT * FROM temp_users WHERE email = ?', (email,)).fetchone()
+        
+        if temp_user:
+            # Generate new OTP for temporary registration
             new_otp = ''.join(secrets.choice(string.digits) for _ in range(6))
-            conn.execute('UPDATE users SET otp_code = ? WHERE id = ?', (new_otp, user['id']))
+            otp_expires = datetime.utcnow() + timedelta(minutes=10)
+            
+            conn.execute('UPDATE temp_users SET otp = ?, otp_expires_at = ? WHERE email = ?',
+                        (new_otp, otp_expires, email))
             conn.commit()
             
-            # Send Email
-            try:
-                msg = Message(
-                    subject='Resend: Verify Your Email - Alumni Hub',
-                    recipients=[email],
-                    body=f'Your new verification code is: {new_otp}',
-                    html=f'''
-                    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
-                        <div style="background-color: white; padding: 30px; border-radius: 10px; max-width: 600px; margin: 0 auto;">
-                            <h2 style="color: #1e3a8a; text-align: center;">Verify Your Email</h2>
-                            <p style="font-size: 16px; color: #333;">Here is your new One-Time Password (OTP) to verify your email address:</p>
-                            <div style="background-color: #f0f9ff; padding: 15px; border-radius: 5px; text-align: center; margin: 20px 0;">
-                                <h1 style="color: #0ea5e9; letter-spacing: 5px; margin: 0;">{new_otp}</h1>
-                            </div>
+            html_content = f'''
+            <html>
+                <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+                    <div style="background-color: white; padding: 30px; border-radius: 10px; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #1e3a8a; text-align: center;">Verify Your Email</h2>
+                        <p style="font-size: 16px; color: #333;">Here is your new One-Time Password (OTP):</p>
+                        <div style="background-color: #f0f9ff; padding: 20px; border-radius: 5px; text-align: center; margin: 20px 0; border-left: 4px solid #0ea5e9;">
+                            <h1 style="color: #0ea5e9; letter-spacing: 5px; margin: 0; font-family: 'Courier New', monospace; font-size: 32px;">{new_otp}</h1>
+                            <p style="margin: 10px 0 0 0; color: #999; font-size: 12px;">Valid for 10 minutes.</p>
                         </div>
                     </div>
-                    '''
-                )
-                mail.send(msg)
-                flash('OTP resent successfully!', 'success')
-            except Exception as e:
-                print(f"Error sending OTP: {e}")
-                flash('Failed to send OTP.', 'danger')
-        else:
-            flash('User not found or session expired. Please register again.', 'danger')
-            return redirect(url_for('register'))
+                </body>
+            </html>
+            '''
             
+            email_sent, msg_text = send_email(email, 'Resend: Verify Your Email - Alumni Hub', html_content)
+            
+            if email_sent:
+                flash('✓ Verification code resent successfully!', 'success')
+            else:
+                flash(f'⚠ OTP: {new_otp} - {msg_text}', 'warning')
+            
+            return render_template('verify_otp.html', email=email)
+        else:
+            flash('No registration found for this email.', 'danger')
+            return render_template('verify_otp.html', email=email)
+            
+    except Exception as e:
+        print(f"Error resending OTP: {e}")
+        flash('Failed to resend OTP. Please try again.', 'danger')
         return render_template('verify_otp.html', email=email)
     finally:
         if conn:
@@ -1784,73 +1805,67 @@ def forgot_password():
                 conn.execute('INSERT INTO password_resets (email, otp) VALUES (?, ?)', (email, otp))
                 conn.commit()
                 
-                # Send Email with Premium Template
-                msg = Message(
-                    subject='🔐 Reset Your Password - Alumni Hub',
-                    recipients=[email],
-                    html=f'''
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <style>
-                            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
-                        </style>
-                    </head>
-                    <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: 'Outfit', sans-serif;">
-                        <div style="max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.05);">
-                            
-                            <!-- Header -->
-                            <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 40px; text-align: center; position: relative;">
-                                <div style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 20px 20px; opacity: 0.3;"></div>
-                                <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 1px; position: relative; z-index: 2;">Alumni Hub</h1>
-                                <p style="color: rgba(255,255,255,0.7); margin: 10px 0 0 0; font-size: 14px; position: relative; z-index: 2;">Connecting Generations</p>
-                            </div>
-
-                            <!-- Body -->
-                            <div style="padding: 40px;">
-                                <h2 style="color: #1e293b; font-size: 22px; font-weight: 700; margin-top: 0; text-align: center;">Password Reset Request</h2>
-                                
-                                <p style="color: #64748b; line-height: 1.8; font-size: 16px; text-align: center; margin-bottom: 30px;">
-                                    We received a request to reset the password for your Alumni Hub account. <br>
-                                    Use the One-Time Password (OTP) below to proceed.
-                                </p>
-
-                                <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px dashed #cbd5e1; border-radius: 16px; padding: 25px; text-align: center; margin-bottom: 30px;">
-                                    <span style="font-size: 36px; font-weight: 800; color: #4f46e5; letter-spacing: 8px; display: block;">{otp}</span>
-                                    <span style="display: block; font-size: 12px; color: #94a3b8; margin-top: 10px; font-weight: 500;">VALID FOR 10 MINUTES</span>
-                                </div>
-
-                                <p style="color: #94a3b8; font-size: 14px; text-align: center; line-height: 1.6; margin-bottom: 0;">
-                                    If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.
-                                </p>
-                            </div>
-
-                            <!-- Footer -->
-                            <div style="background: #f1f5f9; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
-                                <p style="color: #64748b; font-size: 12px; margin: 0;">&copy; 2026 Alumni Hub. All rights reserved.</p>
-                                <p style="color: #94a3b8; font-size: 12px; margin: 5px 0 0 0;">This is an automated message, please do not reply.</p>
-                            </div>
+                # Email HTML
+                html_content = f'''
+                <!DOCTYPE html>
+                <html>
+                <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: Arial, sans-serif;">
+                    <div style="max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.05);">
+                        
+                        <!-- Header -->
+                        <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 40px; text-align: center;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">Alumni Hub</h1>
+                            <p style="color: rgba(255,255,255,0.7); margin: 10px 0 0 0; font-size: 14px;">Connecting Generations</p>
                         </div>
-                    </body>
-                    </html>
-                    '''
-                )
-                try:
-                    mail.send(msg)
-                except Exception as e:
-                    print(f"Email error: {e}")
-                    flash('Error sending email. Please try again.', 'danger')
-                    return redirect(url_for('forgot_password'))
 
-                flash('OTP sent to your email!', 'success')
-                return redirect(url_for('verify_reset_otp', email=email))
+                        <!-- Body -->
+                        <div style="padding: 40px;">
+                            <h2 style="color: #1e293b; font-size: 22px; font-weight: 700; margin-top: 0; text-align: center;">🔐 Password Reset Request</h2>
+                            
+                            <p style="color: #64748b; line-height: 1.8; font-size: 16px; text-align: center; margin-bottom: 30px;">
+                                We received a request to reset the password for your Alumni Hub account.<br>
+                                Use the One-Time Password (OTP) below to proceed.
+                            </p>
+
+                            <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 25px; text-align: center; margin-bottom: 30px;">
+                                <span style="font-size: 36px; font-weight: 800; color: #4f46e5; letter-spacing: 8px; display: block; font-family: 'Courier New', monospace;">{otp}</span>
+                                <span style="display: block; font-size: 12px; color: #94a3b8; margin-top: 10px;">VALID FOR 10 MINUTES</span>
+                            </div>
+
+                            <p style="color: #94a3b8; font-size: 14px; text-align: center;">
+                                If you didn't request this, please ignore. Your password will remain unchanged.
+                            </p>
+                        </div>
+
+                        <!-- Footer -->
+                        <div style="background: #f1f5f9; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="color: #64748b; font-size: 12px; margin: 0;">&copy; 2026 Alumni Hub. All rights reserved.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                '''
+                
+                # Send email
+                email_sent, msg_text = send_email(email, '🔐 Reset Your Password - Alumni Hub', html_content)
+                
+                if email_sent:
+                    flash('✓ OTP sent to your email!', 'success')
+                    return redirect(url_for('verify_reset_otp', email=email))
+                else:
+                    flash(f'⚠ OTP: {otp} (Check console) - {msg_text}', 'warning')
+                    return redirect(url_for('verify_reset_otp', email=email))
             else:
                 flash('Email not found!', 'danger')
+        except Exception as e:
+            print(f"Forgot password error: {e}")
+            flash(f'Error: {str(e)}', 'danger')
         finally:
             if conn:
                 conn.close()
                 
     return render_template('forgot_password.html')
+
 
 @app.route('/verify-reset-otp', methods=['GET', 'POST'])
 def verify_reset_otp():
@@ -3100,13 +3115,10 @@ def send_connection_email(recipient_email, recipient_name, sender_name, sender_r
         else:
             return  # Unknown action
 
-        # Send email
-        msg = Message(
-            subject=subject,
-            recipients=[recipient_email],
-            html=html_content
-        )
-        mail.send(msg)
+        # Send email using the new send_email function
+        success, message = send_email(recipient_email, subject, html_content)
+        if not success:
+            print(f"Warning: Connection email failed - {message}")
 
     except Exception as e:
         print(f"Error sending connection email: {e}")
@@ -3138,73 +3150,76 @@ def report_issue():
             flash('All fields are required!', 'warning')
             return render_template('report_issue.html')
         
-        # Send email to admin
+        # Send email to admin using send_email function
         try:
             submission_time = datetime.now().strftime('%d %B %Y at %I:%M %p')
             
-            msg = Message(
-                subject=f'🚨 Issue Report: {issue_type} | Alumni Hub',
-                recipients=[app.config.get('ADMIN_EMAIL', 'alumnihub26@gmail.com')],
-                html=f'''
-                <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%); padding: 30px; border-radius: 15px;">
-                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-top: 5px solid #dc2626; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                        <h1 style="color: #dc2626; margin: 0 0 15px 0; font-size: 1.8rem;">🚨 New Issue Reported</h1>
+            html_content = f'''
+            <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%); padding: 30px; border-radius: 15px;">
+                <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-top: 5px solid #dc2626; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <h1 style="color: #dc2626; margin: 0 0 15px 0; font-size: 1.8rem;">🚨 New Issue Reported</h1>
 
-                        <div style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
-                            <p style="margin: 0 0 8px 0; color: #dc2626; font-weight: 700; font-size: 0.9rem;">📌 PROJECT SOURCE</p>
-                            <p style="margin: 0; color: #1e3a8a; font-size: 1.2rem; font-weight: 800;">🎓 ALUMNI HUB MANAGEMENT SYSTEM</p>
-                            <p style="margin: 5px 0 0 0; color: #666; font-size: 0.85rem;">Issue Report Submission</p>
-                        </div>
-                    </div>
-
-                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
-                        <h3 style="color: #1e3a8a; margin: 0 0 15px 0; border-bottom: 2px solid #dc2626; padding-bottom: 10px; font-size: 1.1rem;">👤 Reporter Information</h3>
-
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <tr style="border-bottom: 1px solid #e5e7eb;">
-                                <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a; width: 30%;">Name:</td>
-                                <td style="padding: 12px 0; color: #333;">{name}</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #e5e7eb;">
-                                <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Email:</td>
-                                <td style="padding: 12px 0; color: #333;"><a href="mailto:{email}" style="color: #0ea5e9; text-decoration: none; font-weight: 600;">{email}</a></td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #e5e7eb;">
-                                <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Issue Type:</td>
-                                <td style="padding: 12px 0; color: #333;">
-                                    <span style="background: #dc2626; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">{issue_type}</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Submitted:</td>
-                                <td style="padding: 12px 0; color: #666; font-size: 0.9rem;">{submission_time}</td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #f59e0b; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
-                        <h3 style="color: #1e3a8a; margin: 0 0 15px 0; font-size: 1.1rem;">📝 Issue Description</h3>
-                        <p style="margin: 0; color: #333; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word;">{description}</p>
-                    </div>
-
-                    <div style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); padding: 20px; border-radius: 12px; margin-bottom: 15px; color: white; text-align: center;">
-                        <p style="margin: 0; font-size: 0.95rem; font-weight: 600;">⚡ Action Required</p>
-                        <p style="margin: 10px 0 0 0; font-size: 0.85rem; opacity: 0.9;">Please review and respond to this issue report promptly</p>
-                    </div>
-
-                    <div style="background: #fef2f2; padding: 15px; border-radius: 8px; text-align: center;">
-                        <p style="margin: 0; color: #666; font-size: 0.85rem;">
-                            <strong style="color: #dc2626;">Alumni Hub</strong> • Issue Tracking System<br>
-                            This report was submitted via the Alumni Hub issue reporting form.
-                        </p>
+                    <div style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
+                        <p style="margin: 0 0 8px 0; color: #dc2626; font-weight: 700; font-size: 0.9rem;">📌 PROJECT SOURCE</p>
+                        <p style="margin: 0; color: #1e3a8a; font-size: 1.2rem; font-weight: 800;">🎓 ALUMNI HUB MANAGEMENT SYSTEM</p>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 0.85rem;">Issue Report Submission</p>
                     </div>
                 </div>
-                ''',
-                reply_to=email
-            )
-            mail.send(msg)
-            flash('Issue reported successfully! We will get back to you soon.', 'success')
+
+                <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
+                    <h3 style="color: #1e3a8a; margin: 0 0 15px 0; border-bottom: 2px solid #dc2626; padding-bottom: 10px; font-size: 1.1rem;">👤 Reporter Information</h3>
+
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                            <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a; width: 30%;">Name:</td>
+                            <td style="padding: 12px 0; color: #333;">{name}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                            <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Email:</td>
+                            <td style="padding: 12px 0; color: #333;"><a href="mailto:{email}" style="color: #0ea5e9; text-decoration: none; font-weight: 600;">{email}</a></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                            <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Issue Type:</td>
+                            <td style="padding: 12px 0; color: #333;">
+                                <span style="background: #dc2626; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">{issue_type}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px 0; padding-right: 20px; font-weight: 700; color: #1e3a8a;">Submitted:</td>
+                            <td style="padding: 12px 0; color: #666; font-size: 0.9rem;">{submission_time}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #f59e0b; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
+                    <h3 style="color: #1e3a8a; margin: 0 0 15px 0; font-size: 1.1rem;">📝 Issue Description</h3>
+                    <p style="margin: 0; color: #333; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word;">{description}</p>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); padding: 20px; border-radius: 12px; margin-bottom: 15px; color: white; text-align: center;">
+                    <p style="margin: 0; font-size: 0.95rem; font-weight: 600;">⚡ Action Required</p>
+                    <p style="margin: 10px 0 0 0; font-size: 0.85rem; opacity: 0.9;">Please review and respond to this issue report promptly</p>
+                </div>
+
+                <div style="background: #fef2f2; padding: 15px; border-radius: 8px; text-align: center;">
+                    <p style="margin: 0; color: #666; font-size: 0.85rem;">
+                        <strong style="color: #dc2626;">Alumni Hub</strong> • Issue Tracking System<br>
+                        This report was submitted via the Alumni Hub issue reporting form.
+                    </p>
+                </div>
+            </div>
+            '''
+            
+            admin_email = app.config.get('ADMIN_EMAIL', 'alumnihub26@gmail.com')
+            success, msg_text = send_email(admin_email, f'🚨 Issue Report: {issue_type}', html_content)
+            
+            if success:
+                flash('Issue reported successfully! We will get back to you soon.', 'success')
+            else:
+                flash(f'Error sending report: {msg_text}', 'danger')
+            
             return redirect(url_for('report_issue'))
+
         except Exception as e:
             print(f"Error sending issue report: {e}")
             flash('Error sending report. Please try again.', 'danger')
@@ -3214,7 +3229,7 @@ def report_issue():
 
 @app.route('/send-email', methods=['POST'])
 @login_required
-def send_email():
+def send_user_email():
     recipient_email = request.form.get('recipient_email')
     subject = request.form.get('subject')
     message_body = request.form.get('message')
@@ -3224,20 +3239,28 @@ def send_email():
         return redirect(request.referrer or url_for('home'))
         
     try:
-        msg = Message(
-            subject=f"[Alumni Hub] {subject}",
-            recipients=[recipient_email],
-            sender=("Alumni Hub", app.config['MAIL_DEFAULT_SENDER']),
-            reply_to=current_user.email,
-            body=f"Message from {current_user.name} ({current_user.email}):\n\n{message_body}\n\n--\nSent via Alumni Hub"
-        )
-        mail.send(msg)
-        flash('Email sent successfully!', 'success')
+        html_content = f'''
+        <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto;">
+            <p style="color: #333; line-height: 1.8;">Message from <strong>{current_user.name}</strong> ({current_user.email}):</p>
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #1e3a8a;">
+                <p style="margin: 0; color: #333; line-height: 1.8; white-space: pre-wrap;">{message_body}</p>
+            </div>
+            <p style="color: #999; font-size: 0.9rem; margin-top: 20px;">Sent via Alumni Hub</p>
+        </div>
+        '''
+        
+        success, msg_text = send_email(recipient_email, f"[Alumni Hub] {subject}", html_content)
+        
+        if success:
+            flash('Email sent successfully!', 'success')
+        else:
+            flash(f'Failed to send email: {msg_text}', 'danger')
     except Exception as e:
         print(f"Error sending email: {e}")
         flash('Failed to send email. Please try again later.', 'danger')
         
     return redirect(request.referrer or url_for('home'))
+
 
 
 # --- PUBLIC & SHARED ROUTES ---
