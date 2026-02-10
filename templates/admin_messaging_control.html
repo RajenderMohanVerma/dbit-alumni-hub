@@ -214,81 +214,58 @@
     }
 
     .message-item:hover {
-        background: #f8fafc;
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
     }
 
-    .message-content {
+    /* Suspended List Styles */
+    .suspended-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        margin-bottom: 10px;
+    }
+
+    .suspended-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .suspended-info {
         flex: 1;
     }
 
-    .message-sender {
-        font-weight: 700;
-        color: #1e3a8a;
-        margin-bottom: 5px;
+    .suspended-name {
+        font-weight: 600;
+        color: white;
+        font-size: 0.95rem;
     }
 
-    .message-text {
-        color: #475569;
-        line-height: 1.5;
-        word-wrap: break-word;
-    }
-
-    .message-time {
+    .suspended-role {
         font-size: 0.8rem;
         color: #94a3b8;
-        margin-top: 8px;
     }
 
-    .delete-msg-btn {
-        background: #ef4444;
+    .unsuspend-btn {
+        background: #10b981;
         color: white;
         border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
+        padding: 5px 12px;
+        border-radius: 6px;
         font-size: 0.8rem;
         cursor: pointer;
-        transition: background 0.3s;
-        white-space: nowrap;
+        transition: all 0.2s;
     }
 
-    .delete-msg-btn:hover {
-        background: #dc2626;
-    }
-
-    .empty-messages {
-        text-align: center;
-        padding: 40px;
-        color: #94a3b8;
-    }
-
-    .success-message {
-        background: #dcfce7;
-        border: 2px solid #86efac;
-        color: #166534;
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        display: none;
-    }
-
-    .lock-warning {
-        background: #fef2f2;
-        border: 2px solid #fca5a5;
-        color: #991b1b;
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        display: none;
-    }
-
-    @media (max-width: 1024px) {
-        .admin-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .statistics {
-            grid-template-columns: 1fr;
-        }
+    .unsuspend-btn:hover {
+        background: #059669;
+        transform: scale(1.05);
     }
 </style>
 
@@ -322,13 +299,8 @@
                 </div>
             </div>
 
-            <textarea
-                id="lockReason"
-                class="reason-input"
-                placeholder="Optional: Enter reason for locking..."
-                maxlength="500"
-                rows="3"
-            ></textarea>
+            <textarea id="lockReason" class="reason-input" placeholder="Optional: Enter reason for locking..."
+                maxlength="500" rows="3"></textarea>
 
             <div class="lock-controls">
                 <button class="btn btn-danger" id="lockBtn" onclick="lockMessaging()">
@@ -391,6 +363,25 @@
                 </div>
             </div>
         </div>
+
+        <!-- Suspended Users Management -->
+        <div class="admin-card suspended-section">
+            <div class="card-title">
+                🚫 Suspended Users Management
+            </div>
+
+            <div class="refresh-toolbar" style="margin-bottom: 20px;">
+                <button class="btn btn-primary" onclick="loadSuspendedUsers()" style="width: 100%;">
+                    🔄 Refresh Suspended List
+                </button>
+            </div>
+
+            <div class="suspended-list" id="suspendedUsersList">
+                <div class="empty-messages">
+                    No users currently suspended
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -399,10 +390,11 @@
     let viewingHidden = false;
 
     // Load initial state
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         refreshLockStatus();
         refreshStatistics();
         loadPublicMessages();
+        loadSuspendedUsers();
     });
 
     function refreshLockStatus() {
@@ -534,6 +526,73 @@
                     refreshStatistics();
                 });
         }
+    }
+
+    function loadSuspendedUsers() {
+        fetch('/api/admin/messaging/suspended-users')
+            .then(r => r.json())
+            .then(data => {
+                const list = document.getElementById('suspendedUsersList');
+                if (!data.users || data.users.length === 0) {
+                    list.innerHTML = '<div class="empty-messages">No users currently suspended</div>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                data.users.forEach(user => {
+                    const item = document.createElement('div');
+                    item.className = 'suspended-item';
+
+                    const avatar = user.profile_pic ? user.profile_pic : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name);
+
+                    item.innerHTML = `
+                        <img src="${avatar}" class="suspended-avatar" alt="${user.name}">
+                        <div class="suspended-info">
+                            <div class="suspended-name">${user.name}</div>
+                            <div class="suspended-role">${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</div>
+                        </div>
+                        <button class="unsuspend-btn" onclick="unsuspendUser(${user.id})">
+                            Unsuspend
+                        </button>
+                    `;
+                    list.appendChild(item);
+                });
+            });
+    }
+
+    function unsuspendUser(userId) {
+        fetch('/api/admin/messaging/unsuspend', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId })
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccess('User unsuspended successfully');
+                    loadSuspendedUsers();
+                } else {
+                    alert('Error unsuspending user: ' + data.message);
+                }
+            });
+    }
+
+    function suspendUser(userId, reason) {
+        fetch('/api/admin/messaging/suspend', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId, reason: reason })
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccess('User suspended successfully');
+                    loadSuspendedUsers();
+                    loadPublicMessages();
+                } else {
+                    alert('Error suspending user: ' + data.message);
+                }
+            });
     }
 
     function showSuccess(message) {

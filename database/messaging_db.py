@@ -80,11 +80,59 @@ def is_messaging_locked():
     return status['is_locked'] if status else False
 
 
+# ==================== USER SUSPENSION FUNCTIONS ====================
+
+def is_user_suspended(user_id):
+    """Check if a specific user is suspended"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT is_suspended FROM users WHERE id = ?', (user_id,))
+        result = cursor.fetchone()
+        return bool(result['is_suspended']) if result else False
+
+
+def suspend_user(user_id, admin_id, reason=''):
+    """Suspend a user from messaging"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE users
+            SET is_suspended = 1
+            WHERE id = ?
+        ''', (user_id,))
+        # We could also log this in a separate moderation_log table if it existed
+        return cursor.rowcount > 0
+
+
+def unsuspend_user(user_id):
+    """Unsuspend a user"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE users
+            SET is_suspended = 0
+            WHERE id = ?
+        ''', (user_id,))
+        return cursor.rowcount > 0
+
+
+def get_suspended_users():
+    """Get list of all suspended users"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, name, email, role, profile_pic
+            FROM users
+            WHERE is_suspended = 1
+        ''')
+        return [dict(row) for row in cursor.fetchall()]
+
+
 # ==================== PUBLIC MESSAGE FUNCTIONS ====================
 
 def send_public_message(sender_id, content):
     """Send a public message (visible to all)"""
-    if is_messaging_locked():
+    if is_messaging_locked() or is_user_suspended(sender_id):
         return None
 
     with get_db_connection() as conn:
@@ -169,6 +217,9 @@ def get_public_message_count():
 
 def send_private_message(sender_id, receiver_id, content):
     """Send a private message"""
+    if is_user_suspended(sender_id):
+        return None
+
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute('''

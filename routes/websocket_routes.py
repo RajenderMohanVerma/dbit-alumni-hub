@@ -13,7 +13,7 @@ from database.messaging_db import (
     send_private_message, mark_message_as_read, delete_private_message,
     get_conversation_messages, hide_all_public_messages, unhide_all_public_messages,
     send_public_message, is_messaging_locked, get_messaging_lock_status,
-    mark_conversation_as_read
+    mark_conversation_as_read, is_user_suspended
 )
 
 # Global dict to track online users
@@ -82,6 +82,10 @@ def setup_websocket_handlers(socketio):
 
         if is_messaging_locked():
             emit('error', {'message': 'Public messaging is locked by admin'})
+            return
+
+        if is_user_suspended(current_user.id):
+            emit('error', {'message': 'Your messaging privileges have been suspended'})
             return
 
         content = data.get('content', '').strip()
@@ -194,6 +198,10 @@ def setup_websocket_handlers(socketio):
         """Handle sending a private message"""
         if not current_user.is_authenticated:
             emit('error', {'message': 'Not authenticated'})
+            return
+
+        if is_user_suspended(current_user.id):
+            emit('error', {'message': 'Your messaging privileges have been suspended'})
             return
 
         receiver_id = data.get('receiver_id')

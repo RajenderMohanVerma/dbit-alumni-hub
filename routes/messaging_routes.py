@@ -20,7 +20,9 @@ from database.messaging_db import (
     get_unread_message_count,
     # Search and management
     search_messages, create_conversation, get_conversation_id,
-    get_messaging_statistics
+    get_messaging_statistics,
+    # Suspension functions
+    is_user_suspended, suspend_user, unsuspend_user, get_suspended_users
 )
 
 messaging_bp = Blueprint('messaging', __name__)
@@ -56,6 +58,12 @@ def send_public_msg():
         return jsonify({
             'success': False,
             'message': 'Public messaging is currently locked by admin'
+        }), 403
+
+    if is_user_suspended(current_user.id):
+        return jsonify({
+            'success': False,
+            'message': 'Your messaging privileges have been suspended'
         }), 403
 
     data = request.get_json()
@@ -144,6 +152,12 @@ def send_private_msg():
     data = request.get_json()
     receiver_id = data.get('receiver_id')
     content = data.get('content', '').strip()
+
+    if is_user_suspended(current_user.id):
+        return jsonify({
+            'success': False,
+            'message': 'Your messaging privileges have been suspended'
+        }), 403
 
     if not receiver_id:
         return jsonify({
@@ -453,4 +467,62 @@ def get_all_public_messages():
         'success': True,
         'messages': messages,
         'total': get_public_message_count()
+    }), 200
+
+
+@messaging_bp.route('/admin/messaging/suspend', methods=['POST'])
+@login_required
+def suspend_user_route():
+    """Suspend a user from messaging (admin only)"""
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+    data = request.get_json()
+    user_id = data.get('user_id')
+    reason = data.get('reason', '')
+
+    if not user_id:
+        return jsonify({'success': False, 'message': 'user_id is required'}), 400
+
+    success = suspend_user(user_id, current_user.id, reason)
+
+    if success:
+        return jsonify({'success': True, 'message': 'User suspended successfully'}), 200
+    else:
+        return jsonify({'success': False, 'message': 'Failed to suspend user or user not found'}), 404
+
+
+@messaging_bp.route('/admin/messaging/unsuspend', methods=['POST'])
+@login_required
+def unsuspend_user_route():
+    """Unsuspend a user (admin only)"""
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+    data = request.get_json()
+    user_id = data.get('user_id')
+
+    if not user_id:
+        return jsonify({'success': False, 'message': 'user_id is required'}), 400
+
+    success = unsuspend_user(user_id)
+
+    if success:
+        return jsonify({'success': True, 'message': 'User unsuspended successfully'}), 200
+    else:
+        return jsonify({'success': False, 'message': 'Failed to unsuspend user or user not found'}), 404
+
+
+@messaging_bp.route('/admin/messaging/suspended-users', methods=['GET'])
+@login_required
+def list_suspended_users():
+    """Get list of suspended users (admin only)"""
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+    users = get_suspended_users()
+
+    return jsonify({
+        'success': True,
+        'users': users
     }), 200

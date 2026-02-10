@@ -97,8 +97,6 @@
     </div>
 
     <!-- ===== NAVBAR ===== -->
-    <!-- ===== ADVANCED FLOATING NAVBAR ===== -->
-    <!-- ===== ADVANCED FLOATING NAVBAR ===== -->
     <nav class="navbar navbar-expand-lg navbar-floating fixed-top smart-scroll-nav nav-dark-mode" id="mainNavbar">
         <div class="container-fluid navbar-container">
             <a class="navbar-brand brand-premium" href="/">
@@ -108,9 +106,9 @@
                 <span class="brand-text">Alumni Hub</span>
             </a>
 
-
             <!-- Open Button -->
-            <button class="navbar-toggler custom-toggler" type="button" aria-controls="navbarNav" aria-expanded="false"
+            <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
                 aria-label="Toggle navigation" id="navbarToggler">
                 <div class="hamburger-lines">
                     <span class="line line1"></span>
@@ -120,173 +118,297 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                {% if not current_user.is_authenticated %}
-                <!-- Public View -->
-                <li class="nav-item">
-                    <a class="nav-link nav-pill-link" href="/">
-                        <i class="fas fa-home"></i> <span>Home</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link nav-pill-link" href="/about">
-                        <i class="fas fa-info-circle"></i> <span>About</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link nav-pill-link" href="/services">
-                        <i class="fas fa-briefcase"></i> <span>Services</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link nav-pill-link" href="/events">
-                        <i class="fas fa-calendar-alt"></i> <span>Events</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link nav-pill-link" href="/contact">
-                        <i class="fas fa-envelope"></i> <span>Contact</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-lg-2">
-                    <a class="nav-link nav-pill-link" href="/login">
-                        <i class="fas fa-key"></i> <span>Login</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-lg-2">
-                    <a class="btn btn-premium-gradient btn-glow" href="/register">
-                        <span>Get Started</span>
-                        <i class="fas fa-arrow-right ms-2 transition-icon"></i>
-                    </a>
-                </li>
-                {% else %}
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if not current_user.is_authenticated %}
+                    <!-- Public View -->
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/">
+                            <i class="fas fa-home"></i> <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/about">
+                            <i class="fas fa-info-circle"></i> <span>About</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/services">
+                            <i class="fas fa-briefcase"></i> <span>Services</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/events">
+                            <i class="fas fa-calendar-alt"></i> <span>Events</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/contact">
+                            <i class="fas fa-envelope"></i> <span>Contact</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <a class="nav-link nav-pill-link" href="/login">
+                            <i class="fas fa-key"></i> <span>Login</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <a class="btn btn-premium-gradient btn-glow" href="/register">
+                            <span>Get Started</span>
+                            <i class="fas fa-arrow-right ms-2 transition-icon"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <!-- Authenticated View -->
+                    {% if current_user.role == 'student' %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/student/dashboard">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/profile">
+                            <i class="fas fa-user"></i> My Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/network">
+                            <i class="fas fa-network-wired"></i> Network
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/messages">
+                            <i class="fas fa-comment-alt"></i> Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/mentorship">
+                            <i class="fas fa-user-graduate"></i> Mentorship
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/jobs">
+                            <i class="fas fa-briefcase"></i> Jobs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/events">
+                            <i class="fas fa-calendar-alt"></i> Events
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/upgrade">
+                            <i class="fas fa-crown"></i> Upgrade
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/notifications">
+                            <i class="fas fa-bell"></i> Notifications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/settings">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link text-danger" href="/logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                    {% elif current_user.role == 'alumni' %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/alumni/dashboard">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/profile">
+                            <i class="fas fa-user"></i> My Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/network">
+                            <i class="fas fa-network-wired"></i> Network
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/messages">
+                            <i class="fas fa-comment-alt"></i> Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/post-job">
+                            <i class="fas fa-plus-circle"></i> Post Jobs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/mentorship">
+                            <i class="fas fa-chalkboard-teacher"></i> Mentorship
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/events">
+                            <i class="fas fa-calendar-alt"></i> Events
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/spotlight">
+                            <i class="fas fa-star"></i> Spotlight
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/notifications">
+                            <i class="fas fa-bell"></i> Notifications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/settings">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link text-danger" href="/logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                    {% elif current_user.role == 'faculty' %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/faculty/dashboard">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/profile">
+                            <i class="fas fa-user"></i> My Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/network">
+                            <i class="fas fa-network-wired"></i> Network
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/messages">
+                            <i class="fas fa-comment-alt"></i> Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/announcements">
+                            <i class="fas fa-bullhorn"></i> Announcements
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/events">
+                            <i class="fas fa-calendar-alt"></i> Events
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/reports">
+                            <i class="fas fa-file-alt"></i> Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/notifications">
+                            <i class="fas fa-bell"></i> Notifications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/settings">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link text-danger" href="/logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                    {% elif current_user.role == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="{{ url_for('dashboard_admin') }}">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/admin/approve-requests">
+                            <i class="fas fa-check-double"></i> Approve
+                        </a>
+                    </li>
 
-                <!-- Student Navigation -->
-                {% if current_user.role == 'student' %}
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/student/dashboard"><i
-                            class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/profile"><i class="fas fa-user"></i> My
-                        Profile</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/network"><i
-                            class="fas fa-network-wired"></i> Network</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/messages"><i
-                            class="fas fa-comment-alt"></i> Messages</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/mentorship"><i
-                            class="fas fa-user-graduate"></i> Mentorship</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/jobs"><i class="fas fa-briefcase"></i>
-                        Jobs</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/events"><i
-                            class="fas fa-calendar-alt"></i> Events</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/upgrade"><i class="fas fa-crown"></i>
-                        Upgrade</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/notifications"><i class="fas fa-bell"></i>
-                        Notifications</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/settings"><i class="fas fa-cog"></i>
-                        Settings</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link text-danger" href="/logout"><i
-                            class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    <!-- Admin Tools Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-tools"></i> Management
+                        </a>
+                        <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="adminDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('admin_view_users', role='all') }}">
+                                    <i class="fas fa-users-cog me-2"></i> Users
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('admin_messaging_control') }}">
+                                    <i class="fas fa-comments me-2"></i> Messaging
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/admin/announcements">
+                                    <i class="fas fa-bullhorn me-2"></i> Announcements
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/admin/events">
+                                    <i class="fas fa-calendar-check me-2"></i> Events
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/admin/reports">
+                                    <i class="fas fa-file-invoice me-2"></i> Reports
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/admin/stats">
+                                    <i class="fas fa-chart-pie me-2"></i> Statistics
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
 
-                <!-- Alumni Navigation -->
-                {% elif current_user.role == 'alumni' %}
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/alumni/dashboard"><i
-                            class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/profile"><i class="fas fa-user"></i> My
-                        Profile</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/network"><i
-                            class="fas fa-network-wired"></i> Network</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/messages"><i
-                            class="fas fa-comment-alt"></i> Messages</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/post-job"><i
-                            class="fas fa-plus-circle"></i> Post Jobs</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/mentorship"><i
-                            class="fas fa-chalkboard-teacher"></i> Mentorship</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/events"><i
-                            class="fas fa-calendar-alt"></i> Events</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/spotlight"><i class="fas fa-star"></i>
-                        Spotlight</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/notifications"><i class="fas fa-bell"></i>
-                        Notifications</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/settings"><i class="fas fa-cog"></i>
-                        Settings</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link text-danger" href="/logout"><i
-                            class="fas fa-sign-out-alt"></i> Logout</a></li>
-
-                <!-- Faculty Navigation -->
-                {% elif current_user.role == 'faculty' %}
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/faculty/dashboard"><i
-                            class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/profile"><i class="fas fa-user"></i> My
-                        Profile</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/network"><i
-                            class="fas fa-network-wired"></i> Network</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/messages"><i
-                            class="fas fa-comment-alt"></i> Messages</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/announcements"><i
-                            class="fas fa-bullhorn"></i> Announcements</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/events"><i
-                            class="fas fa-calendar-alt"></i> Events</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/reports"><i class="fas fa-file-alt"></i>
-                        Reports</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/notifications"><i class="fas fa-bell"></i>
-                        Notifications</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/settings"><i class="fas fa-cog"></i>
-                        Settings</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link text-danger" href="/logout"><i
-                            class="fas fa-sign-out-alt"></i> Logout</a></li>
-
-                <!-- Admin Navigation -->
-                {% elif current_user.role == 'admin' %}
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/admin/dashboard"><i
-                            class="fas fa-chart-line"></i> Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/admin/users/all"><i
-                            class="fas fa-users-cog"></i> Manage Users</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/admin/approve-requests"><i
-                            class="fas fa-check-double"></i> Approve</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/admin/messaging_control"><i
-                            class="fas fa-comments"></i> Msg Ctrl</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/admin/announcements"><i
-                            class="fas fa-bullhorn"></i> Announcements</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/admin/reports"><i
-                            class="fas fa-file-invoice"></i> Reports</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/admin/events"><i
-                            class="fas fa-calendar-check"></i> Events</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/admin/stats"><i
-                            class="fas fa-chart-pie"></i> Stats</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link" href="/settings"><i class="fas fa-cog"></i>
-                        Settings</a></li>
-                <li class="nav-item"><a class="nav-link nav-pill-link text-danger" href="/logout"><i
-                            class="fas fa-sign-out-alt"></i> Logout</a></li>
-                {% endif %}
-
-                <!-- User Profile Dropdown -->
-                <li class="nav-item dropdown px-2 user-dropdown">
-                    <a class="nav-link user-pill dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="user-avatar">
-                            <span>{{ current_user.name[0] }}</span>
-                        </div>
-                        <span class="user-name d-none d-sm-inline">{{ current_user.name }}</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-premium" aria-labelledby="navbarDropdown">
-                        <div class="dropdown-header-custom">
-                            <span>Signed in as</span>
-                            <strong>{{ current_user.name }}</strong>
-                        </div>
-                        <li><a class="dropdown-item" href="/profile"><i class="fas fa-user"></i> My Profile</a></li>
-                        {% if current_user.role == 'student' %}
-                        <li><a class="dropdown-item" href="/upgrade"><i class="fas fa-crown"></i> Upgrade to Pro</a>
-                        </li>
-                        {% endif %}
-                        <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog"></i> Settings</a></li>
-                        <li><a class="dropdown-item" href="/change_password"><i class="fas fa-lock"></i> Change
-                                Password</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt"></i>
-                                Logout</a></li>
-                    </ul>
-                </li>
-                {% endif %}
+                    <!-- User Profile Dropdown -->
+                    <li class="nav-item dropdown px-2 user-dropdown">
+                        <a class="nav-link user-pill dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar">
+                                <span>{{ current_user.name[0] }}</span>
+                            </div>
+                            <span class="user-name d-none d-sm-inline">{{ current_user.name }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-premium" aria-labelledby="navbarDropdown">
+                            <div class="dropdown-header-custom">
+                                <span>Signed in as</span>
+                                <strong>{{ current_user.name }}</strong>
+                            </div>
+                            <li><a class="dropdown-item" href="/profile"><i class="fas fa-user"></i> My Profile</a></li>
+                            {% if current_user.role == 'student' %}
+                            <li><a class="dropdown-item" href="/upgrade"><i class="fas fa-crown"></i> Upgrade to Pro</a>
+                            </li>
+                            {% endif %}
+                            <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog"></i> Settings</a></li>
+                            <li><a class="dropdown-item" href="/change_password"><i class="fas fa-lock"></i> Change
+                                    Password</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt"></i>
+                                    Logout</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
 
@@ -311,6 +433,22 @@
                     <div class="mobile-quick-actions">
                         {% if current_user.role == 'admin' %}
                         <a href="/admin/dashboard" class="action-btn"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                        <a href="/admin/approve-requests" class="action-btn"><i class="fas fa-check-double"></i>
+                            Approve</a>
+                        <a href="/admin/users/all" class="action-btn"><i class="fas fa-users-cog"></i> Users</a>
+
+                        <!-- Mobile specific admin links container -->
+                        <div class="w-100 mt-3 d-grid gap-2">
+                            <a href="/admin/messaging_control" class="btn btn-sm btn-outline-light text-start">
+                                <i class="fas fa-comments me-2"></i> Messaging Control
+                            </a>
+                            <a href="/admin/announcements" class="btn btn-sm btn-outline-light text-start">
+                                <i class="fas fa-bullhorn me-2"></i> Announcements
+                            </a>
+                            <a href="/admin/reports" class="btn btn-sm btn-outline-light text-start">
+                                <i class="fas fa-file-invoice me-2"></i> Reports & Stats
+                            </a>
+                        </div>
                         {% elif current_user.role == 'alumni' %}
                         <a href="/alumni/dashboard" class="action-btn"><i class="fas fa-user-tie"></i> Dashboard</a>
                         {% elif current_user.role == 'student' %}
@@ -328,14 +466,69 @@
 
                 <div class="mobile-links-container">
                     <a href="/" class="mobile-nav-link" style="--delay: 0.2s"><i class="fas fa-home me-2"></i> Home</a>
-                    <a href="/about" class="mobile-nav-link" style="--delay: 0.3s"><i
+                    <a href="/about" class="mobile-nav-link" style="--delay: 0.25s"><i
                             class="fas fa-info-circle me-2"></i> About</a>
-                    <a href="/services" class="mobile-nav-link" style="--delay: 0.4s"><i
-                            class="fas fa-briefcase me-2"></i> Services</a>
-                    <a href="/events" class="mobile-nav-link" style="--delay: 0.45s"><i
+
+                    {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'student' %}
+                    <a href="/student/dashboard" class="mobile-nav-link" style="--delay: 0.3s"><i
+                            class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
+                    <a href="/network" class="mobile-nav-link" style="--delay: 0.35s"><i
+                            class="fas fa-network-wired me-2"></i> Network</a>
+                    <a href="/messages" class="mobile-nav-link" style="--delay: 0.4s"><i
+                            class="fas fa-comment-alt me-2"></i> Messages</a>
+                    <a href="/mentorship" class="mobile-nav-link" style="--delay: 0.45s"><i
+                            class="fas fa-user-graduate me-2"></i> Mentorship</a>
+                    <a href="/jobs" class="mobile-nav-link" style="--delay: 0.5s"><i class="fas fa-briefcase me-2"></i>
+                        Jobs</a>
+                    {% elif current_user.role == 'alumni' %}
+                    <a href="/alumni/dashboard" class="mobile-nav-link" style="--delay: 0.3s"><i
+                            class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
+                    <a href="/network" class="mobile-nav-link" style="--delay: 0.35s"><i
+                            class="fas fa-network-wired me-2"></i> Network</a>
+                    <a href="/messages" class="mobile-nav-link" style="--delay: 0.4s"><i
+                            class="fas fa-comment-alt me-2"></i> Messages</a>
+                    <a href="/post-job" class="mobile-nav-link" style="--delay: 0.45s"><i
+                            class="fas fa-plus-circle me-2"></i> Post Jobs</a>
+                    <a href="/mentorship" class="mobile-nav-link" style="--delay: 0.5s"><i
+                            class="fas fa-chalkboard-teacher me-2"></i> Mentorship</a>
+                    {% elif current_user.role == 'faculty' %}
+                    <a href="/faculty/dashboard" class="mobile-nav-link" style="--delay: 0.3s"><i
+                            class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
+                    <a href="/network" class="mobile-nav-link" style="--delay: 0.35s"><i
+                            class="fas fa-network-wired me-2"></i> Network</a>
+                    <a href="/messages" class="mobile-nav-link" style="--delay: 0.4s"><i
+                            class="fas fa-comment-alt me-2"></i> Messages</a>
+                    <a href="/announcements" class="mobile-nav-link" style="--delay: 0.45s"><i
+                            class="fas fa-bullhorn me-2"></i> Announcements</a>
+                    {% elif current_user.role == 'admin' %}
+                    <a href="{{ url_for('dashboard_admin') }}" class="mobile-nav-link" style="--delay: 0.3s"><i
+                            class="fas fa-chart-line me-2"></i> Dashboard</a>
+                    <a href="/admin/approve-requests" class="mobile-nav-link" style="--delay: 0.35s"><i
+                            class="fas fa-check-double me-2"></i> Approve</a>
+                    <a href="{{ url_for('admin_view_users', role='all') }}" class="mobile-nav-link"
+                        style="--delay: 0.4s"><i class="fas fa-users-cog me-2"></i> Users Management</a>
+                    <a href="{{ url_for('admin_messaging_control') }}" class="mobile-nav-link" style="--delay: 0.45s"><i
+                            class="fas fa-comments me-2"></i> Messaging Control</a>
+                    <a href="/admin/announcements" class="mobile-nav-link" style="--delay: 0.5s"><i
+                            class="fas fa-bullhorn me-2"></i> Announcements</a>
+                    <a href="/admin/events" class="mobile-nav-link" style="--delay: 0.55s"><i
+                            class="fas fa-calendar-check me-2"></i> Events</a>
+                    <a href="/admin/reports" class="mobile-nav-link" style="--delay: 0.6s"><i
+                            class="fas fa-file-invoice me-2"></i> Reports</a>
+                    <a href="/admin/stats" class="mobile-nav-link" style="--delay: 0.65s"><i
+                            class="fas fa-chart-pie me-2"></i> Statistics</a>
+                    {% endif %}
+                    <a href="/events" class="mobile-nav-link" style="--delay: 0.7s"><i
                             class="fas fa-calendar-alt me-2"></i> Events</a>
-                    <a href="/contact" class="mobile-nav-link" style="--delay: 0.5s"><i
+                    {% else %}
+                    <a href="/services" class="mobile-nav-link" style="--delay: 0.3s"><i
+                            class="fas fa-briefcase me-2"></i> Services</a>
+                    <a href="/events" class="mobile-nav-link" style="--delay: 0.35s"><i
+                            class="fas fa-calendar-alt me-2"></i> Events</a>
+                    <a href="/contact" class="mobile-nav-link" style="--delay: 0.4s"><i
                             class="fas fa-envelope me-2"></i> Contact</a>
+                    {% endif %}
                 </div>
 
                 {% if current_user.is_authenticated %}
@@ -454,16 +647,13 @@
                             <h5 class="footer-title">Information</h5>
                             <ul class="footer-links">
                                 <li><a href="{{ url_for('privacy_policy') }}" class="footer-link"><i
-                                            class="fas fa-chevron-right"></i> Privacy
-                                        Policy</a></li>
+                                            class="fas fa-chevron-right"></i> Privacy Policy</a></li>
                                 <li><a href="{{ url_for('terms_conditions') }}" class="footer-link"><i
-                                            class="fas fa-chevron-right"></i> Terms &
-                                        Conditions</a></li>
+                                            class="fas fa-chevron-right"></i> Terms & Conditions</a></li>
                                 <li><a href="{{ url_for('faq') }}" class="footer-link"><i
                                             class="fas fa-chevron-right"></i> FAQ</a></li>
                                 <li><a href="{{ url_for('report_issue') }}" class="footer-link"><i
-                                            class="fas fa-chevron-right"></i> Report
-                                        Issue</a></li>
+                                            class="fas fa-chevron-right"></i> Report Issue</a></li>
                             </ul>
                         </div>
                     </div>
@@ -492,6 +682,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Footer Bottom -->
         <div class="footer-bottom">
             <div class="container">
@@ -569,20 +760,21 @@
         });
 
         // Mobile Menu Toggle Logic
-        // Mobile Menu Toggle Logic
         const toggler = document.getElementById('navbarToggler');
         const overlay = document.getElementById('mobileMenuOverlay');
         const closeBtn = document.getElementById('closeMobileMenu');
         const mobileLinks = document.querySelectorAll('.mobile-nav-link');
 
         function toggleMenu() {
-            toggler.classList.toggle('active');
-            overlay.classList.toggle('active');
-            // Toggle body scroll
-            if (overlay.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
+            if (toggler && overlay) {
+                toggler.classList.toggle('active');
+                overlay.classList.toggle('active');
+                // Toggle body scroll
+                if (overlay.classList.contains('active')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
             }
         }
 
@@ -592,7 +784,7 @@
 
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
-                if (overlay.classList.contains('active')) {
+                if (overlay && overlay.classList.contains('active')) {
                     toggleMenu();
                 }
             });
@@ -601,7 +793,7 @@
         // Close menu when a link is clicked
         mobileLinks.forEach(link => {
             link.addEventListener('click', () => {
-                if (overlay.classList.contains('active')) {
+                if (overlay && overlay.classList.contains('active')) {
                     toggleMenu();
                 }
             });
@@ -656,21 +848,23 @@
         const scrollToTopBtn = document.getElementById('scrollToTopBtn');
 
         // Show/hide button based on scroll position
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                scrollToTopBtn.classList.add('show');
-            } else {
-                scrollToTopBtn.classList.remove('show');
-            }
-        });
-
-        // Smooth scroll to top on click
-        scrollToTopBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
+        if (scrollToTopBtn) {
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    scrollToTopBtn.classList.add('show');
+                } else {
+                    scrollToTopBtn.classList.remove('show');
+                }
             });
-        });
+
+            // Smooth scroll to top on click
+            scrollToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
     </script>
 
     <!-- Advanced Animations Library -->

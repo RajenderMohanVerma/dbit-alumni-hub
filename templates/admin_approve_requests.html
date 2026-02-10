@@ -3,84 +3,259 @@
 {% block title %}Approve Requests - Alumni Hub{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown">
-        <div>
-            <h1 class="fw-bold gradient-text display-5 mb-2">Pending Approvals</h1>
-            <p class="lead text-muted">Review and approve new alumni and faculty registrations.</p>
-        </div>
-        <div>
-            <span class="badge bg-warning text-dark p-2 fs-6 rounded-pill"><i class="fas fa-clock me-2"></i> 12
-                Pending</span>
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .admin-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+
+    /* Header Styling */
+    .approval-header {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        border-radius: 24px;
+        padding: 3rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 15px 35px rgba(217, 119, 6, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .approval-header::after {
+        content: '';
+        position: absolute;
+        top: -10%;
+        right: -5%;
+        width: 250px;
+        height: 250px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    /* Request Card */
+    .request-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        box-shadow: var(--card-shadow);
+    }
+
+    .request-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+        border-color: #f59e0b;
+    }
+
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        object-fit: cover;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-info {
+        flex: 1;
+    }
+
+    .user-info h5 {
+        margin-bottom: 0.25rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .user-info p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .detail-badge {
+        background: #f8fafc;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* Actions */
+    .action-group {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-approve {
+        background: #dcfce7;
+        color: #166534;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+    .btn-approve:hover {
+        background: #166534;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .btn-reject {
+        background: #fee2e2;
+        color: #991b1b;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+    .btn-reject:hover {
+        background: #991b1b;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    /* Empty State */
+    .empty-approval {
+        background: white;
+        border-radius: 24px;
+        padding: 5rem 2rem;
+        text-align: center;
+        box-shadow: var(--card-shadow);
+    }
+
+    .empty-icon {
+        font-size: 5rem;
+        color: #10b981;
+        margin-bottom: 1.5rem;
+        animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-15px);
+        }
+    }
+</style>
+
+<div class="admin-container">
+    <!-- Header -->
+    <div class="approval-header animate__animated animate__fadeInDown">
+        <div class="row align-items-center">
+            <div class="col-md-9">
+                <h1 class="fw-bold mb-2">Registration Verification</h1>
+                <p class="mb-0 opacity-75">Manual integrity check for new Alumni and Faculty members.</p>
+            </div>
+            <div class="col-md-3 text-md-end">
+                <span class="badge bg-white text-dark fw-bold fs-5 px-3 py-2" style="border-radius: 50px;">
+                    <i class="fas fa-user-clock me-2"></i> {{ users|length }} Pending
+                </span>
+            </div>
         </div>
     </div>
 
-    <!-- Requests Table -->
-    <div class="glass-card p-0 overflow-hidden animate__animated animate__fadeInUp">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="p-4 border-0">User</th>
-                        <th class="p-4 border-0">Role</th>
-                        <th class="p-4 border-0">Details</th>
-                        <th class="p-4 border-0">Date</th>
-                        <th class="p-4 border-0 text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Row 1 -->
-                    <tr>
-                        <td class="p-4">
-                            <div class="d-flex align-items-center">
-                                <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
-                                    style="width: 40px; height: 40px;">JS</div>
-                                <div>
-                                    <h6 class="mb-0 fw-bold">John Smith</h6>
-                                    <small class="text-muted">john.smith@example.com</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="p-4"><span class="badge bg-info-subtle text-info">Alumni</span></td>
-                        <td class="p-4">
-                            <small class="d-block text-muted">Batch: <strong>2023</strong></small>
-                            <small class="d-block text-muted">Dept: <strong>CSE</strong></small>
-                        </td>
-                        <td class="p-4 text-muted">Just now</td>
-                        <td class="p-4 text-end">
-                            <button class="btn btn-sm btn-success me-2" title="Approve"><i
-                                    class="fas fa-check"></i></button>
-                            <button class="btn btn-sm btn-danger" title="Reject"><i class="fas fa-times"></i></button>
-                        </td>
-                    </tr>
+    {% if users %}
+    <div class="row animate__animated animate__fadeIn">
+        <div class="col-12">
+            {% for user in users %}
+            <div class="request-card" id="user-row-{{ user['id'] }}">
+                <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&background=f59e0b&color=fff&rounded=true&bold=true"
+                    alt="" class="user-avatar">
 
-                    <!-- Row 2 -->
-                    <tr>
-                        <td class="p-4">
-                            <div class="d-flex align-items-center">
-                                <div class="avatar-sm bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
-                                    style="width: 40px; height: 40px;">MP</div>
-                                <div>
-                                    <h6 class="mb-0 fw-bold">Maria P</h6>
-                                    <small class="text-muted">maria.p@example.com</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="p-4"><span class="badge bg-warning-subtle text-warning text-dark">Faculty</span></td>
-                        <td class="p-4">
-                            <small class="d-block text-muted">Dept: <strong>ECE</strong></small>
-                            <small class="d-block text-muted">ID: <strong>FAC1029</strong></small>
-                        </td>
-                        <td class="p-4 text-muted">2 hours ago</td>
-                        <td class="p-4 text-end">
-                            <button class="btn btn-sm btn-success me-2" title="Approve"><i
-                                    class="fas fa-check"></i></button>
-                            <button class="btn btn-sm btn-danger" title="Reject"><i class="fas fa-times"></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                <div class="user-info">
+                    <h5>{{ user['name'] }}</h5>
+                    <p><i class="far fa-envelope me-1"></i> {{ user['email'] }}</p>
+                </div>
+
+                <div class="user-info d-none d-md-block">
+                    <div class="detail-badge">
+                        <i class="fas fa-tag"></i> {{ user['role']|capitalize }}
+                    </div>
+                    <div class="detail-badge ms-2">
+                        <i class="fas fa-info-circle"></i> {{ user['detail_summary'] }}
+                    </div>
+                </div>
+
+                <div class="action-group">
+                    <button class="btn-approve" onclick="handleAction({{ user['id'] }}, 'approve')">
+                        <i class="fas fa-check me-2"></i> Approve
+                    </button>
+                    <button class="btn-reject" onclick="handleAction({{ user['id'] }}, 'reject')">
+                        <i class="fas fa-times me-2"></i> Reject
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
+    {% else %}
+    <div class="empty-approval animate__animated animate__zoomIn">
+        <div class="empty-icon"><i class="fas fa-check-double"></i></div>
+        <h3 class="fw-bold text-dark">All Caught Up!</h3>
+        <p class="text-muted">There are no pending registration requests currently.</p>
+        <a href="/admin/dashboard" class="btn btn-primary px-4 fw-bold mt-3" style="border-radius: 12px;">Back to
+            Dashboard</a>
+    </div>
+    {% endif %}
 </div>
+
+<script>
+    function handleAction(userId, action) {
+        const card = document.getElementById(`user-row-${userId}`);
+        const buttons = card.querySelectorAll('button');
+
+        // Show loading state
+        buttons.forEach(b => b.disabled = true);
+        const originalHtml = card.innerHTML;
+
+        fetch(`/api/${action}-user/${userId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Animate removal
+                    card.classList.add('animate__animated', action === 'approve' ? 'animate__fadeOutRight' : 'animate__fadeOutLeft');
+                    setTimeout(() => {
+                        card.remove();
+                        if (document.querySelectorAll('.request-card').length === 0) {
+                            location.reload(); // Show empty state
+                        }
+                    }, 500);
+                } else {
+                    throw new Error(data.error);
+                }
+            })
+            .catch(err => {
+                alert('Approval Error: ' + err.message);
+                buttons.forEach(b => b.disabled = false);
+            });
+    }
+</script>
 {% endblock %}

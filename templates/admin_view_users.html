@@ -1,98 +1,406 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5 mb-5">
-    <div class="row mb-4">
-        <div class="col-lg-12">
-            <h2 class="mb-0">
-                {% if role == 'student' %}
-                <i class="fas fa-graduation-cap"></i> All Students
-                {% elif role == 'alumni' %}
-                <i class="fas fa-users"></i> All Alumni
-                {% elif role == 'faculty' %}
-                <i class="fas fa-chalkboard-user"></i> All Faculty
-                {% endif %}
-            </h2>
-            <small class="text-muted">Total: {{ users | length }} {{ role | capitalize }}(s)</small>
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .admin-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+
+    /* Header Styling */
+    .management-header {
+        background: var(--primary-gradient);
+        border-radius: 24px;
+        padding: 3rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 15px 35px rgba(99, 102, 241, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .management-header::after {
+        content: '';
+        position: absolute;
+        top: -20%;
+        right: -5%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    /* Tab Styling */
+    .role-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        background: #f1f5f9;
+        padding: 0.5rem;
+        border-radius: 16px;
+        width: fit-content;
+    }
+
+    .role-tab {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #64748b;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .role-tab.active {
+        background: white;
+        color: #4f46e5;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .role-tab:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.5);
+        color: #1e293b;
+    }
+
+    /* Main Card */
+    .users-card {
+        background: white;
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: var(--card-shadow);
+        border: 1px solid #f1f5f9;
+    }
+
+    /* Search & Filter Bar */
+    .search-wrapper {
+        position: relative;
+        flex: 1;
+        max-width: 450px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.8rem 1rem 0.8rem 3rem;
+        border-radius: 14px;
+        border: 2px solid #f1f5f9;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        background: white;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        outline: none;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1.2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+
+    /* Table Styling */
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 0.75rem;
+    }
+
+    .custom-table thead th {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        padding: 1rem 1.5rem;
+    }
+
+    .user-row {
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .user-row td {
+        background: #fff;
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        border-top: 1px solid #f1f5f9;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .user-row td:first-child {
+        border-left: 1px solid #f1f5f9;
+        border-top-left-radius: 16px;
+        border-bottom-left-radius: 16px;
+    }
+
+    .user-row td:last-child {
+        border-right: 1px solid #f1f5f9;
+        border-top-right-radius: 16px;
+        border-bottom-right-radius: 16px;
+    }
+
+    .user-row:hover {
+        transform: scale(1.005);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+    }
+
+    .user-row:hover td {
+        background: #fafafa;
+        border-color: #e2e8f0;
+    }
+
+    /* Avatar & Identifiers */
+    .member-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        object-fit: cover;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .member-info h6 {
+        margin: 0;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .member-info p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+
+    /* Badges */
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .status-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
+    /* Action Buttons */
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        border: none;
+        background: #f1f5f9;
+        color: #64748b;
+        text-decoration: none;
+    }
+
+    .btn-view:hover {
+        background: #dbeafe;
+        color: #4f46e5;
+    }
+
+    .btn-delete:hover {
+        background: #fee2e2;
+        color: #ef4444;
+    }
+
+    /* Empty State */
+    .empty-state {
+        padding: 5rem 2rem;
+        text-align: center;
+        background: #f8fafc;
+        border-radius: 20px;
+        border: 2px dashed #e2e8f0;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="admin-container">
+    <!-- Header -->
+    <div class="management-header animate__animated animate__fadeInDown">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="fw-bold mb-2">Member Management</h1>
+                <p class="mb-0 opacity-75">Directory and oversight for all registered system users.</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="display-6 fw-extrabold mb-0">{{ users|length }}</div>
+                <div class="text-uppercase small fw-bold opacity-75">Registered Users</div>
+            </div>
         </div>
     </div>
 
-    {% if users %}
-    <div class="table-responsive">
-        <table class="table table-hover table-striped shadow-sm">
-            <thead
-                class="table-{% if role == 'student' %}primary{% elif role == 'alumni' %}success{% elif role == 'faculty' %}warning{% endif %}">
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Status</th>
-                    <th>Registered</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>
-                        <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&size=32&background=0D6EFD&color=fff"
-                            class="rounded-circle me-2" alt="{{ user['name'] }}" style="width: 32px; height: 32px;">
-                        <strong>{{ user['name'] }}</strong>
-                    </td>
-                    <td>{{ user['email'] }}</td>
-                    <td>{{ user['phone'] or 'N/A' }}</td>
-                    <td>
-                        <span class="badge bg-success">Active</span>
-                    </td>
-                    <td>
-                        <small class="text-muted">{{ user['created_at'][:10] }}</small>
-                    </td>
-                    <td>
-                        {% if role == 'student' %}
-                        <a href="{{ url_for('student_profile', user_id=user['id']) }}"
-                            class="btn btn-sm btn-primary">View</a>
-                        {% elif role == 'alumni' %}
-                        <a href="{{ url_for('alumni_profile', user_id=user['id']) }}"
-                            class="btn btn-sm btn-success">View</a>
-                        {% elif role == 'faculty' %}
-                        <a href="{{ url_for('faculty_profile', user_id=user['id']) }}"
-                            class="btn btn-sm btn-warning">View</a>
-                        {% endif %}
-                        <button class="btn btn-sm btn-danger"
-                            onclick="confirmDelete({{ user['id'] }}, '{{ user['name'] }}')">Delete</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Navigation Tabs -->
+    <div class="role-tabs animate__animated animate__fadeInLeft" style="animation-delay: 0.1s;">
+        <a href="{{ url_for('admin_view_users', role='all') }}"
+            class="role-tab {% if role == 'all' %}active{% endif %}">
+            <i class="fas fa-users"></i> All Users
+        </a>
+        <a href="{{ url_for('admin_view_users', role='student') }}"
+            class="role-tab {% if role == 'student' %}active{% endif %}">
+            <i class="fas fa-graduation-cap"></i> Students
+        </a>
+        <a href="{{ url_for('admin_view_users', role='alumni') }}"
+            class="role-tab {% if role == 'alumni' %}active{% endif %}">
+            <i class="fas fa-user-tie"></i> Alumni
+        </a>
+        <a href="{{ url_for('admin_view_users', role='faculty') }}"
+            class="role-tab {% if role == 'faculty' %}active{% endif %}">
+            <i class="fas fa-chalkboard-teacher"></i> Faculty
+        </a>
     </div>
 
-    <!-- Custom Confirmation Modal -->
-    <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0" style="border-radius: 20px;">
-                <div class="modal-body p-4 text-center">
-                    <div class="mb-4">
-                        <i class="fas fa-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
-                    </div>
-                    <h3 class="fw-bold mb-2">Are you sure?</h3>
-                    <p class="text-muted mb-4">You are about to delete <span id="deleteUserName"
-                            class="fw-bold text-dark"></span>. This action cannot be undone.</p>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-danger btn-lg py-3" style="border-radius: 12px;" id="finalDeleteBtn">Yes,
-                            Delete User</button>
-                        <button class="btn btn-light btn-lg py-3" style="border-radius: 12px;"
-                            data-bs-dismiss="modal">Cancel</button>
-                    </div>
+    <!-- Tools Bar -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 animate__animated animate__fadeInUp"
+        style="animation-delay: 0.2s;">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="userSearch" class="search-input"
+                placeholder="Quick search by name, email or department...">
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary px-4 fw-bold" style="border-radius: 12px;"
+                onclick="location.reload()">
+                <i class="fas fa-sync-alt me-2"></i> Refresh
+            </button>
+            <button class="btn btn-primary px-4 fw-bold" style="border-radius: 12px;" onclick="window.print()">
+                <i class="fas fa-print me-2"></i> Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Users Table Container -->
+    <div class="users-card animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+        {% if users %}
+        <div class="table-responsive">
+            <table class="custom-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Identifier</th>
+                        <th>Joined Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr class="user-row">
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&background=6366f1&color=fff&rounded=true&bold=true"
+                                    alt="" class="member-avatar">
+                                <div class="member-info">
+                                    <h6>{{ user['name'] }}</h6>
+                                    <p>{{ user['email'] }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark fw-bold" style="border-radius: 8px;">
+                                {% if user['role'] == 'student' %}
+                                <i class="fas fa-graduation-cap text-primary me-1"></i> Student
+                                {% elif user['role'] == 'alumni' %}
+                                <i class="fas fa-user-tie text-warning me-1"></i> Alumni
+                                {% elif user['role'] == 'faculty' %}
+                                <i class="fas fa-chalkboard-teacher text-success me-1"></i> Faculty
+                                {% else %}
+                                <i class="fas fa-shield-alt text-danger me-1"></i> Admin
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-muted small">
+                                <i class="far fa-calendar-alt me-1"></i> {{ user['created_at'][:10] }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge status-active">
+                                <i class="fas fa-check-circle"></i> Verified
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% if user['role'] == 'student' %}{{ url_for('student_profile', user_id=user['id']) }}{% elif user['role'] == 'alumni' %}{{ url_for('alumni_profile', user_id=user['id']) }}{% else %}{{ url_for('faculty_profile', user_id=user['id']) }}{% endif %}"
+                                    class="btn-action btn-view" title="View Profile">
+                                    <i class="fas fa-expand-alt"></i>
+                                </a>
+                                {% if user['email'] != 'admindbit195@college.edu' %}
+                                <button class="btn-action btn-delete"
+                                    onclick="confirmDelete({{ user['id'] }}, '{{ user['name'] }}')"
+                                    title="Delete Member">
+                                    <i class="fas fa-user-slash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-box-open"></i></div>
+            <h4 class="fw-bold">No Users Found</h4>
+            <p class="text-muted">There are no {{ role }} registered in the system yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-header border-0 bg-danger text-white p-4">
+                <h5 class="modal-title fw-bold"><i class="fas fa-user-shield me-2"></i> Critical Action</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                </div>
+                <h4 class="fw-bold">Permanent Deletion</h4>
+                <p class="text-muted">Are you absolutely sure you want to delete <span id="deleteUserName"
+                        class="fw-bold text-dark"></span>? All associated data will be purged.</p>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button class="btn btn-danger btn-lg fw-bold" id="finalDeleteBtn"
+                        style="border-radius: 12px;">Confirm Deletion</button>
+                    <button class="btn btn-light btn-lg fw-bold" data-bs-dismiss="modal"
+                        style="border-radius: 12px;">Cancel Action</button>
                 </div>
             </div>
         </div>
     </div>
-    {% else %}
-    <div class="alert alert-info text-center">
-        <i class="fas fa-info-circle"></i> No {{ role }}(s) found.
-    </div>
-    {% endif %}
 </div>
 
 <script>
@@ -113,7 +421,7 @@
 
         const btn = this;
         btn.disabled = true;
-        btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Deleting...`;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Processing...`;
 
         fetch(`/api/delete-user/${userIdToDelete}`, {
             method: 'POST',
@@ -129,25 +437,22 @@
                 }
             })
             .catch(err => {
-                alert('Error: ' + err.message);
+                alert('Management Alert: ' + err.message);
                 btn.disabled = false;
-                btn.innerHTML = `Yes, Delete User`;
+                btn.innerHTML = `Confirm Deletion`;
             });
     });
+
+    // Real-time Search
+    document.getElementById('userSearch').addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.user-row');
+
+        rows.forEach(row => {
+            const rowText = row.innerText.toLowerCase();
+            row.style.display = rowText.includes(searchTerm) ? '' : 'none';
+        });
+    });
 </script>
-
-<style>
-    .table-primary {
-        background-color: #0D6EFD !important;
-    }
-
-    .table-success {
-        background-color: #198754 !important;
-    }
-
-    .table-warning {
-        background-color: #FFC107 !important;
-        color: #000 !important;
-    }
-</style>
+{% endblock %}
 {% endblock %}

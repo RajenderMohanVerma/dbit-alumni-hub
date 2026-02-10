@@ -65,10 +65,27 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        box-shadow: var-card-shadow;
+        box-shadow: var(--card-shadow);
         border: 1px solid #f1f5f9;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.8), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .stat-card:hover::before {
+        opacity: 1;
     }
 
     .stat-card:hover {
@@ -77,7 +94,7 @@
     }
 
     .stat-card.students {
-        border-left: 6px solid #3b82f6;
+        border-left: 6px solid #6366f1;
     }
 
     .stat-card.alumni {
@@ -102,21 +119,99 @@
         height: 60px;
         border-radius: 16px;
         background: #f8fafc;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover .stat-icon {
+        transform: scale(1.1) rotate(5deg);
+        background: white;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
     }
 
     .stat-number {
-        font-size: 2.4rem;
+        font-size: 2.6rem;
         font-weight: 800;
         color: #1e293b;
         margin: 0.5rem 0;
+        letter-spacing: -1px;
     }
 
     .stat-label {
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: #64748b;
-        font-weight: 600;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
+    }
+
+    /* System Status Badges */
+    .status-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .status-active::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+        }
+
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+    }
+
+    /* Action Center */
+    .action-btn-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        transition: all 0.3s ease;
+        margin-bottom: 0.75rem;
+        color: white;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid #f1f5f9;
+        height: 100%;
+    }
+
+    .action-card:hover {
+        background: #f8fafc;
+        transform: translateY(-5px);
+        border-color: #6366f1;
     }
 
     /* Chart Containers */
@@ -124,7 +219,7 @@
         background: white;
         border-radius: 24px;
         padding: 2rem;
-        box-shadow: var-card-shadow;
+        box-shadow: var(--card-shadow);
         margin-bottom: 2rem;
         border: 1px solid #f1f5f9;
     }
@@ -387,14 +482,25 @@
     <!-- Page Header -->
     <div class="page-header animate__animated animate__fadeInDown">
         <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1>👋 Hello, Admin!</h1>
-                <p>Welcome to your central control hub. Monitor growth and manage the community.</p>
-            </div>
-            <div class="col-md-4 text-md-end d-none d-md-block">
-                <div class="header-clock" id="digitalClock" style="font-size: 1.5rem; font-weight: 700; opacity: 0.9;">
+            <div class="col-lg-7">
+                <div class="d-flex align-items-center mb-3">
+                    <span class="status-active me-3">System Online</span>
+                    <span class="badge bg-white text-primary fw-bold"
+                        style="border-radius: 50px; padding: 0.5rem 1rem;">
+                        <i class="fas fa-shield-alt me-1"></i> SecurLink™ Active
+                    </span>
                 </div>
-                <p class="mb-0" id="currentDate" style="opacity: 0.8; font-size: 0.9rem;"></p>
+                <h1>👋 Hello, Admin!</h1>
+                <p>Advanced Command Center. Monitoring {{ (s_count + a_count + f_count) }} members across system.</p>
+            </div>
+            <div class="col-lg-5 text-lg-end">
+                <div class="d-none d-lg-block">
+                    <div class="header-clock" id="digitalClock"
+                        style="font-size: 2.5rem; font-weight: 800; line-height: 1; margin-bottom: 5px;">
+                    </div>
+                    <p class="mb-0 fw-bold" id="currentDate"
+                        style="opacity: 0.9; font-size: 1.1rem; letter-spacing: 1px;"></p>
+                </div>
             </div>
         </div>
     </div>
@@ -404,49 +510,93 @@
         <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
             <div class="stat-card students">
                 <div>
-                    <div class="stat-icon"><i class="fas fa-user-graduate text-primary"></i></div>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="stat-icon"><i class="fas fa-user-graduate text-primary"></i></div>
+                        <div class="text-success small fw-bold"><i class="fas fa-arrow-up"></i> 12%</div>
+                    </div>
                     <div class="stat-label">Students</div>
                     <div class="stat-number">{{ s_count }}</div>
                 </div>
-                <div class="progress mt-3" style="height: 6px;">
-                    <div class="progress-bar bg-primary" style="width: 75%"></div>
+                <div class="progress mt-3" style="height: 6px; background: #f1f5f9;">
+                    <div class="progress-bar bg-primary" style="width: 75%; border-radius: 50px;"></div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
             <div class="stat-card alumni">
                 <div>
-                    <div class="stat-icon"><i class="fas fa-user-tie text-warning"></i></div>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="stat-icon"><i class="fas fa-user-tie text-warning"></i></div>
+                        <div class="text-success small fw-bold"><i class="fas fa-arrow-up"></i> 8%</div>
+                    </div>
                     <div class="stat-label">Alumni</div>
                     <div class="stat-number">{{ a_count }}</div>
                 </div>
-                <div class="progress mt-3" style="height: 6px;">
-                    <div class="progress-bar bg-warning" style="width: 60%"></div>
+                <div class="progress mt-3" style="height: 6px; background: #f1f5f9;">
+                    <div class="progress-bar bg-warning" style="width: 60%; border-radius: 50px;"></div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
             <div class="stat-card faculty">
                 <div>
-                    <div class="stat-icon"><i class="fas fa-chalkboard-teacher text-success"></i></div>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="stat-icon"><i class="fas fa-chalkboard-teacher text-success"></i></div>
+                        <div class="text-danger small fw-bold"><i class="fas fa-arrow-down"></i> 2%</div>
+                    </div>
                     <div class="stat-label">Faculty</div>
                     <div class="stat-number">{{ f_count }}</div>
                 </div>
-                <div class="progress mt-3" style="height: 6px;">
-                    <div class="progress-bar bg-success" style="width: 45%"></div>
+                <div class="progress mt-3" style="height: 6px; background: #f1f5f9;">
+                    <div class="progress-bar bg-success" style="width: 45%; border-radius: 50px;"></div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
             <div class="stat-card funds">
                 <div>
-                    <div class="stat-icon"><i class="fas fa-calendar-check text-purple"></i></div>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="stat-icon"><i class="fas fa-calendar-check text-purple"></i></div>
+                        <div class="text-info small fw-bold"><i class="fas fa-bolt"></i> Peak</div>
+                    </div>
                     <div class="stat-label">Event Registrations</div>
                     <div class="stat-number">{{ event_total }}</div>
                 </div>
-                <div class="progress mt-3" style="height: 6px;">
-                    <div class="progress-bar bg-purple" style="width: 85%"></div>
+                <div class="progress mt-3" style="height: 6px; background: #f1f5f9;">
+                    <div class="progress-bar bg-purple" style="width: 85%; border-radius: 50px;"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Row -->
+    <div class="row g-4 mb-5 animate__animated animate__fadeInUp">
+        <div class="col-md-3">
+            <div class="action-card" onclick="location.href='/admin/announcements'">
+                <div class="action-btn-circle bg-primary"><i class="fas fa-bullhorn"></i></div>
+                <h6 class="fw-bold mb-1">Push Alert</h6>
+                <p class="small text-muted mb-0">Blast common news</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="action-card" onclick="location.href='/admin/events'">
+                <div class="action-btn-circle bg-success"><i class="fas fa-calendar-plus"></i></div>
+                <h6 class="fw-bold mb-1">New Event</h6>
+                <p class="small text-muted mb-0">Draft a new meetup</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="action-card" onclick="location.href='/admin/messaging_control'">
+                <div class="action-btn-circle bg-warning"><i class="fas fa-user-shield"></i></div>
+                <h6 class="fw-bold mb-1">Moderation</h6>
+                <p class="small text-muted mb-0">Check reported msgs</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="action-card" onclick="alert('Maintenance mode simulated: ON')">
+                <div class="action-btn-circle bg-danger"><i class="fas fa-pause-circle"></i></div>
+                <h6 class="fw-bold mb-1">Maintenance</h6>
+                <p class="small text-muted mb-0">System-wide pause</p>
             </div>
         </div>
     </div>
@@ -690,8 +840,15 @@
 
     // Initialize Charts and other functionality
     document.addEventListener('DOMContentLoaded', function () {
-        // Growth Chart
+        // --- Shared Premium Styles ---
+        const chartFontBase = { family: "'Outfit', 'Plus Jakarta Sans', sans-serif" };
+
+        // --- Growth Chart Implementation ---
         const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+        const gradPlacements = ctxGrowth.createLinearGradient(0, 0, 0, 400);
+        gradPlacements.addColorStop(0, 'rgba(99, 102, 241, 0.2)');
+        gradPlacements.addColorStop(1, 'rgba(168, 85, 247, 0)');
+
         new Chart(ctxGrowth, {
             type: 'line',
             data: {
@@ -700,49 +857,145 @@
             label: 'Placements',
             data: {{ chart_data.placements | tojson }},
         borderColor: '#6366f1',
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        backgroundColor: gradPlacements,
         fill: true,
         tension: 0.4,
-        borderWidth: 3
+        borderWidth: 3,
+        pointBackgroundColor: '#6366f1',
+        pointBorderColor: '#fff',
+        pointHoverRadius: 6
                 }, {
             label: 'Events',
             data: {{ chart_data.events | tojson }},
         borderColor: '#f59e0b',
-        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        backgroundColor: 'rgba(245, 158, 11, 0.05)',
         fill: true,
         tension: 0.4,
-        borderWidth: 3
+        borderWidth: 3,
+        pointBackgroundColor: '#f59e0b',
+        pointBorderColor: '#fff',
+        pointHoverRadius: 6
                 }]
             },
         options: {
         responsive: true,
-        plugins: { legend: { position: 'top' } },
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                align: 'end',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true,
+                    font: Object.assign({}, chartFontBase, { size: 12, weight: '600' })
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                padding: 12,
+                cornerRadius: 12,
+                titleFont: Object.assign({}, chartFontBase, { size: 14, weight: 'bold' }),
+                bodyFont: Object.assign({}, chartFontBase, { size: 13 })
+            }
+        },
         scales: {
-            y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
-            x: { grid: { display: false } }
+            y: {
+                beginAtZero: true,
+                grid: { borderDash: [5, 5], color: '#e2e8f0' },
+                ticks: { font: Object.assign({}, chartFontBase, { size: 11 }) }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { font: Object.assign({}, chartFontBase, { size: 11 }) }
+            }
         }
     }
         });
 
-    // User Mix Chart
+    // --- User Mix Chart Implementation ---
     const ctxUser = document.getElementById('userChart').getContext('2d');
+
+    // Doughnut Gradients
+    const gradStudent = ctxUser.createLinearGradient(0, 0, 0, 300);
+    gradStudent.addColorStop(0, '#6366f1');
+    gradStudent.addColorStop(1, '#a855f7');
+
+    const gradAlumni = ctxUser.createLinearGradient(0, 0, 0, 300);
+    gradAlumni.addColorStop(0, '#f59e0b');
+    gradAlumni.addColorStop(1, '#fbbf24');
+
+    const gradFaculty = ctxUser.createLinearGradient(0, 0, 0, 300);
+    gradFaculty.addColorStop(0, '#10b981');
+    gradFaculty.addColorStop(1, '#34d399');
+
+    const centerTextPlugin = {
+        id: 'centerText',
+        afterDraw: (chart) => {
+            const { ctx, chartArea: { left, top, width, height } } = chart;
+            ctx.save();
+            ctx.font = 'bold 28px Outfit';
+            ctx.fillStyle = '#1e293b';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+            ctx.fillText(total, left + width / 2, top + height / 2 - 5);
+
+            ctx.font = '700 12px Outfit';
+            ctx.fillStyle = '#64748b';
+            ctx.fillText('TOTAL USERS', left + width / 2, top + height / 2 + 18);
+            ctx.restore();
+        }
+    };
+
     new Chart(ctxUser, {
         type: 'doughnut',
         data: {
             labels: ['Students', 'Alumni', 'Faculty'],
             datasets: [{
                 data: [{{ s_count }}, {{ a_count }}, {{ f_count }}],
-        backgroundColor: ['#6366f1', '#f59e0b', '#10b981'],
-        hoverOffset: 12,
-        borderWidth: 0
+        backgroundColor: [gradStudent, gradAlumni, gradFaculty],
+        hoverOffset: 15,
+        borderWidth: 0,
+        spacing: 8
             }]
         },
+        plugins: [centerTextPlugin],
         options: {
-        cutout: '70%',
-        plugins: { legend: { position: 'bottom' } }
+        cutout: '75%',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true,
+                    font: Object.assign({}, chartFontBase, { size: 12, weight: '600' })
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                padding: 12,
+                cornerRadius: 12,
+                titleFont: Object.assign({}, chartFontBase, { size: 14, weight: 'bold' }),
+                bodyFont: Object.assign({}, chartFontBase, { size: 13 }),
+                callbacks: {
+                    label: function (context) {
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((context.raw / total) * 100).toFixed(1);
+                        return ` ${context.label}: ${context.raw} (${percentage}%)`;
+                    }
+                }
+            }
+        },
+        animation: {
+            animateScale: true,
+            animateRotate: true,
+            duration: 1500,
+            easing: 'easeOutQuart'
+        }
     }
     });
-
     // Clock Functionality
     const updateClock = () => {
         const now = new Date();

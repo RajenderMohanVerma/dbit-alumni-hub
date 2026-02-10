@@ -3,6 +3,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_socketio import SocketIO
 import random
+import secrets
+import string
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -93,17 +95,18 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 class User(UserMixin):
-    def __init__(self, id, name, email, role, profile_pic, is_verified=1):
+    def __init__(self, id, name, email, role, profile_pic, is_verified=1, is_suspended=0):
         self.id = id
         self.name = name
         self.email = email
         self.role = role
         self.profile_pic = profile_pic
         self.is_verified = is_verified
+        self.is_suspended = is_suspended
 
     @property
     def is_active(self):
-        return True
+        return not self.is_suspended
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -138,6 +141,8 @@ def init_db():
                 profile_pic TEXT,
                 is_verified BOOLEAN DEFAULT 0,
                 otp_code TEXT,
+                is_approved BOOLEAN DEFAULT 1,
+                is_suspended BOOLEAN DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -147,6 +152,19 @@ def init_db():
             c.execute("ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT 0")
             c.execute("UPDATE users SET is_verified = 1") # Auto-verify existing users
             print("✓ Added is_verified column to users")
+        except sqlite3.OperationalError:
+            pass # Column likely exists
+
+        try:
+            c.execute("ALTER TABLE users ADD COLUMN is_approved BOOLEAN DEFAULT 1")
+            c.execute("UPDATE users SET is_approved = 1") # Existing users approved
+            print("✓ Added is_approved column to users")
+        except sqlite3.OperationalError:
+            pass # Column likely exists
+
+        try:
+            c.execute("ALTER TABLE users ADD COLUMN is_suspended BOOLEAN DEFAULT 0")
+            print("✓ Added is_suspended column to users")
         except sqlite3.OperationalError:
             pass # Column likely exists
 
@@ -295,14 +313,24 @@ def init_db():
             )
         ''')
 
+        # Password Resets Table
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS password_resets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL,
+                otp TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
         # Check if admin exists
         admin_exists = c.execute("SELECT COUNT(*) FROM users WHERE role='admin'").fetchone()[0]
 
         # Create Admin if not exists
         if admin_exists == 0:
             pw = generate_password_hash("admindbit195@")
-            c.execute("INSERT INTO users (name, email, password, role, phone) VALUES (?, ?, ?, ?, ?)",
-                      ("Super Admin", "admindbit195@college.edu", pw, "admin", "0000000000"))
+            c.execute("INSERT INTO users (name, email, password, role, phone, is_verified) VALUES (?, ?, ?, ?, ?, ?)",
+                      ("Super Admin", "admindbit195@college.edu", pw, "admin", "0000000000", 1))
 
         conn.commit()
         print("Database initialized successfully!")
@@ -516,7 +544,17 @@ def login():
                     flash('Please verify your email address first.', 'warning')
                     return render_template('verify_otp.html', email=email)
 
-                user_obj = User(user['id'], user['name'], user['email'], user['role'], None, user['is_verified'])
+                # Check for Admin Approval
+                if user['is_approved'] == 0 and user['role'] != 'admin':
+                    flash('Your account is pending admin approval. Please wait for verification.', 'info')
+                    return redirect(url_for('login'))
+
+                # Check for Account Suspension
+                if user['is_suspended'] == 1:
+                    flash('Your account has been suspended by an admin for violation of community guidelines.', 'danger')
+                    return redirect(url_for('login'))
+
+                user_obj = User(user['id'], user['name'], user['email'], user['role'], None, user['is_verified'], user['is_suspended'])
                 login_user(user_obj)
                 if user['role'] == 'admin':
                     return redirect(url_for('dashboard_admin'))
@@ -594,8 +632,8 @@ def register():
                     flash('Faculty details are incomplete!', 'warning')
                     return redirect(url_for('register', role='faculty'))
 
-            # Generate OTP
-            otp = str(random.randint(100000, 999999))
+            # Generate Secure 6-digit OTP
+            otp = ''.join(secrets.choice(string.digits) for _ in range(6))
 
             # Store in Session
             session['temp_registration'] = {
@@ -661,6 +699,12 @@ def verify_otp():
     if 'temp_registration' in session and session['temp_registration']['email'] == email:
         temp_data = session['temp_registration']
         
+        # Check for OTP Expiry (10 minutes = 600 seconds)
+        if time.time() - temp_data['timestamp'] > 600:
+            session.pop('temp_registration', None)
+            flash('OTP has expired! Please register again.', 'danger')
+            return redirect(url_for('register'))
+
         if temp_data['otp'] == otp:
             # Create User in DB
             conn = None
@@ -669,8 +713,11 @@ def verify_otp():
                 c = conn.cursor()
                 
                 # Insert User
-                c.execute('INSERT INTO users (name, email, password, phone, role, is_verified, otp_code) VALUES (?, ?, ?, ?, ?, 1, NULL)',
-                         (temp_data['name'], temp_data['email'], temp_data['password_hash'], temp_data['phone'], temp_data['role']))
+                # Manual approval required for Alumni and Faculty
+                is_approved = 0 if temp_data['role'] in ['alumni', 'faculty'] else 1
+                
+                c.execute('INSERT INTO users (name, email, password, phone, role, is_verified, is_approved, otp_code) VALUES (?, ?, ?, ?, ?, 1, ?, NULL)',
+                         (temp_data['name'], temp_data['email'], temp_data['password_hash'], temp_data['phone'], temp_data['role'], is_approved))
                 conn.commit()
                 user_id = c.lastrowid
                 
@@ -715,6 +762,10 @@ def verify_otp():
                 # Clear Session
                 session.pop('temp_registration', None)
                 
+                if is_approved == 0:
+                    flash('Email verified! Your account is now pending admin approval.', 'info')
+                    return redirect(url_for('login'))
+
                 # Login
                 user_obj = User(user_id, temp_data['name'], temp_data['email'], role, None, 1)
                 login_user(user_obj)
@@ -746,7 +797,7 @@ def verify_otp():
         
         if user:
             if user['otp_code'] == otp:
-                # Success
+                # Success - verify user and clear OTP
                 conn.execute('UPDATE users SET is_verified = 1, otp_code = NULL WHERE id = ?', (user['id'],))
                 conn.commit()
                 
@@ -779,13 +830,51 @@ def verify_otp():
 @app.route('/resend-otp', methods=['POST'])
 def resend_otp():
     email = request.form.get('email')
+    
+    # 1. Handle New Registration (Session)
+    if 'temp_registration' in session and session['temp_registration']['email'] == email:
+        try:
+            new_otp = ''.join(secrets.choice(string.digits) for _ in range(6))
+            # Update session with new OTP and timestamp
+            session['temp_registration']['otp'] = new_otp
+            session['temp_registration']['timestamp'] = time.time()
+            session.modified = True
+            
+            # Send Email
+            msg = Message(
+                subject='Resend: Verify Your Email - Alumni Hub',
+                recipients=[email],
+                body=f'Your new verification code is: {new_otp}',
+                html=f'''
+                <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+                    <div style="background-color: white; padding: 30px; border-radius: 10px; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #1e3a8a; text-align: center;">Verify Your Email</h2>
+                        <p style="font-size: 16px; color: #333;">Here is your new One-Time Password (OTP) to verify your email address:</p>
+                        <div style="background-color: #f0f9ff; padding: 15px; border-radius: 5px; text-align: center; margin: 20px 0;">
+                            <h1 style="color: #0ea5e9; letter-spacing: 5px; margin: 0;">{new_otp}</h1>
+                        </div>
+                        <p style="font-size: 14px; color: #666; text-align: center;">This code is valid for 10 minutes.</p>
+                    </div>
+                </div>
+                '''
+            )
+            mail.send(msg)
+            flash('Verification code resent successfully!', 'success')
+            return render_template('verify_otp.html', email=email)
+            
+        except Exception as e:
+            print(f"Error resending OTP (Session): {e}")
+            flash('Failed to resend OTP. Please try again.', 'danger')
+            return render_template('verify_otp.html', email=email)
+
+    # 2. Handle Existing Users (DB)
     conn = None
     try:
         conn = get_db_connection()
         user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
         
         if user:
-            new_otp = str(random.randint(100000, 999999))
+            new_otp = ''.join(secrets.choice(string.digits) for _ in range(6))
             conn.execute('UPDATE users SET otp_code = ? WHERE id = ?', (new_otp, user['id']))
             conn.commit()
             
@@ -813,7 +902,8 @@ def resend_otp():
                 print(f"Error sending OTP: {e}")
                 flash('Failed to send OTP.', 'danger')
         else:
-            flash('User not found.', 'danger')
+            flash('User not found or session expired. Please register again.', 'danger')
+            return redirect(url_for('register'))
             
         return render_template('verify_otp.html', email=email)
     finally:
@@ -1663,8 +1753,8 @@ def forgot_password():
             user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
             
             if user:
-                # Generate OTP
-                otp = str(random.randint(100000, 999999))
+                # Generate Secure OTP
+                otp = ''.join(secrets.choice(string.digits) for _ in range(6))
                 
                 # Store OTP
                 conn.execute('INSERT INTO password_resets (email, otp) VALUES (?, ?)', (email, otp))
@@ -1752,7 +1842,16 @@ def verify_reset_otp():
             record = conn.execute('SELECT * FROM password_resets WHERE email = ? ORDER BY created_at DESC LIMIT 1', (email,)).fetchone()
             
             if record and record['otp'] == otp:
-                # Valid OTP
+                # Check expiry (10 mins)
+                otp_time = datetime.strptime(record['created_at'], '%Y-%m-%d %H:%M:%S')
+                if (datetime.now() - otp_time).total_seconds() > 600:
+                    flash('OTP has expired! Please request a new one.', 'danger')
+                    return redirect(url_for('forgot_password'))
+
+                # Valid OTP - Single use enforcement: delete the record
+                conn.execute('DELETE FROM password_resets WHERE id = ?', (record['id'],))
+                conn.commit()
+                
                 session['reset_email'] = email
                 flash('OTP Verified! Set your new password.', 'success')
                 return redirect(url_for('reset_password_final'))
@@ -3200,7 +3299,62 @@ def admin_approve_requests():
     if current_user.role != 'admin':
         flash('Access denied!', 'danger')
         return redirect(url_for('home'))
-    return render_template('admin_approve_requests.html')
+    
+    conn = get_db_connection()
+    # Fetch pending users with their profile details
+    pending_users = conn.execute('''
+        SELECT u.*, 
+               CASE 
+                   WHEN u.role = 'alumni' THEN ap.department || ' (' || ap.pass_year || ')'
+                   WHEN u.role = 'faculty' THEN fp.department || ' (' || fp.designation || ')'
+                   ELSE 'N/A'
+               END as detail_summary
+        FROM users u
+        LEFT JOIN alumni_profile ap ON u.id = ap.user_id
+        LEFT JOIN faculty_profile fp ON u.id = fp.user_id
+        WHERE u.is_approved = 0
+        ORDER BY u.created_at DESC
+    ''').fetchall()
+    conn.close()
+    
+    return render_template('admin_approve_requests.html', users=pending_users)
+
+@app.route('/api/approve-user/<int:user_id>', methods=['POST'])
+@login_required
+def approve_user(user_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': false, 'error': 'Unauthorized'}), 403
+        
+    conn = get_db_connection()
+    try:
+        conn.execute('UPDATE users SET is_approved = 1 WHERE id = ?', (user_id,))
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/reject-user/<int:user_id>', methods=['POST'])
+@login_required
+def reject_user(user_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': false, 'error': 'Unauthorized'}), 403
+        
+    conn = get_db_connection()
+    try:
+        # Delete user and their profile (profile tables have CASCADE or we manually delete if needed)
+        # Based on schema, we might need manual delete for profiles if not CASCADE
+        conn.execute('DELETE FROM student_profile WHERE user_id = ?', (user_id,))
+        conn.execute('DELETE FROM alumni_profile WHERE user_id = ?', (user_id,))
+        conn.execute('DELETE FROM faculty_profile WHERE user_id = ?', (user_id,))
+        conn.execute('DELETE FROM users WHERE id = ?', (user_id,))
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
 
 @app.route('/admin/events')
 @login_required
