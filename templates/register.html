@@ -8,7 +8,7 @@
     rel="stylesheet">
 
 <div class="position-relative overflow-hidden min-vh-100 d-flex justify-content-center py-5"
-    style="padding-top: 180px;">
+    style="padding-top: 100px !important;">
 
     <!-- Animated Mesh Background -->
     <div class="mesh-background">
@@ -42,9 +42,9 @@
                                 </div>
                             </div>
 
-                            <div class="p-5 d-flex flex-column h-100 position-relative z-1">
+                            <div class="p-4 d-flex flex-column h-100 position-relative z-1">
                                 <!-- Logo AREA -->
-                                <div class="mb-5">
+                                <div class="mb-4">
                                     <div
                                         class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-50 px-3 py-2 rounded-pill backdrop-blur-sm border border-secondary border-opacity-10 shadow-sm">
                                         <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
@@ -57,11 +57,11 @@
                                 </div>
 
                                 <!-- Main Content with Carousel -->
-                                <div class="my-auto py-4">
+                                <div class="my-auto py-3">
                                     <h1 class="display-6 fw-bold mb-4 leading-tight text-dark">Your gateway to
-                                        a<br><span class="text-gradient-primary"
+                                        a<br><span id="typing-text" class="text-gradient-primary fs-4"
                                             style="background: linear-gradient(to right, #0ea5e9, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Global
-                                            Network</span></h1>
+                                            Network</span><span class="cursor-blink text-primary">|</span></h1>
 
                                     <!-- Testimonial/Benefit Carousel -->
                                     <div id="brandingCarousel" class="carousel slide carousel-fade"
@@ -69,8 +69,9 @@
                                         <div class="carousel-inner">
                                             <!-- Slide 1 -->
                                             <div class="carousel-item active">
-                                                <div
-                                                    class="glass-card p-4 rounded-3 border border-secondary border-opacity-10 bg-white bg-opacity-60 shadow-sm">
+                                                <div class="glass-card p-4 rounded-3 border border-secondary border-opacity-10 bg-white bg-opacity-60 shadow-sm"
+                                                    data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare
+                                                    data-tilt-max-glare="0.2">
                                                     <i class="fas fa-users mb-3 text-info fs-4"></i>
                                                     <h5 class="fw-bold mb-2 text-dark">Build Connections</h5>
                                                     <p class="text-muted small mb-0">Reconnect with batchmates and
@@ -79,8 +80,9 @@
                                             </div>
                                             <!-- Slide 2 -->
                                             <div class="carousel-item">
-                                                <div
-                                                    class="glass-card p-4 rounded-3 border border-secondary border-opacity-10 bg-white bg-opacity-60 shadow-sm">
+                                                <div class="glass-card p-4 rounded-3 border border-secondary border-opacity-10 bg-white bg-opacity-60 shadow-sm"
+                                                    data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare
+                                                    data-tilt-max-glare="0.2">
                                                     <i class="fas fa-briefcase mb-3 text-warning fs-4"></i>
                                                     <h5 class="fw-bold mb-2 text-dark">Career Growth</h5>
                                                     <p class="text-muted small mb-0">Discover job opportunities,
@@ -89,8 +91,9 @@
                                             </div>
                                             <!-- Slide 3 -->
                                             <div class="carousel-item">
-                                                <div
-                                                    class="glass-card p-4 rounded-3 border border-secondary border-opacity-10 bg-white bg-opacity-60 shadow-sm">
+                                                <div class="glass-card p-4 rounded-3 border border-secondary border-opacity-10 bg-white bg-opacity-60 shadow-sm"
+                                                    data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare
+                                                    data-tilt-max-glare="0.2">
                                                     <i class="fas fa-university mb-3 text-success fs-4"></i>
                                                     <h5 class="fw-bold mb-2 text-dark">Give Back</h5>
                                                     <p class="text-muted small mb-0">Share your expertise, mentor
@@ -115,14 +118,16 @@
                                 </div>
 
                                 <!-- Footer / Stats -->
-                                <div class="mt-5 pt-4 border-top border-secondary border-opacity-10">
+                                <div class="mt-4 pt-3 border-top border-secondary border-opacity-10">
                                     <div class="row g-3">
                                         <div class="col-6">
-                                            <h4 class="fw-bold mb-0 text-dark">5,000+</h4>
+                                            <h4 class="fw-bold mb-0 text-dark"><span class="counter"
+                                                    data-target="5000">0</span>+</h4>
                                             <span class="text-muted small">Alumni Connected</span>
                                         </div>
                                         <div class="col-6">
-                                            <h4 class="fw-bold mb-0 text-dark">100+</h4>
+                                            <h4 class="fw-bold mb-0 text-dark"><span class="counter"
+                                                    data-target="100">0</span>+</h4>
                                             <span class="text-muted small">Partner Companies</span>
                                         </div>
                                     </div>
@@ -133,14 +138,24 @@
                                         </a>
                                     </div>
                                 </div>
-
-
-
                             </div>
                         </div>
 
                         <!-- RIGHT SIDE: Scrollable Form -->
                         <div class="col-lg-8 h-100 bg-white position-relative">
+
+                            <!-- Mobile Branding Header (Visible < lg) -->
+                            <div class="d-lg-none text-center pt-4 pb-2 position-relative z-3">
+                                <div
+                                    class="d-inline-flex align-items-center gap-2 bg-light px-3 py-2 rounded-pill border shadow-sm">
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                                        style="width: 24px; height: 24px;">
+                                        <i class="fas fa-graduation-cap text-white" style="font-size: 12px;"></i>
+                                    </div>
+                                    <span class="small fw-bold tracking-wide text-uppercase text-dark">DBIT Alumni
+                                        Hub</span>
+                                </div>
+                            </div>
 
                             <!-- Progress Bar -->
                             <div class="progress-container position-absolute top-0 start-0 w-100 z-3"
@@ -1046,8 +1061,139 @@
     document.head.appendChild(style);
 </script>
 
+<script>
+    // --- Advanced Branding Animations ---
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // 1. Typing Text Animation
+        const typingElement = document.getElementById('typing-text');
+        const phrases = ["Global Network", "Thriving Community", "Lifelong Connections", "Successful Career"];
+
+        // Initial State: Start fully typed to match HTML ("Global Network")
+        let phraseIndex = 0;
+        let charIndex = phrases[0].length;
+        let isDeleting = true; // Next action is deleting, but we wait first
+
+        function type() {
+            const currentPhrase = phrases[phraseIndex];
+            let typeSpeed = 100;
+
+            if (isDeleting) {
+                typingElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+                typeSpeed = 175; // Deletion speed
+            } else {
+                typingElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+                typeSpeed = 150; // Typing speed
+            }
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                // Typed full phrase -> Wait 4s
+                isDeleting = true;
+                typeSpeed = 4000;
+            } else if (isDeleting && charIndex === 0) {
+                // Deleted full phrase -> Wait 0.5s then start typing next
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typeSpeed = 500;
+            }
+
+            setTimeout(type, typeSpeed);
+        }
+
+        // Start logic: Wait 4s before the first delete action
+        if (typingElement) setTimeout(type, 4500);
+
+
+        // 2. Animated Number Counters
+        const counters = document.querySelectorAll('.counter');
+        const speed = 200; // The lower the slower
+
+        const animateCounters = () => {
+            counters.forEach(counter => {
+                const updateCount = () => {
+                    const target = +counter.getAttribute('data-target');
+                    const count = +counter.innerText;
+                    const inc = target / speed;
+
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count + inc);
+                        setTimeout(updateCount, 20);
+                    } else {
+                        counter.innerText = target.toLocaleString(); // Format with commas
+                    }
+                };
+                updateCount();
+            });
+        };
+
+        // Trigger counters when in view
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    observer.unobserve(entry.target); // Run once
+                }
+            });
+        });
+
+        if (document.querySelector('.mt-5')) {
+            observer.observe(document.querySelector('.mt-5')); // Observe the footer stats section
+        }
+
+
+        // 3. 3D Tilt Effect (Vanilla JS)
+        const cards = document.querySelectorAll('[data-tilt]');
+
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateX = ((y - centerY) / centerY) * -10; // Max tilt 10deg
+                const rotateY = ((x - centerX) / centerX) * 10;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+            });
+        });
+
+
+        // 4. Mouse Parallax for Blobs (Optimized)
+        let ticking = false;
+        document.addEventListener('mousemove', (e) => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const blobs = document.querySelectorAll('.blob-1, .blob-2');
+                    const x = (window.innerWidth - e.pageX * 2) / 100;
+                    const y = (window.innerHeight - e.pageY * 2) / 100;
+
+                    blobs.forEach((blob, index) => {
+                        const speed = index === 0 ? 2 : -2; // Opposite directions
+                        blob.style.transform = `translateX(${x * speed}px) translateY(${y * speed}px)`;
+                    });
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+    });
+</script>
+
 <style>
-    /* New Branding Section Styles */
+    /* New Branding Section Styles & Animations */
+
+    /* Blob Animations */
     .blob-1 {
         animation: float 10s infinite ease-in-out;
     }
@@ -1060,48 +1206,157 @@
 
         0%,
         100% {
-            transform: translate(0px, 0px);
+            transform: translate(0px, 0px) scale(1);
         }
 
         33% {
-            transform: translate(30px, -50px);
+            transform: translate(30px, -50px) scale(1.1);
         }
 
         66% {
-            transform: translate(-20px, 20px);
+            transform: translate(-20px, 20px) scale(0.9);
         }
     }
 
+    /* Glass Card Enhancements */
     .glass-card {
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        transition: transform 0.3s ease, background 0.3s ease;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid rgba(255, 255, 255, 0.4);
     }
 
     .glass-card:hover {
-        transform: translateY(-2px);
-        background: rgba(255, 255, 255, 0.08) !important;
+        transform: translateY(-8px) scale(1.02);
+        background: rgba(255, 255, 255, 0.85) !important;
+        /* Brighter on hover */
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        border-color: rgba(16, 185, 129, 0.3);
+        /* Subtle green border on hover */
     }
 
+    /* Carousel Entry Animations */
+    /* Only animate when the slide is ACTIVE */
+    .carousel-item.active .glass-card {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    .carousel-item.active .glass-card i {
+        animation: zoomIn 0.6s ease-out 0.2s forwards;
+        opacity: 0;
+    }
+
+    .carousel-item.active .glass-card h5 {
+        animation: fadeInUp 0.6s ease-out 0.3s forwards;
+        opacity: 0;
+    }
+
+    .carousel-item.active .glass-card p {
+        animation: fadeInUp 0.6s ease-out 0.4s forwards;
+        opacity: 0;
+    }
+
+    /* Keyframes */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes zoomIn {
+        from {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Text Graident */
     .text-gradient-primary {
         background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-size: 200% auto;
+        animation: gradientFlow 5s ease infinite;
     }
 
+    @keyframes gradientFlow {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    /* Carousel Indicators */
     .carousel-indicators button {
         opacity: 0.5;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
+        width: 10px !important;
+        height: 10px !important;
+        margin: 0 6px !important;
+        border: 2px solid transparent;
+        /* Expand feeling */
     }
 
     .carousel-indicators button.active {
         opacity: 1;
-        transform: scale(1.2);
+        transform: scale(1.3);
+        background-color: #10b981 !important;
+        /* Green active state */
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
     }
 
-    .backdrop-blur-sm {
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
+    /* Interactive Branding Logo Area */
+    .rounded-circle.bg-primary {
+        transition: transform 0.5s ease;
+    }
+
+    .rounded-circle.bg-primary:hover {
+        transform: rotate(360deg);
+        /* Playful Spin */
+    }
+
+    /* Cursor Blink */
+    .cursor-blink {
+        animation: blink 1s infinite;
+        font-weight: 100;
+        margin-left: 2px;
+        color: #0ea5e9;
+    }
+
+    @keyframes blink {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+    }
+
+    /* Smooth Parallax Transition */
+    .blob-1,
+    .blob-2 {
+        transition: transform 0.1s ease-out;
     }
 </style>
 {% endblock %}
