@@ -140,6 +140,67 @@
     color: white;
 }
 
+/* ===== NEW PREMIUM BRAND STYLING & ANIMATION ===== */
+.brand-text-premium {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.45rem;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #1e3a8a, #2291c1, #3b82f6, #1e3a8a);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    transition: 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    animation: gradientShift 6s ease infinite;
+}
+
+.nav-dark-mode .brand-text-premium {
+    background: linear-gradient(90deg, #f8fafc, #94a3b8, #cbd5e1, #f8fafc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 300% auto;
+}
+
+.brand-animate-rtl {
+    animation: slideRightToLeft 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards,
+        gradientShift 6s ease infinite;
+    opacity: 0;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes slideRightToLeft {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.navbar-brand:hover .brand-text-premium {
+    transform: scale(1.02);
+    filter: brightness(1.2);
+}
+
 /* ===== NAVIGATION LINKS ===== */
 .navbar-collapse {
     flex-grow: 1;
@@ -320,7 +381,7 @@
     height: 2.5px;
     width: 100%;
     border-radius: 10px;
-    background: #1e293b;
+    background: #000;
     transition: all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
 }
 
