@@ -65,6 +65,15 @@ def normalize_profile_pic(profile_pic, name='User'):
         return profile_pic
     return None
 
+@app.template_filter('initials')
+def get_initials(name):
+    if not name:
+        return '?'
+    parts = name.split()
+    if len(parts) >= 2:
+        return (parts[0][0] + parts[-1][0]).upper()
+    return name[0].upper()
+
 def send_email(to_email, subject, html_content):
     """
     Reliable email sending function with proper error handling
@@ -1296,7 +1305,7 @@ def dashboard_admin():
         # Fetch users with their profile data (department, batch/pass_year)
         users_query = """
             SELECT 
-                u.id, u.name, u.email, u.role, u.created_at,
+                u.id, u.name, u.email, u.role, u.created_at, u.profile_pic,
                 COALESCE(s.department, a.department, f.department, 'N/A') as department,
                 COALESCE(s.semester, a.pass_year, NULL) as batch_info,
                 u.role as user_role
@@ -2181,6 +2190,68 @@ def admin_registrations():
     except Exception as e:
         flash(f'Error: {str(e)}', 'danger')
         return redirect(url_for('dashboard_admin'))
+    finally:
+        if conn:
+            conn.close()
+
+@app.route('/admin/export/registrations')
+@login_required
+def admin_export_registrations():
+    """Download all registration logs as a professional CSV community matrix"""
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized access to encrypted data'}), 403
+
+    import csv
+    from io import StringIO
+    from flask import make_response
+
+    conn = None
+    try:
+        conn = get_db_connection()
+        c = conn.cursor()
+        
+        # Fetch all registration records
+        c.execute('SELECT * FROM registration_log ORDER BY registered_at DESC')
+        rows = c.fetchall()
+
+        # Prepare CSV Buffer
+        output = StringIO()
+        writer = csv.writer(output)
+
+        # Header Definition
+        writer.writerow([
+            'Record ID', 'Full Name', 'Email Address', 'Primary Phone', 
+            'System Classification', 'Core Department', 'Academic Degree', 
+            'Temporal Stamp (Registration)'
+        ])
+
+        # Data Row Mapping
+        for row in rows:
+            writer.writerow([
+                row['id'],
+                row['name'],
+                row['email'],
+                row['phone'],
+                row['role'].upper() if row['role'] else 'N/A',
+                row['department'] or 'General',
+                row['degree'] or 'N/A',
+                row['registered_at']
+            ])
+
+        csv_data = output.getvalue()
+        response = make_response(csv_data)
+        
+        # Set headers for professional download
+        filename = f"community_matrix_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+        response.headers["Content-type"] = "text/csv; charset=utf-8"
+        
+        return response
+
+    except Exception as e:
+        print(f"Export Error: {e}")
+        flash(f"System Error during matrix orchestration: {str(e)}", "danger")
+        return redirect(url_for('admin_registrations'))
     finally:
         if conn:
             conn.close()

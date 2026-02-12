@@ -6,82 +6,139 @@
     rel="stylesheet">
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
     :root {
-        --primary-glass: rgba(255, 255, 255, 0.9);
-        --accent-indigo: #6366f1;
-        --accent-blue: #0ea5e9;
-        --text-dark: #1e293b;
-        --text-muted: #64748b;
+        --terminal-bg: #030712;
+        --accent-primary: #6366f1;
+        --accent-secondary: #a855f7;
+        --accent-success: #10b981;
+        --accent-warning: #f59e0b;
+        --accent-danger: #ef4444;
+        --glass-bg: rgba(15, 23, 42, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --text-dim: #94a3b8;
     }
 
-    .premium-admin-base {
-        min-height: 100vh;
-        background: radial-gradient(circle at top right, #f8fafc 0%, #f1f5f9 100%);
-        padding: 100px 20px 40px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-
-    .header-section {
-        margin-bottom: 40px;
-        animation: fadeInDown 0.8s ease;
-    }
-
-    .header-title {
+    body {
+        background: var(--terminal-bg);
+        color: white;
         font-family: 'Outfit', sans-serif;
-        font-weight: 800;
-        font-size: 2.8rem;
-        background: linear-gradient(135deg, #1e3a8a 0%, #6366f1 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 10px;
+        overflow-x: hidden;
     }
 
+    /* --- Background Layer --- */
+    .premium-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+        z-index: -2;
+    }
+
+    .mesh-gradient {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .mesh-ball {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.15;
+        animation: floatOrb 20s infinite alternate;
+    }
+
+    @keyframes floatOrb {
+        0% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        100% {
+            transform: translate(100px, 50px) scale(1.1);
+        }
+    }
+
+    /* --- Base Glass Card --- */
     .glass-card {
-        background: var(--primary-glass);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        border-radius: 28px;
-        padding: 30px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-        margin-bottom: 30px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .user-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 120px 2rem 4rem;
+    }
+
+    /* --- Header Matrix --- */
+    .matrix-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .matrix-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(to right, #fff, #94a3b8);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -1px;
     }
 
     .role-navbar {
         display: flex;
-        gap: 12px;
-        background: #f1f5f9;
-        padding: 6px;
-        border-radius: 18px;
+        gap: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 8px;
+        border-radius: 20px;
         width: fit-content;
-        margin: 0 auto 40px;
+        margin: 2rem auto 4rem;
+        border: 1px solid var(--glass-border);
     }
 
     .role-nav-link {
-        padding: 10px 24px;
+        padding: 12px 24px;
         border-radius: 14px;
         text-decoration: none;
-        color: var(--text-muted);
+        color: var(--text-dim);
         font-weight: 700;
-        font-size: 0.95rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.9rem;
+        transition: 0.3s;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
 
     .role-nav-link.active {
-        background: white;
-        color: var(--accent-indigo);
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
-        transform: scale(1.02);
+        background: var(--accent-primary);
+        color: white;
+        box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
     }
 
+    /* --- Search Dock --- */
     .search-dock {
         display: flex;
-        gap: 15px;
-        margin-bottom: 30px;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
     }
 
     .dock-input-wrapper {
@@ -91,18 +148,20 @@
 
     .dock-input {
         width: 100%;
-        padding: 14px 20px 14px 50px;
-        border-radius: 16px;
-        border: 2px solid #f1f5f9;
-        background: white;
+        padding: 16px 20px 16px 55px;
+        border-radius: 20px;
+        border: 1px solid var(--glass-border);
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
         font-weight: 500;
-        transition: all 0.3s;
+        transition: 0.3s;
     }
 
     .dock-input:focus {
-        border-color: var(--accent-indigo);
-        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        border-color: var(--accent-primary);
+        background: rgba(255, 255, 255, 0.1);
         outline: none;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
     }
 
     .dock-icon {
@@ -110,36 +169,11 @@
         left: 20px;
         top: 50%;
         transform: translateY(-50%);
-        color: #94a3b8;
+        color: var(--accent-primary);
+        font-size: 1.2rem;
     }
 
-    .btn-premium {
-        padding: 12px 24px;
-        border-radius: 14px;
-        font-weight: 700;
-        transition: all 0.3s;
-        border: none;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .btn-indigo {
-        background: var(--accent-indigo);
-        color: white;
-    }
-
-    .btn-white {
-        background: white;
-        border: 1px solid #e2e8f0;
-        color: var(--text-dark);
-    }
-
-    .btn-indigo:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
-    }
-
+    /* --- Premium Table --- */
     .premium-table {
         width: 100%;
         border-collapse: separate;
@@ -147,58 +181,38 @@
     }
 
     .premium-table thead th {
-        padding: 15px 25px;
-        color: var(--text-muted);
-        font-weight: 800;
+        color: var(--text-dim);
+        font-weight: 600;
         text-transform: uppercase;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         letter-spacing: 1px;
+        padding: 1rem 1.5rem;
+        border: none;
     }
 
-    .user-row {
-        background: white;
-        transition: all 0.3s;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    .premium-table tbody tr {
+        background: rgba(255, 255, 255, 0.03);
+        transition: 0.3s;
     }
 
-    .user-row:hover {
+    .premium-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.07);
         transform: scale(1.005);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.06);
     }
 
-    .user-row td {
-        padding: 20px 25px;
+    .premium-table tbody td {
+        padding: 1.5rem;
+        border: none;
         vertical-align: middle;
     }
 
-    .user-row td:first-child {
-        border-top-left-radius: 20px;
-        border-bottom-left-radius: 20px;
+    .premium-table tbody tr td:first-child {
+        border-radius: 16px 0 0 16px;
+        border-left: 2px solid transparent;
     }
 
-    .user-row td:last-child {
-        border-top-right-radius: 20px;
-        border-bottom-right-radius: 20px;
-    }
-
-    .u-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 14px;
-        object-fit: cover;
-        border: 2px solid white;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .u-name {
-        font-weight: 800;
-        color: var(--text-dark);
-        display: block;
-    }
-
-    .u-email {
-        font-size: 0.85rem;
-        color: var(--text-muted);
+    .premium-table tbody tr td:last-child {
+        border-radius: 0 16px 16px 0;
     }
 
     .role-pill {
@@ -208,511 +222,431 @@
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .pill-student {
+        background: rgba(99, 102, 241, 0.1);
+        color: #818cf8;
+    }
+
+    .pill-alumni {
+        background: rgba(245, 158, 11, 0.1);
+        color: #fbbf24;
+    }
+
+    .pill-faculty {
+        background: rgba(16, 185, 129, 0.1);
+        color: #34d399;
+    }
+
+    .pill-admin {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+    .action-circle {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        transition: 0.3s;
+        border: 1px solid var(--glass-border);
+    }
+
+    .action-circle:hover {
+        background: var(--accent-primary);
+        transform: scale(1.1);
+        color: white !important;
+    }
+
+    .action-redact:hover {
+        background: var(--accent-danger);
+    }
+
+    /* --- Status Badge --- */
+    .status-badge {
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 4px 12px;
+        border-radius: 20px;
         display: inline-flex;
         align-items: center;
         gap: 6px;
     }
 
-    .pill-student {
-        background: #eff6ff;
-        color: #1e40af;
-    }
-
-    .pill-alumni {
-        background: #fff7ed;
-        color: #9a3412;
-    }
-
-    .pill-faculty {
-        background: #f0fdf4;
-        color: #166534;
-    }
-
-    .pill-admin {
-        background: #fef2f2;
-        color: #991b1b;
-    }
-
-    .status-badge {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: #10b981;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
     .status-pending {
-        color: #f59e0b;
         background: rgba(245, 158, 11, 0.1);
-        padding: 4px 10px;
-        border-radius: 20px;
+        color: var(--accent-warning);
     }
 
     .status-verified {
-        color: #10b981;
         background: rgba(16, 185, 129, 0.1);
-        padding: 4px 10px;
-        border-radius: 20px;
+        color: var(--accent-success);
     }
 
-    .row-actions {
-        display: flex;
-        gap: 8px;
-        justify-content: flex-end;
+    /* --- Print Optimization --- */
+    .print-only-header {
+        display: none;
     }
 
-    .action-circle {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f8fafc;
-        color: var(--text-muted);
-        transition: all 0.2s;
-        border: 1px solid #f1f5f9;
-    }
-
-    .action-circle:hover {
-        background: var(--accent-indigo);
-        color: white;
-        transform: scale(1.1);
-        border-color: var(--accent-indigo);
-    }
-
-    .action-delete:hover {
-        background: #ef4444;
-        border-color: #ef4444;
-    }
-
-    @keyframes fadeInDown {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* PRINT STYLES - INTELLIGENCE EXPORT */
     @media print {
         @page {
-            size: A4;
-            margin: 10mm;
-        }
-
-        html,
-        body {
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
+            margin: 1.5cm;
+            size: auto;
         }
 
         body {
             background: white !important;
             color: black !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            font-family: 'Outfit', sans-serif !important;
         }
 
-        /* Hide UI Elements */
-        #mainNavbar,
-        .footer-custom,
+        .premium-bg,
+        .mesh-gradient,
+        .mesh-ball,
         .role-navbar,
         .search-dock,
-        .row-actions,
-        .btn,
-        .alert,
-        #scrollToTopBtn,
-        .mobile-menu-overlay,
-        .header-section p,
-        .page-header-actions {
+        .action-circle,
+        .text-end,
+        th:last-child,
+        td:last-child,
+        .btn-sync {
             display: none !important;
         }
 
-        /* Layout Adjustments */
-        .premium-admin-base {
-            padding: 0 !important;
-            margin: 0 !important;
-            background: white !important;
-            min-height: 0 !important;
-            height: auto !important;
-        }
-
-        .container-fluid {
+        .user-container {
             padding: 0 !important;
             margin: 0 !important;
             max-width: 100% !important;
-            width: 100% !important;
+            position: relative !important;
+            top: 0 !important;
         }
 
         .glass-card {
             background: white !important;
-            border: none !important;
+            border: 1px solid #eee !important;
             box-shadow: none !important;
-            padding: 0 !important;
             backdrop-filter: none !important;
-        }
-
-        /* Header Restyling for Print */
-        .header-section {
-            margin-bottom: 20px !important;
-            text-align: left !important;
-            border-bottom: 2px solid #000;
-            padding-bottom: 15px;
-            display: flex !important;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .header-title {
-            font-size: 24pt !important;
-            background: none !important;
-            -webkit-text-fill-color: black !important;
-            color: black !important;
-            margin: 0 !important;
-            display: none;
-            /* We use the custom print header instead */
-        }
-
-        /* Custom Print Header */
-        .print-header {
-            display: flex !important;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #1e3a8a;
-            padding-bottom: 20px;
-        }
-
-        .print-brand {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .print-logo-box {
-            width: 60px;
-            height: 60px;
-            background: #1e3a8a !important;
-            color: white !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            border-radius: 8px;
-        }
-
-        .print-title h1 {
-            font-size: 22pt;
-            font-weight: 800;
-            color: #1e3a8a !important;
-            margin: 0;
-            line-height: 1.2;
-            font-family: 'Outfit', sans-serif;
-        }
-
-        .print-title p {
-            font-size: 10pt;
-            color: #64748b !important;
-            margin: 0;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .print-meta {
-            text-align: right;
-            font-size: 9pt;
-            color: #475569 !important;
-        }
-
-        /* Table Styling */
-        .table-responsive {
-            overflow: visible !important;
-        }
-
-        .premium-table {
-            width: 100% !important;
-            border-collapse: collapse !important;
-            font-size: 10pt !important;
-        }
-
-        .premium-table thead th {
-            background-color: #f1f5f9 !important;
-            color: #0f172a !important;
-            border-bottom: 2px solid #cbd5e1 !important;
-            padding: 10px !important;
-            font-weight: 800 !important;
-        }
-
-        .user-row {
-            box-shadow: none !important;
-            border-bottom: 1px solid #e2e8f0 !important;
-            page-break-inside: avoid;
-        }
-
-        .user-row td {
-            padding: 12px 10px !important;
-            border-bottom: 1px solid #e2e8f0;
-            vertical-align: middle !important;
+            padding: 0 !important;
             border-radius: 0 !important;
         }
 
-        /* Hide Avatar in print to save ink/space or keep it small */
-        .u-avatar {
-            width: 30px !important;
-            height: 30px !important;
-            border: 1px solid #cbd5e1 !important;
-            box-shadow: none !important;
+        .matrix-title {
+            background: none !important;
+            -webkit-text-fill-color: black !important;
+            color: black !important;
+            font-size: 2.2rem !important;
+            text-align: left !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .matrix-header p {
+            color: #666 !important;
+            text-align: left !important;
+        }
+
+        .print-only-header {
+            display: block !important;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .premium-table {
+            border-spacing: 0 !important;
+            width: 100% !important;
+        }
+
+        .premium-table tbody tr {
+            background: white !important;
+            border-bottom: 1px solid #eee !important;
+            page-break-inside: avoid;
+        }
+
+        .premium-table thead th {
+            color: black !important;
+            border-bottom: 2px solid #333 !important;
+            padding: 10px 5px !important;
+        }
+
+        .premium-table tbody td {
+            color: #333 !important;
+            padding: 10px 5px !important;
+            border-bottom: 1px solid #ddd !important;
         }
 
         .role-pill {
-            border: 1px solid #e2e8f0;
-            background: white !important;
-            color: black !important;
-            padding: 4px 8px !important;
+            background: #f0f0f0 !important;
+            color: #000 !important;
+            border: 1px solid #ccc !important;
+            padding: 2px 8px !important;
         }
 
         .status-badge {
             background: none !important;
+            color: #000 !important;
+            border: 1px solid #ddd !important;
+            font-size: 0.7rem !important;
+        }
+
+        .text-white {
             color: black !important;
+        }
+
+        .text-dim {
+            color: #555 !important;
+        }
+
+        /* Aggressive Print Resets */
+        header,
+        footer,
+        nav,
+        .navbar,
+        .footer-custom,
+        .scroll-progress-container,
+        #scrollToTopBtn,
+        .alerts-container,
+        .mobile-menu-overlay,
+        .particle-canvas {
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
             padding: 0 !important;
         }
 
-        /* Hide the Command column header and cells */
-        .premium-table thead th:last-child,
-        .user-row td:last-child {
-            display: none !important;
-        }
-
-        /* Footer for print */
-        .print-footer {
+        .main-wrapper {
+            margin: 0 !important;
+            padding: 0 !important;
             display: block !important;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 8pt;
-            color: #94a3b8 !important;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 10px;
         }
-    }
 
-    /* Hide print elements on screen */
-    .print-header,
-    .print-footer {
-        display: none;
+        .identity-avatar {
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .initials-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #4f46e5 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            border: 2px solid var(--accent-primary);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+            text-transform: uppercase;
+        }
+
+        /* Prevent extra pages */
+        html,
+        body {
+            height: auto !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            background: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
     }
 </style>
 
-<div class="premium-admin-base">
-    <div class="container-fluid">
 
-        <!-- PRINT HEADER (Visible only in print) -->
-        <div class="print-header">
-            <div class="print-brand">
-                <div class="print-logo-box">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
-                <div class="print-title">
-                    <h1>ALUMNI INTELLIGENCE</h1>
-                    <p>CONFIDENTIAL DIRECTORATE REPORT</p>
-                </div>
-            </div>
-            <div class="print-meta">
-                <div><strong>GENERATED:</strong> <span id="printDate"></span></div>
-                <div><strong>OFFICER:</strong> {{ current_user.name }}</div>
-                <div><strong>REF:</strong> DBIT-ADMIN-EXPORT</div>
-            </div>
+<!-- Background Layer -->
+<div class="premium-bg"></div>
+<div class="mesh-gradient">
+    <div class="mesh-ball" style="background: #4f46e5; top: -10%; left: -10%;"></div>
+    <div class="mesh-ball" style="background: #7c3aed; bottom: -10%; right: -10%;"></div>
+</div>
+
+<!-- Print Only Header (Letterhead) -->
+<div class="print-only-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2 style="font-weight: 800; color: #6366f1; margin: 0;">ALUMNI HUB</h2>
+            <p style="margin: 0; font-size: 0.8rem; font-weight: 600; color: #555;">INTEL_EXPORT // SYSTEM_NODE_REPORT
+            </p>
         </div>
-
-        <!-- Header (Screen Only) -->
-        <div class="header-section text-center">
-            <h1 class="header-title">Member Directorate</h1>
-            <p class="text-muted fw-medium">Governance and identity lifecycle management for the Alumni ecosystem</p>
-        </div>
-
-        <!-- Role Nav -->
-        <div class="role-navbar animate__animated animate__fadeIn">
-            <a href="{{ url_for('admin_view_users', role='all') }}"
-                class="role-nav-link {% if role == 'all' %}active{% endif %}">
-                <i class="fas fa-users-cog"></i> Collective
-            </a>
-            <a href="{{ url_for('admin_view_users', role='student') }}"
-                class="role-nav-link {% if role == 'student' %}active{% endif %}">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a href="{{ url_for('admin_view_users', role='alumni') }}"
-                class="role-nav-link {% if role == 'alumni' %}active{% endif %}">
-                <i class="fas fa-award"></i> Legacy
-            </a>
-            <a href="{{ url_for('admin_view_users', role='faculty') }}"
-                class="role-nav-link {% if role == 'faculty' %}active{% endif %}">
-                <i class="fas fa-chalkboard-teacher"></i> Mentors
-            </a>
-            <a href="{{ url_for('admin_approve_requests') }}"
-                class="role-nav-link {% if role == 'pending' %}active{% endif %}">
-                <i class="fas fa-clock"></i> Pending
-            </a>
-        </div>
-
-        <!-- Search & Control -->
-        <div class="search-dock animate__animated animate__fadeInUp">
-            <div class="dock-input-wrapper">
-                <i class="fas fa-fingerprint dock-icon"></i>
-                <input type="text" id="userSearch" class="dock-input"
-                    placeholder="Initiate member search by identity or department...">
-            </div>
-            <button class="btn-premium btn-white" onclick="location.reload()">
-                <i class="fas fa-sync-alt"></i> Sync
-            </button>
-            <button class="btn-premium btn-indigo" onclick="window.print()">
-                <i class="fas fa-file-signature"></i> Intelligence Export
-            </button>
-        </div>
-
-        <!-- Directory -->
-        <div class="glass-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
-            {% if users %}
-            <div class="table-responsive">
-                <table class="premium-table" id="usersTable">
-                    <thead>
-                        <tr>
-                            <th>Identity Matrix</th>
-                            <th>Classification</th>
-                            <th>Lifecycle Start</th>
-                            <th>Operational Status</th>
-                            <th class="text-end">Command</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in users %}
-                        <tr class="user-row">
-                            <td>
-                                <div class="d-flex align-items-center gap-3">
-                                    <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&background=6366f1&color=fff&rounded=true&bold=true"
-                                        alt="" class="u-avatar">
-                                    <div>
-                                        <span class="u-name">{{ user['name'] }}</span>
-                                        <span class="u-email">{{ user['email'] }}</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="role-pill pill-{{ user['role'] }}">
-                                    {% if user['role'] == 'student' %}<i class="fas fa-user-graduate"></i> STUDENT
-                                    {% elif user['role'] == 'alumni' %}<i class="fas fa-award"></i> ALUMNI
-                                    {% elif user['role'] == 'faculty' %}<i class="fas fa-chalkboard-teacher"></i>
-                                    FACULTY
-                                    {% else %}<i class="fas fa-shield-alt"></i> ADMIN{% endif %}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="text-muted fw-bold small">
-                                    <i class="far fa-clock"></i> {{ user['created_at'][:10] }}
-                                </div>
-                            </td>
-                            <td>
-                                <span
-                                    class="status-badge {% if user['is_approved'] == 0 %}status-pending{% else %}status-verified{% endif %}">
-                                    {% if user['is_approved'] == 0 %}
-                                    <i class="fas fa-clock"></i> PENDING
-                                    {% else %}
-                                    <i class="fas fa-check-circle"></i> VERIFIED
-                                    {% endif %}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="row-actions">
-                                    {% if user['is_approved'] == 0 %}
-                                    <a href="{{ url_for('verify_user', user_id=user['id'], action='approve') }}"
-                                        class="action-circle btn-approve" title="Approve Access"
-                                        style="color: #10b981; border-color: #10b981; background: #ecfdf5;">
-                                        <i class="fas fa-check"></i>
-                                    </a>
-                                    {% endif %}
-                                    Command
-                                    <a href="{% if user['role'] == 'student' %}{{ url_for('student_profile', user_id=user['id']) }}{% elif user['role'] == 'alumni' %}{{ url_for('alumni_profile', user_id=user['id']) }}{% else %}{{ url_for('faculty_profile', user_id=user['id']) }}{% endif %}"
-                                        class="action-circle" title="Inspect Identity">
-                                        <i class="fas fa-fingerprint"></i>
-                                    </a>
-                                    {% if user['email'] != 'admindbit195@college.edu' %}
-                                    <button class="action-circle action-delete" data-user-id="{{ user['id'] }}"
-                                        data-user-name="{{ user['name'] }}" title="Redact Member">
-                                        <i class="fas fa-user-slash"></i>
-                                    </button>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="text-center py-5">
-                <i class="fas fa-fingerprint fa-4x text-light-emphasis mb-3"></i>
-                <h4 class="fw-bold">Static Matrix</h4>
-                <p class="text-muted">No entities detected in the current classification segment.</p>
-            </div>
-            {% endif %}
+        <div class="text-end">
+            <p style="margin: 0; font-size: 0.75rem; color: #777;">CLASSIFICATION: SECURE_INTERNAL</p>
+            <p style="margin: 0; font-size: 0.75rem; color: #777;">GENERATED: {{ now.strftime('%Y-%m-%d %H:%M:%S') if
+                now else '2026-02-12' }}</p>
         </div>
     </div>
 </div>
 
+<div class="user-container">
+    <!-- Header Matrix -->
+    <div class="matrix-header animate__animated animate__fadeInDown">
+        <h1 class="matrix-title">Member Directorate</h1>
+        <p class="text-dim fs-5">Identity Lifecycle Management • Sector Analysis • Node Synchronization</p>
+    </div>
 
+    <!-- Role Selection -->
+    <div class="role-navbar animate__animated animate__fadeIn">
+        <a href="{{ url_for('admin_view_users', role='all') }}"
+            class="role-nav-link {% if role == 'all' %}active{% endif %}">
+            <i class="fas fa-layer-group"></i> Collective
+        </a>
+        <a href="{{ url_for('admin_view_users', role='student') }}"
+            class="role-nav-link {% if role == 'student' %}active{% endif %}">
+            <i class="fas fa-user-graduate"></i> Students
+        </a>
+        <a href="{{ url_for('admin_view_users', role='alumni') }}"
+            class="role-nav-link {% if role == 'alumni' %}active{% endif %}">
+            <i class="fas fa-award"></i> Legacy
+        </a>
+        <a href="{{ url_for('admin_view_users', role='faculty') }}"
+            class="role-nav-link {% if role == 'faculty' %}active{% endif %}">
+            <i class="fas fa-chalkboard-teacher"></i> Mentors
+        </a>
+        <a href="{{ url_for('admin_approve_requests') }}" class="role-nav-link">
+            <i class="fas fa-clock"></i> Pending Requests
+        </a>
+    </div>
+
+    <!-- Control Dock -->
+    <div class="search-dock animate__animated animate__fadeInUp">
+        <div class="dock-input-wrapper">
+            <i class="fas fa-fingerprint dock-icon"></i>
+            <input type="text" id="userSearch" class="dock-input"
+                placeholder="Initiate node scan by identity or classification segment...">
+        </div>
+        <button class="glass-card px-4 py-3 btn btn-outline-light border-0" style="border-radius: 20px;"
+            onclick="location.reload()">
+            <i class="fas fa-sync-alt me-2"></i> RESYNC
+        </button>
+        <button class="glass-card px-4 py-3 btn btn-primary border-0"
+            style="border-radius: 20px; background: var(--accent-primary);" onclick="window.print()">
+            <i class="fas fa-file-signature me-2"></i> INTEL EXPORT
+        </button>
+    </div>
+
+    <!-- Main Directory -->
+    <div class="glass-card p-5 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+        {% if users %}
+        <div class="table-responsive">
+            <table class="premium-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>Identity Matrix</th>
+                        <th>Classification</th>
+                        <th>Lifecycle Start</th>
+                        <th>Operational Status</th>
+                        <th class="text-end">Command</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr class="user-row">
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                {% if user['profile_pic'] and user['profile_pic'].startswith('/') %}
+                                <img src="{{ user['profile_pic'] }}" alt=""
+                                    class="rounded-pill border border-2 border-primary identity-avatar" width="45"
+                                    height="45">
+                                {% else %}
+                                <div class="initials-avatar">
+                                    {{ user['name'] | initials }}
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <span class="fw-bold text-white d-block">{{ user['name'] }}</span>
+                                    <span class="text-dim small">{{ user['email'] }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="role-pill pill-{{ user['role'] }}">
+                                {% if user['role'] == 'student' %}<i class="fas fa-user-graduate me-1"></i> STUDENT
+                                {% elif user['role'] == 'alumni' %}<i class="fas fa-award me-1"></i> ALUMNI
+                                {% elif user['role'] == 'faculty' %}<i class="fas fa-chalkboard-teacher me-1"></i>
+                                FACULTY
+                                {% else %}<i class="fas fa-shield-alt me-1"></i> ADMIN{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="text-dim fw-bold small">
+                                <i class="far fa-calendar-alt me-1"></i> {{ user['created_at'][:10] }}
+                            </div>
+                        </td>
+                        <td>
+                            <span
+                                class="status-badge {% if user['is_approved'] == 0 %}status-pending{% else %}status-verified{% endif %}">
+                                {% if user['is_approved'] == 0 %}
+                                <i class="fas fa-spinner fa-spin"></i> PENDING_AUTH
+                                {% else %}
+                                <i class="fas fa-shield-check"></i> ACTIVE_NODE
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2 justify-content-end">
+                                {% if user['is_approved'] == 0 %}
+                                <a href="{{ url_for('verify_user', user_id=user['id'], action='approve') }}"
+                                    class="action-circle bg-success-subtle text-success border-success-subtle"
+                                    title="Approve Access">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{% if user['role'] == 'student' %}{{ url_for('student_profile', user_id=user['id']) }}{% elif user['role'] == 'alumni' %}{{ url_for('alumni_profile', user_id=user['id']) }}{% else %}{{ url_for('faculty_profile', user_id=user['id']) }}{% endif %}"
+                                    class="action-circle text-primary" title="Inspect Node">
+                                    <i class="fas fa-fingerprint"></i>
+                                </a>
+                                {% if user['email'] != 'admindbit195@college.edu' %}
+                                <button class="action-circle action-redact text-danger btn-purge"
+                                    data-id="{{ user['id'] }}" data-name="{{ user['name'] }}" title="Purge Node">
+                                    <i class="fas fa-user-slash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-fingerprint fa-4x text-dim mb-4 opacity-25"></i>
+            <h4 class="fw-bold text-white">Neural Matrix Static</h4>
+            <p class="text-dim">No entities detected in the current classification segment.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
 
 <script>
-    function confirmDelete(id, name) {
-        if (confirm(`⚠ ADMIN WARNING ⚠\n\nAre you sure you want to PERMANENTLY delete user:\n\n${name}\n\nThis action cannot be undone.`)) {
-
-            // Visual feedback
-            const deleteBtn = document.querySelector(`.action-delete[data-user-id="${id}"]`);
-            if (deleteBtn) {
-                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                deleteBtn.disabled = true;
-            }
-
-            fetch(`/api/delete-user/${id}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            })
+    // --- Secure Purge Protocol ---
+    function confirmPurge(id, name) {
+        if (confirm(`🚨 PROTOCOL OVERRIDE REQUIRED 🚨\n\nAre you sure you want to PERMANENTLY PURGE this identity node?\n\nNAME: ${name}\nID: ${id}\n\nThis action cannot be reversed.`)) {
+            document.body.style.cursor = 'wait';
+            fetch(`/api/delete-user/${id}`, { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        alert('✅ User deleted successfully.');
+                        alert('✅ Node successfully purged from system.');
                         location.reload();
                     } else {
-                        alert('❌ Error: ' + (data.error || 'Unknown error'));
-                        if (deleteBtn) {
-                            deleteBtn.innerHTML = '<i class="fas fa-user-slash"></i>';
-                            deleteBtn.disabled = false;
-                        }
+                        alert('❌ Purge failed: ' + data.error);
                     }
                 })
-                .catch(err => {
-                    alert('System Alert: ' + err.message);
-                    if (deleteBtn) {
-                        deleteBtn.innerHTML = '<i class="fas fa-user-slash"></i>';
-                        deleteBtn.disabled = false;
-                    }
-                });
+                .catch(err => alert('❌ Critical System Error: ' + err.message))
+                .finally(() => document.body.style.cursor = 'default');
         }
     }
 
-    document.getElementById('finalDeleteBtn')?.remove(); // Cleanup if exists
-
+    // --- Matrix Search Logic ---
     document.getElementById('userSearch').addEventListener('input', function (e) {
         const searchTerm = e.target.value.toLowerCase();
         document.querySelectorAll('.user-row').forEach(row => {
@@ -720,27 +654,11 @@
         });
     });
 
-    // Add event listeners to delete buttons
-    document.querySelectorAll('.action-delete').forEach(btn => {
+    // --- Event Listeners ---
+    document.querySelectorAll('.btn-purge').forEach(btn => {
         btn.addEventListener('click', function () {
-            const userId = this.getAttribute('data-user-id');
-            const userName = this.getAttribute('data-user-name');
-            confirmDelete(userId, userName);
+            confirmPurge(this.dataset.id, this.dataset.name);
         });
     });
-
-
-    // Set Print Date
-    const printDateElement = document.getElementById('printDate');
-    if (printDateElement) {
-        const now = new Date();
-        printDateElement.textContent = now.toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }).toUpperCase();
-    }
 </script>
 {% endblock %}

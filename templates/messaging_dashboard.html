@@ -1,365 +1,347 @@
 {% extends "base.html" %}
 
+{% block title %}Community Messenger - Alumni Hub Signal Feed{% endblock %}
+
 {% block content %}
 <style>
-    .messaging-container {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 20px;
-        padding: 20px;
-        min-height: 100vh;
-        background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%);
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+    :root {
+        --terminal-bg: #030712;
+        --accent-primary: #6366f1;
+        --accent-secondary: #a855f7;
+        --accent-emerald: #10b981;
+        --accent-amber: #f59e0b;
+        --accent-rose: #ef4444;
+        --glass-bg: rgba(15, 23, 42, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --text-dim: #94a3b8;
     }
 
-    .public-messages-section,
-    .inbox-section {
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        padding: 25px;
+    body {
+        background: var(--terminal-bg);
+        color: white;
+        font-family: 'Outfit', sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* --- Background Layer --- */
+    .premium-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+        z-index: -2;
+    }
+
+    .mesh-gradient {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .mesh-ball {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.1;
+        animation: floatOrb 20s infinite alternate;
+    }
+
+    @keyframes floatOrb {
+        0% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        100% {
+            transform: translate(100px, 50px) scale(1.1);
+        }
+    }
+
+    /* --- Page Layout --- */
+    .messaging-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 120px 2rem 4rem;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+
+    .matrix-title {
+        grid-column: 1 / -1;
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(to right, #fff, #94a3b8);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -1px;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    /* --- Components --- */
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 30px;
+        height: fit-content;
     }
 
     .section-header {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #1e3a8a;
-        margin-bottom: 20px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--accent-primary);
+        margin-bottom: 25px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 15px;
     }
 
-    .lock-status {
-        background: #fee2e2;
-        border: 2px solid #fca5a5;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 20px;
-        color: #991b1b;
-        font-weight: 600;
-        display: none;
-    }
-
-    .lock-status.locked {
-        display: block;
-    }
-
-    .message-input-box {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 25px;
-    }
-
-    .message-input-box input {
+    .section-header::after {
+        content: '';
         flex: 1;
-        padding: 12px;
-        border: 2px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        transition: border-color 0.3s;
+        height: 1px;
+        background: linear-gradient(to right, var(--glass-border), transparent);
     }
 
-    .message-input-box input:focus {
-        outline: none;
-        border-color: #0ea5e9;
-        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-    }
-
-    .message-input-box input:disabled {
-        background-color: #f3f4f6;
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-
-    .send-btn {
-        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .send-btn:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3);
-    }
-
-    .send-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    .messages-feed {
+    /* --- Message Feed --- */
+    .feed-container {
         max-height: 600px;
         overflow-y: auto;
-        padding-right: 10px;
+        padding-right: 15px;
     }
 
-    .messages-feed::-webkit-scrollbar {
-        width: 6px;
+    .feed-container::-webkit-scrollbar {
+        width: 5px;
     }
 
-    .messages-feed::-webkit-scrollbar-track {
-        background: #f1f5f9;
+    .feed-container::-webkit-scrollbar-thumb {
+        background: var(--glass-border);
         border-radius: 10px;
-    }
-
-    .messages-feed::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
-    }
-
-    .messages-feed::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
     }
 
     .message-item {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 1.5rem;
+        transition: 0.3s;
+    }
+
+    .message-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--accent-primary);
+    }
+
+    .sender-avatar {
+        width: 40px;
+        height: 40px;
         border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 15px;
-        animation: slideIn 0.3s ease-out;
-    }
-
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .message-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 8px;
-    }
-
-    .user-avatar {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 700;
-        font-size: 0.9rem;
-    }
-
-    .message-info {
-        flex: 1;
+        font-weight: 800;
+        font-size: 0.8rem;
     }
 
     .sender-name {
         font-weight: 700;
-        color: #1e3a8a;
-        font-size: 0.95rem;
+        color: white;
+        margin-right: 10px;
     }
 
-    .sender-role {
-        font-size: 0.75rem;
-        color: #64748b;
-        background: #e2e8f0;
-        padding: 2px 8px;
-        border-radius: 12px;
-        display: inline-block;
-        margin-left: 5px;
-    }
-
-    .message-time {
-        font-size: 0.8rem;
-        color: #94a3b8;
+    .sender-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 3px 8px;
+        border-radius: 4px;
+        color: var(--text-dim);
     }
 
     .message-content {
-        color: #475569;
+        color: #cbd5e1;
         line-height: 1.6;
-        margin: 10px 0;
-        word-wrap: break-word;
+        margin: 15px 0;
+        font-size: 0.95rem;
     }
 
-    .message-actions {
+    /* --- Input Area --- */
+    .input-dock {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 10px;
         display: flex;
         gap: 10px;
-        margin-top: 12px;
-        border-top: 1px solid #e2e8f0;
-        padding-top: 10px;
+        margin-bottom: 30px;
     }
 
-    .whatsapp-btn {
-        background: #25d366;
+    .terminal-input {
+        background: transparent;
+        border: none;
+        color: white;
+        padding: 12px 15px;
+        flex: 1;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .terminal-input:focus {
+        outline: none;
+    }
+
+    .btn-transmit {
+        background: var(--accent-primary);
         color: white;
         border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: background 0.3s;
-        text-decoration: none;
+        padding: 0 25px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        transition: 0.3s;
     }
 
-    .whatsapp-btn:hover {
-        background: #20ba63;
+    .btn-transmit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
     }
 
+    /* --- Inbox --- */
     .inbox-item {
-        border-bottom: 1px solid #e2e8f0;
-        padding: 12px 0;
+        padding: 15px;
+        border-radius: 14px;
+        border: 1px solid transparent;
+        transition: 0.3s;
         cursor: pointer;
-        transition: background 0.2s;
-        border-radius: 6px;
-        padding: 12px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
 
     .inbox-item:hover {
-        background: #f1f5f9;
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--glass-border);
     }
 
-    .inbox-user-name {
-        font-weight: 700;
-        color: #1e3a8a;
-        margin-bottom: 4px;
+    .inbox-item.active {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: var(--accent-primary);
     }
 
-    .inbox-last-message {
-        font-size: 0.85rem;
-        color: #64748b;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .unread-badge {
-        background: #ef4444;
-        color: white;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        display: inline-block;
-        margin-left: auto;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 40px 20px;
-        color: #94a3b8;
-    }
-
-    .empty-state-icon {
-        font-size: 3rem;
-        margin-bottom: 15px;
-    }
-
-    .typing-indicator {
-        display: flex;
-        gap: 4px;
-        padding: 10px;
-    }
-
-    .typing-dot {
+    .unread-dot {
         width: 8px;
         height: 8px;
+        background: var(--accent-rose);
         border-radius: 50%;
-        background: #0ea5e9;
-        animation: typing 1.4s infinite;
+        display: inline-block;
+        box-shadow: 0 0 10px var(--accent-rose);
     }
 
-    .typing-dot:nth-child(2) {
-        animation-delay: 0.2s;
+    /* --- Lock Status --- */
+    .system-alert {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 12px;
+        padding: 15px;
+        color: var(--accent-rose);
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+        display: none;
     }
 
-    .typing-dot:nth-child(3) {
-        animation-delay: 0.4s;
+    .system-alert.visible {
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
-    @keyframes typing {
-        0%, 60%, 100% {
-            opacity: 0.3;
+    @keyframes pulse {
+        0% {
+            opacity: 1;
         }
-        30% {
+
+        50% {
+            opacity: 0.5;
+        }
+
+        100% {
             opacity: 1;
         }
     }
 
-    @media (max-width: 1024px) {
-        .messaging-container {
-            grid-template-columns: 1fr;
-        }
-
-        .messages-feed {
-            max-height: 400px;
-        }
+    .live-pulse {
+        color: var(--accent-emerald);
+        animation: pulse 2s infinite;
     }
 </style>
 
-<div class="messaging-container">
-    <!-- Public Messages Section -->
-    <div class="public-messages-section">
+<!-- Background Layer -->
+<div class="premium-bg"></div>
+<div class="mesh-gradient">
+    <div class="mesh-ball" style="background: #6366f1; top: -10%; left: -10%;"></div>
+    <div class="mesh-ball" style="background: #10b981; bottom: -10%; right: -10%;"></div>
+</div>
+
+<div class="messaging-wrapper">
+    <h1 class="matrix-title">Encryption Feed</h1>
+
+    <!-- Public Feed Section -->
+    <div class="glass-card animate__animated animate__fadeInLeft">
         <div class="section-header">
-            💬 Public Messages
+            <i class="fas fa-broadcast-tower live-pulse"></i> GLOBAL_BROADCAST_LAYER
         </div>
 
-        <!-- Lock Status Warning -->
-        <div class="lock-status" id="lockStatus">
-            🔒 Public messaging is locked by admin. You can only read existing messages.
+        <div class="system-alert" id="lockStatus">
+            <i class="fas fa-shield-alt"></i> SYSTEM_LOCKED: READ_ONLY_PROTOCOL_ACTIVE
         </div>
 
-        <!-- Message Input -->
-        <div class="message-input-box">
-            <input
-                type="text"
-                id="messageInput"
-                placeholder="Type your message here..."
-                maxlength="5000"
-            />
-            <button class="send-btn" id="sendBtn">Send</button>
+        <div class="input-dock">
+            <input type="text" id="messageInput" class="terminal-input" placeholder="ACCESS_COMMUNICATION_LINE..."
+                maxlength="5000">
+            <button class="btn-transmit" id="sendBtn">TRANSMIT</button>
         </div>
 
-        <!-- Messages Feed -->
-        <div class="messages-feed" id="messagesFeed">
-            <div class="empty-state">
-                <div class="empty-state-icon">💭</div>
-                <p>No messages yet. Be the first to share something!</p>
+        <div class="feed-container" id="messagesFeed">
+            <div class="text-center py-5 text-dim">
+                <i class="fas fa-satellite-dish fa-3x mb-3"></i>
+                <p class="font-monospace">SCANNING_FOR_INCOMING_SIGNALS...</p>
             </div>
         </div>
 
-        <!-- Typing Indicator -->
-        <div id="typingIndicator" style="display: none; font-size: 0.85rem; color: #64748b; margin-top: 15px;">
-            <span id="typingUser"></span> is typing<div class="typing-indicator">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
+        <!-- Typing -->
+        <div id="typingIndicator" style="display: none;" class="mt-3 font-monospace small text-dim">
+            <span id="typingUser" class="text-primary fw-bold"></span> IS_ENCRYPTING_DATA...
         </div>
     </div>
 
-    <!-- Inbox Section -->
-    <div class="inbox-section">
+    <!-- Inbox Matrix -->
+    <div class="glass-card animate__animated animate__fadeInRight">
         <div class="section-header">
-            📬 Inbox
-            <span class="unread-badge" id="unreadCount" style="display: none;">0</span>
+            <i class="fas fa-inbox"></i> SESSION_MATRIX
         </div>
 
         <div id="inboxContainer">
-            <div class="empty-state">
-                <div class="empty-state-icon">📭</div>
-                <p>No conversations yet.</p>
+            <div class="text-center py-5 text-dim">
+                <p class="font-monospace">NO_ACTIVE_SESSIONS</p>
             </div>
         </div>
     </div>
@@ -379,83 +361,60 @@
     let isTyping = false;
     let systemLocked = false;
 
-    // Connect to WebSocket
-    socket.on('connect', function() {
-        console.log('Connected to messaging server');
+    socket.on('connect', () => {
         refreshLockStatus();
         loadPublicMessages();
         loadInbox();
     });
 
-    // Receive public messages
-    socket.on('receive_public_message', function(data) {
-        addMessageToFeed(data);
-    });
+    socket.on('receive_public_message', (data) => addMessageToFeed(data));
 
-    // Handle system lock
-    socket.on('system_locked', function(data) {
+    socket.on('system_locked', (data) => {
         systemLocked = true;
-        lockStatus.classList.add('locked');
+        lockStatus.classList.add('visible');
         messageInput.disabled = true;
         sendBtn.disabled = true;
-        lockStatus.textContent = `🔒 Public messaging locked by ${data.locked_by}` + (data.reason ? `: "${data.reason}"` : '');
+        lockStatus.innerHTML = `<i class="fas fa-shield-alt"></i> LOCKED_BY_${data.locked_by.toUpperCase()}: ${data.reason || 'SYSTEM_HALT'}`;
     });
 
-    // Handle system unlock
-    socket.on('system_unlocked', function(data) {
+    socket.on('system_unlocked', () => {
         systemLocked = false;
-        lockStatus.classList.remove('locked');
+        lockStatus.classList.remove('visible');
         messageInput.disabled = false;
         sendBtn.disabled = false;
     });
 
-    // Typing indicator
-    socket.on('user_typing_public', function(data) {
-        typingUser.textContent = data.user_name;
+    socket.on('user_typing_public', (data) => {
+        typingUser.textContent = data.user_name.toUpperCase();
         typingIndicator.style.display = 'block';
     });
 
-    socket.on('user_stopped_typing_public', function(data) {
+    socket.on('user_stopped_typing_public', () => {
         typingIndicator.style.display = 'none';
     });
 
-    // Message deleted
-    socket.on('message_deleted_public', function(data) {
-        const messageEl = document.querySelector(`[data-message-id="${data.message_id}"]`);
-        if (messageEl) {
-            messageEl.remove();
-        }
+    socket.on('message_deleted_public', (data) => {
+        const el = document.querySelector(`[data-message-id="${data.message_id}"]`);
+        if (el) el.remove();
     });
 
-    // Send message
     sendBtn.addEventListener('click', sendMessage);
-    messageInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
+    messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 
     function sendMessage() {
         const content = messageInput.value.trim();
         if (!content) return;
-
-        socket.emit('send_public_message', {
-            content: content
-        });
-
+        socket.emit('send_public_message', { content });
         messageInput.value = '';
         socket.emit('stop_typing_public');
         isTyping = false;
     }
 
-    // Typing indicator
-    messageInput.addEventListener('input', function() {
+    messageInput.addEventListener('input', () => {
         if (!isTyping && !systemLocked) {
             isTyping = true;
             socket.emit('typing_public');
         }
-
         clearTimeout(typingTimeout);
         typingTimeout = setTimeout(() => {
             isTyping = false;
@@ -464,36 +423,34 @@
     });
 
     function addMessageToFeed(message) {
-        if (messagesFeed.querySelector('.empty-state')) {
-            messagesFeed.innerHTML = '';
-        }
-
-        const messageEl = document.createElement('div');
-        messageEl.className = 'message-item';
-        messageEl.setAttribute('data-message-id', message.id);
+        if (messagesFeed.querySelector('.text-center')) messagesFeed.innerHTML = '';
 
         const initials = message.sender_name.substring(0, 2).toUpperCase();
+        const item = document.createElement('div');
+        item.className = 'message-item animate__animated animate__fadeInUp';
+        item.setAttribute('data-message-id', message.id);
 
-        messageEl.innerHTML = `
-            <div class="message-header">
-                <div class="user-avatar">${initials}</div>
-                <div class="message-info">
-                    <div>
-                        <span class="sender-name">${message.sender_name}</span>
-                        <span class="sender-role">${message.sender_role}</span>
+        item.innerHTML = `
+            <div class="d-flex align-items-center gap-3">
+                <div class="sender-avatar">${initials}</div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="sender-name">${message.sender_name}</span>
+                            <span class="sender-tag">${message.sender_role.toUpperCase()}</span>
+                        </div>
+                        <span class="font-monospace small text-dim">${new Date(message.created_at).toLocaleTimeString()}</span>
                     </div>
-                    <div class="message-time">${new Date(message.created_at).toLocaleString()}</div>
                 </div>
             </div>
             <div class="message-content">${escapeHtml(message.content)}</div>
-            <div class="message-actions">
-                <a href="https://wa.me/${message.sender_phone || ''}" target="_blank" class="whatsapp-btn">
-                    💬 WhatsApp
+            <div class="d-flex gap-2">
+                <a href="https://wa.me/${message.sender_phone || ''}" target="_blank" class="btn-transmit" style="padding: 5px 12px; font-size: 0.6rem; text-decoration: none; background: #25d366;">
+                    WHATSAPP_LINK
                 </a>
             </div>
         `;
-
-        messagesFeed.prepend(messageEl);
+        messagesFeed.prepend(item);
     }
 
     function loadPublicMessages() {
@@ -511,34 +468,25 @@
         fetch('/api/messages/inbox')
             .then(r => r.json())
             .then(data => {
-                if (data.conversations && data.conversations.length > 0) {
-                    updateInbox(data.conversations);
-                }
-                if (data.unread_count > 0) {
-                    document.getElementById('unreadCount').style.display = 'inline-block';
-                    document.getElementById('unreadCount').textContent = data.unread_count;
-                }
+                if (data.conversations && data.conversations.length > 0) updateInbox(data.conversations);
             });
     }
 
-    function updateInbox(conversations) {
-        const inboxContainer = document.getElementById('inboxContainer');
-        inboxContainer.innerHTML = '';
-
-        conversations.forEach(conv => {
-            const inboxEl = document.createElement('div');
-            inboxEl.className = 'inbox-item';
-            inboxEl.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="inbox-user-name">${conv.other_user_name}</div>
-                    ${conv.unread_count > 0 ? `<span class="unread-badge" style="margin-left: auto;">${conv.unread_count}</span>` : ''}
+    function updateInbox(convs) {
+        const container = document.getElementById('inboxContainer');
+        container.innerHTML = '';
+        convs.forEach(c => {
+            const el = document.createElement('div');
+            el.className = 'inbox-item';
+            el.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-white">${c.other_user_name}</span>
+                    ${c.unread_count > 0 ? '<span class="unread-dot"></span>' : ''}
                 </div>
-                <div class="inbox-last-message">${conv.last_message_content || 'No messages yet'}</div>
+                <div class="font-monospace small text-dim text-truncate">${c.last_message_content || 'NO_DATA'}</div>
             `;
-            inboxEl.addEventListener('click', () => {
-                window.location.href = `/chat/${conv.other_user_id}`;
-            });
-            inboxContainer.appendChild(inboxEl);
+            el.onclick = () => window.location.href = `/chat/${c.other_user_id}`;
+            container.appendChild(el);
         });
     }
 
@@ -550,13 +498,10 @@
                     systemLocked = true;
                     messageInput.disabled = true;
                     sendBtn.disabled = true;
-                    lockStatus.classList.add('locked');
-                    lockStatus.textContent = `🔒 ${data.reason || 'Public messaging is locked by admin'}`;
+                    lockStatus.classList.add('visible');
+                    lockStatus.innerHTML = `<i class="fas fa-shield-alt"></i> SYSTEM_LOCKED: ${data.reason.toUpperCase() || 'READ_ONLY'}`;
                 }
-            })
-            .catch(() => {
-                // Not admin, just continue
-            });
+            }).catch(() => { });
     }
 
     function escapeHtml(text) {
@@ -565,7 +510,6 @@
         return div.innerHTML;
     }
 
-    // Periodically refresh inbox
     setInterval(loadInbox, 10000);
 </script>
 

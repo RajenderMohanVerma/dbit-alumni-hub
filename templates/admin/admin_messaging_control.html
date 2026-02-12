@@ -1,417 +1,393 @@
 {% extends "base.html" %}
 
+{% block title %}Sovereignty Matrix - Messaging Control{% endblock %}
+
 {% block content %}
-<link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet">
-
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
     :root {
-        --primary-glass: rgba(255, 255, 255, 0.9);
-        --accent-blue: #0ea5e9;
-        --accent-indigo: #6366f1;
-        --danger-red: #ef4444;
-        --success-green: #10b981;
-        --text-dark: #1e293b;
-        --text-muted: #64748b;
+        --terminal-bg: #030712;
+        --accent-primary: #6366f1;
+        --accent-secondary: #a855f7;
+        --accent-emerald: #10b981;
+        --accent-amber: #f59e0b;
+        --accent-rose: #ef4444;
+        --glass-bg: rgba(15, 23, 42, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --text-dim: #94a3b8;
     }
 
-    .admin-command-center {
-        min-height: 100vh;
-        background: radial-gradient(circle at top right, #f8fafc 0%, #f1f5f9 100%);
-        padding: 100px 20px 40px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-
-    .command-header {
-        margin-bottom: 40px;
-        position: relative;
-    }
-
-    .command-title {
+    body {
+        background: var(--terminal-bg);
+        color: white;
         font-family: 'Outfit', sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* --- Background Layer --- */
+    .premium-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+        z-index: -2;
+    }
+
+    .mesh-gradient {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .mesh-ball {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.1;
+        animation: floatOrb 20s infinite alternate;
+    }
+
+    @keyframes floatOrb {
+        0% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        100% {
+            transform: translate(100px, 50px) scale(1.1);
+        }
+    }
+
+    /* --- Page Layout --- */
+    .mod-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 120px 2rem 4rem;
+    }
+
+    .matrix-title {
+        font-size: 3.5rem;
         font-weight: 800;
-        font-size: 2.5rem;
-        background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%);
-        background-clip: text;
+        background: linear-gradient(to right, #fff, #94a3b8);
         -webkit-background-clip: text;
+        background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: 10px;
+        letter-spacing: -1px;
+        text-align: center;
+        margin-bottom: 4rem;
     }
 
-    .command-subtitle {
-        color: var(--text-muted);
-        font-size: 1.1rem;
-    }
-
+    /* --- Components --- */
     .glass-card {
-        background: var(--primary-glass);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.5);
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
         border-radius: 24px;
         padding: 30px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         height: 100%;
+        transition: 0.3s;
     }
 
-    .glass-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
-    }
-
-    .card-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
+    .section-header {
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--accent-primary);
+        margin-bottom: 25px;
         display: flex;
         align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        margin-bottom: 20px;
+        gap: 15px;
     }
 
-    .icon-lock {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger-red);
+    .section-header::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(to right, var(--glass-border), transparent);
     }
 
-    .icon-stats {
-        background: rgba(14, 165, 233, 0.1);
-        color: var(--accent-blue);
-    }
-
-    .icon-mod {
-        background: rgba(99, 102, 241, 0.1);
-        color: var(--accent-indigo);
-    }
-
-    .status-monitor {
-        background: #f8fafc;
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
+    /* --- Monitoring Rows --- */
     .monitor-row {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         padding: 12px 0;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .monitor-row:last-child {
-        border-bottom: none;
+        border-bottom: 1px solid var(--glass-border);
     }
 
     .monitor-label {
-        font-weight: 600;
-        color: var(--text-muted);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--text-dim);
     }
 
     .monitor-value {
         font-weight: 700;
-        color: var(--text-dark);
-    }
-
-    .badge-premium {
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .badge-locked {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .badge-unlocked {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .btn-premium {
-        border-radius: 12px;
-        padding: 14px 24px;
-        font-weight: 700;
-        transition: all 0.3s;
-        border: none;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    .btn-lock {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
     }
 
-    .btn-unlock {
-        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-        color: white;
-    }
-
-    .btn-load {
-        background: white;
-        border: 2px solid #e2e8f0;
-        color: var(--text-dark);
-    }
-
-    .btn-load:hover {
-        background: #f8fafc;
-        border-color: var(--accent-blue);
-    }
-
-    .btn-premium:hover:not(:disabled) {
-        transform: scale(1.02);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-premium:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .stat-ring-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-        margin-bottom: 25px;
-    }
-
+    /* --- Stats Hub --- */
     .stat-ring {
-        text-align: center;
-        padding: 15px;
-        background: #f8fafc;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
         border-radius: 16px;
+        padding: 20px;
+        text-align: center;
     }
 
     .stat-val {
-        font-size: 1.8rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 2rem;
         font-weight: 800;
-        color: var(--accent-blue);
-    }
-
-    .stat-lab {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        margin-top: 4px;
-    }
-
-    .msg-scroll-area {
-        max-height: 500px;
-        overflow-y: auto;
-        padding-right: 10px;
-    }
-
-    .premium-msg-card {
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        padding: 16px;
-        margin-bottom: 12px;
-        transition: all 0.2s;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .premium-msg-card:hover {
-        border-color: var(--accent-blue);
-        background: #fcfdfe;
-    }
-
-    .msg-meta {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        margin-bottom: 4px;
-    }
-
-    .msg-sender {
-        font-weight: 700;
-        color: var(--text-dark);
-    }
-
-    .msg-body {
-        font-size: 0.95rem;
-        color: #334155;
-    }
-
-    .delete-btn-circle {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: #fee2e2;
-        color: #ef4444;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        transition: all 0.2s;
-    }
-
-    .delete-btn-circle:hover {
-        background: #ef4444;
         color: white;
     }
 
-    .suspension-list {
-        display: grid;
-        gap: 12px;
+    .stat-lab {
+        font-size: 0.65rem;
+        color: var(--text-dim);
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-top: 5px;
     }
 
+    /* --- Broadcast Feed --- */
+    .msg-scroll-area {
+        max-height: 500px;
+        overflow-y: auto;
+        padding-right: 15px;
+    }
+
+    .msg-scroll-area::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .msg-scroll-area::-webkit-scrollbar-thumb {
+        background: var(--glass-border);
+        border-radius: 10px;
+    }
+
+    .premium-msg-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: 0.3s;
+    }
+
+    .premium-msg-card:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--accent-primary);
+    }
+
+    /* --- Sanctioned Entities --- */
     .suspended-user-card {
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 16px;
+        padding: 15px;
         display: flex;
         align-items: center;
         gap: 15px;
-        padding: 12px;
-        background: #f8fafc;
-        border-radius: 16px;
+        margin-bottom: 10px;
     }
 
     .s-avatar {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
-        object-fit: cover;
-    }
-
-    .s-info {
-        flex: 1;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
     .s-name {
         font-weight: 700;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
     }
 
     .s-role {
-        font-size: 0.8rem;
-        color: var(--text-muted);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        color: var(--accent-rose);
     }
 
-    .btn-unsuspend {
-        padding: 6px 14px;
-        background: var(--success-green);
+    /* --- Buttons --- */
+    .btn-transmit {
+        background: var(--accent-primary);
         color: white;
         border: none;
-        border-radius: 8px;
+        padding: 12px 25px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        transition: 0.3s;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .btn-transmit:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-redact {
+        background: var(--accent-rose);
+    }
+
+    .btn-redact:hover:not(:disabled) {
+        box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+    }
+
+    .badge-locked {
+        color: var(--accent-rose);
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 800;
+    }
+
+    .badge-unlocked {
+        color: var(--accent-emerald);
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 800;
+    }
+
+    .terminal-textarea {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        color: white;
+        padding: 12px;
+        font-family: 'JetBrains Mono', monospace;
         font-size: 0.8rem;
-        font-weight: 600;
+        width: 100%;
+        resize: none;
+    }
+
+    .terminal-textarea:focus {
+        outline: none;
+        border-color: var(--accent-primary);
     }
 </style>
 
-<div class="admin-command-center">
-    <div class="container-fluid">
-        <div class="command-header text-center">
-            <h1 class="command-title">Messaging Command Center</h1>
-            <p class="command-subtitle">Global Moderation & System Sovereignty Panel</p>
+<!-- Background Layer -->
+<div class="premium-bg"></div>
+<div class="mesh-gradient">
+    <div class="mesh-ball" style="background: #ef4444; top: -10%; left: -10%;"></div>
+    <div class="mesh-ball" style="background: #6366f1; bottom: -10%; right: -10%;"></div>
+</div>
+
+<div class="mod-wrapper">
+    <h1 class="matrix-title">Sovereignty Matrix</h1>
+
+    <div class="row g-4">
+        <!-- Control Panel -->
+        <div class="col-lg-4">
+            <div class="glass-card animate__animated animate__fadeInLeft">
+                <div class="section-header">
+                    <i class="fas fa-shield-alt"></i> SYSTEM_SOVEREIGNTY
+                </div>
+
+                <div class="monitor-row">
+                    <span class="monitor-label">STATUS</span>
+                    <span id="lockBadge" class="badge-unlocked">OPERATIONAL</span>
+                </div>
+                <div class="monitor-row">
+                    <span class="monitor-label">CONTROLLER</span>
+                    <span id="lockedByValue" class="monitor-value">-</span>
+                </div>
+                <div class="monitor-row">
+                    <span class="monitor-label">LAST_ACTION</span>
+                    <span id="lockedAtValue" class="monitor-value">-</span>
+                </div>
+
+                <div class="mt-4">
+                    <textarea id="lockReason" class="terminal-textarea" placeholder="REASON_FOR_INTERVENTION..."
+                        rows="2"></textarea>
+                    <button id="lockBtn" class="btn-transmit btn-redact" onclick="lockMessaging()">
+                        <i class="fas fa-lock me-2"></i>INITIATE_LOCK
+                    </button>
+                    <button id="unlockBtn" class="btn-transmit" onclick="unlockMessaging()" disabled
+                        style="background: var(--accent-emerald);">
+                        <i class="fas fa-unlock me-2"></i>RESTORE_SYSTEM
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <div class="row g-4">
-            <!-- System Sovereignty (Lock Control) -->
-            <div class="col-lg-4">
-                <div class="glass-card">
-                    <div class="card-icon icon-lock">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3 class="fw-bold mb-4">System Sovereignty</h3>
-
-                    <div class="status-monitor">
-                        <div class="monitor-row">
-                            <span class="monitor-label">Operational Status</span>
-                            <span id="lockBadge" class="badge-premium">Checking...</span>
-                        </div>
-                        <div class="monitor-row">
-                            <span class="monitor-label">Admin Control</span>
-                            <span id="lockedByValue" class="monitor-value">-</span>
-                        </div>
-                        <div class="monitor-row">
-                            <span class="monitor-label">Last Intervention</span>
-                            <span id="lockedAtValue" class="monitor-value">-</span>
-                        </div>
-                    </div>
-
-                    <textarea id="lockReason" class="form-control mb-3" placeholder="Reason for system intervention..."
-                        rows="2" style="border-radius: 12px; border: 2px solid #f1f5f9;"></textarea>
-
-                    <div class="d-grid gap-2">
-                        <button id="lockBtn" class="btn-premium btn-lock" onclick="lockMessaging()">
-                            <i class="fas fa-lock"></i> Initiate Global Lock
-                        </button>
-                        <button id="unlockBtn" class="btn-premium btn-unlock" onclick="unlockMessaging()">
-                            <i class="fas fa-unlock"></i> Restore System
-                        </button>
-                    </div>
+        <!-- Intel Hub -->
+        <div class="col-lg-8">
+            <div class="glass-card animate__animated animate__fadeInRight">
+                <div class="section-header">
+                    <i class="fas fa-chart-line"></i> REAL_TIME_INTEL
                 </div>
-            </div>
 
-            <!-- Real-time Intelligence -->
-            <div class="col-lg-8">
-                <div class="glass-card">
-                    <div class="card-icon icon-stats">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h3 class="fw-bold m-0">Real-time Intelligence</h3>
-                        <button class="btn btn-sm btn-load" onclick="refreshStatistics()">
-                            <i class="fas fa-sync-alt"></i> Sync Data
-                        </button>
-                    </div>
-
-                    <div class="stat-ring-grid">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
                         <div class="stat-ring">
                             <div class="stat-val" id="publicMsgCount">0</div>
-                            <div class="stat-lab">Public Broadcasts</div>
+                            <div class="stat-lab">BROADCASTS</div>
                         </div>
+                    </div>
+                    <div class="col-md-4">
                         <div class="stat-ring">
                             <div class="stat-val" id="privateMsgCount">0</div>
-                            <div class="stat-lab">Direct Comm Links</div>
+                            <div class="stat-lab">PRIVATE_LINKS</div>
                         </div>
+                    </div>
+                    <div class="col-md-4">
                         <div class="stat-ring">
                             <div class="stat-val" id="conversationCount">0</div>
-                            <div class="stat-lab">Active Channels</div>
+                            <div class="stat-lab">ACTIVE_SESSIONS</div>
                         </div>
-                    </div>
-
-                    <h5 class="fw-bold mb-3"><i class="fas fa-user-slash me-2 text-danger"></i> Sanctioned Entities</h5>
-                    <div id="suspendedUsersList" class="suspension-list">
-                        <div class="text-center py-4 text-muted">Scanning for sanctioned entities...</div>
                     </div>
                 </div>
+
+                <h6 class="font-monospace small text-dim mb-3"><i
+                        class="fas fa-user-slash me-2 text-danger"></i>SANCTIONED_ENTITIES</h6>
+                <div id="suspendedUsersList" class="scroll-area" style="max-height: 200px; overflow-y: auto;">
+                    <p class="text-center text-dim font-monospace small py-4">SCANNING_FOR_THREATS...</p>
+                </div>
             </div>
+        </div>
 
-            <!-- Content Moderation Hub -->
-            <div class="col-12">
-                <div class="glass-card">
-                    <div class="card-icon icon-mod">
-                        <i class="fas fa-users-cog"></i>
+        <!-- Moderation Hub -->
+        <div class="col-12">
+            <div class="glass-card animate__animated animate__fadeInUp">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="section-header m-0">
+                        <i class="fas fa-users-cog"></i> BROADCAST_MODERATION_HUB
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-                        <h3 class="fw-bold m-0">Broadcast Moderation Hub</h3>
-                        <div class="d-flex gap-2">
-                            <button id="toggleHiddenBtn" class="btn-premium btn-load py-2 px-3"
-                                onclick="toggleViewHidden()">
-                                <i class="fas fa-eye-slash"></i> Audit Hidden
-                            </button>
-                            <button class="btn-premium btn-unlock py-2 px-3" onclick="loadPublicMessages()">
-                                <i class="fas fa-download"></i> Fetch Feed
-                            </button>
-                        </div>
+                    <div class="d-flex gap-2">
+                        <button id="toggleHiddenBtn" class="btn-transmit" style="padding: 8px 15px; width: auto;"
+                            onclick="toggleViewHidden()">
+                            <i class="fas fa-eye-slash"></i> AUDIT_HIDDEN
+                        </button>
+                        <button class="btn-transmit"
+                            style="padding: 8px 15px; width: auto; background: var(--accent-emerald);"
+                            onclick="loadPublicMessages()">
+                            <i class="fas fa-sync-alt"></i> SYNC_FEED
+                        </button>
                     </div>
+                </div>
 
-                    <div id="messagesList" class="msg-scroll-area">
-                        <div class="text-center py-5">
-                            <i class="fas fa-satellite fa-3x mb-3 text-light-emphasis"></i>
-                            <p class="text-muted">Enter the broadcast feed for auditing</p>
-                        </div>
+                <div id="messagesList" class="msg-scroll-area">
+                    <div class="text-center py-5 text-dim font-monospace">
+                        <i class="fas fa-satellite-dish fa-3x mb-3"></i>
+                        <p>AWAITING_SIGNAL_SYNC...</p>
                     </div>
                 </div>
             </div>
@@ -428,18 +404,8 @@
         refreshStatistics();
         loadPublicMessages();
         loadSuspendedUsers();
-
-        // Auto-refresh every 15s
-        setInterval(() => {
-            refreshStatistics();
-            refreshLockStatus();
-        }, 15000);
+        setInterval(() => { refreshStatistics(); refreshLockStatus(); }, 15000);
     });
-
-    function showSuccess(msg) {
-        // Simple elegant toast logic could go here, for now using console/alert for debug
-        console.log('Success:', msg);
-    }
 
     function refreshLockStatus() {
         fetch('/api/admin/messaging/status')
@@ -449,23 +415,21 @@
                 const badge = document.getElementById('lockBadge');
                 const lockBtn = document.getElementById('lockBtn');
                 const unlockBtn = document.getElementById('unlockBtn');
-                const byVal = document.getElementById('lockedByValue');
-                const atVal = document.getElementById('lockedAtValue');
 
                 if (isLocked) {
-                    badge.className = 'badge-premium badge-locked';
-                    badge.textContent = 'SYSTEM LOCKED';
+                    badge.className = 'badge-locked';
+                    badge.textContent = 'SYSTEM_LOCKED';
                     lockBtn.disabled = true;
                     unlockBtn.disabled = false;
-                    byVal.textContent = data.locked_by || 'ADMIN-01';
-                    atVal.textContent = data.locked_at ? new Date(data.locked_at).toLocaleTimeString() : 'N/A';
+                    document.getElementById('lockedByValue').textContent = data.locked_by || 'ADMIN';
+                    document.getElementById('lockedAtValue').textContent = new Date(data.locked_at).toLocaleTimeString();
                 } else {
-                    badge.className = 'badge-premium badge-unlocked';
+                    badge.className = 'badge-unlocked';
                     badge.textContent = 'OPERATIONAL';
                     lockBtn.disabled = false;
                     unlockBtn.disabled = true;
-                    byVal.textContent = '-';
-                    atVal.textContent = 'N/A';
+                    document.getElementById('lockedByValue').textContent = '-';
+                    document.getElementById('lockedAtValue').textContent = 'N/A';
                 }
             });
     }
@@ -476,17 +440,11 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ reason })
-        })
-            .then(r => r.json())
-            .then(() => {
-                refreshLockStatus();
-                document.getElementById('lockReason').value = '';
-            });
+        }).then(() => { refreshLockStatus(); document.getElementById('lockReason').value = ''; });
     }
 
     function unlockMessaging() {
-        fetch('/api/admin/messaging/unlock', { method: 'POST' })
-            .then(() => refreshLockStatus());
+        fetch('/api/admin/messaging/unlock', { method: 'POST' }).then(() => refreshLockStatus());
     }
 
     function refreshStatistics() {
@@ -505,25 +463,24 @@
             .then(r => r.json())
             .then(data => {
                 const list = document.getElementById('messagesList');
-                if (!data.messages || data.messages.length === 0) {
-                    list.innerHTML = '<div class="text-center py-5 text-muted">Feed is currently empty.</div>';
+                if (!data.messages?.length) {
+                    list.innerHTML = '<p class="text-center py-5 text-dim font-monospace">FEED_EMPTY</p>';
                     return;
                 }
-
                 list.innerHTML = '';
                 data.messages.forEach(msg => {
                     const card = document.createElement('div');
                     card.className = 'premium-msg-card';
                     card.innerHTML = `
                         <div class="msg-content">
-                            <div class="msg-meta">
-                                <span class="msg-sender">${msg.name}</span> • 
-                                <span>${new Date(msg.created_at).toLocaleString()}</span>
-                                ${msg.is_hidden ? '<span class="ms-2 text-danger fw-bold">(HIDDEN)</span>' : ''}
+                            <div class="font-monospace small mb-1">
+                                <span class="text-primary fw-bold">${msg.name}</span> • 
+                                <span class="text-dim">${new Date(msg.created_at).toLocaleString()}</span>
+                                ${msg.is_hidden ? '<span class="text-danger fw-bold ms-2">[HIDDEN]</span>' : ''}
                             </div>
-                            <div class="msg-body">${escapeHtml(msg.content)}</div>
+                            <div style="color: #cbd5e1;">${escapeHtml(msg.content)}</div>
                         </div>
-                        <button class="delete-btn-circle" onclick="deleteMessage(${msg.id})">
+                        <button class="btn-transmit btn-redact" style="width: auto; padding: 5px 12px;" onclick="deleteMessage(${msg.id})">
                             <i class="fas fa-trash"></i>
                         </button>
                     `;
@@ -534,15 +491,13 @@
 
     function toggleViewHidden() {
         viewingHidden = !viewingHidden;
-        const btn = document.getElementById('toggleHiddenBtn');
-        btn.innerHTML = viewingHidden ? '<i class="fas fa-eye"></i> Show Active' : '<i class="fas fa-eye-slash"></i> Audit Hidden';
+        document.getElementById('toggleHiddenBtn').innerHTML = viewingHidden ? '<i class="fas fa-eye"></i> SHOW_ACTIVE' : '<i class="fas fa-eye-slash"></i> AUDIT_HIDDEN';
         loadPublicMessages();
     }
 
     function deleteMessage(id) {
-        if (confirm('Permanently redact this broadcast?')) {
-            fetch(`/api/messages/public/${id}`, { method: 'DELETE' })
-                .then(() => loadPublicMessages());
+        if (confirm('REDACT_BROADCAST?')) {
+            fetch(`/api/messages/public/${id}`, { method: 'DELETE' }).then(() => loadPublicMessages());
         }
     }
 
@@ -551,23 +506,21 @@
             .then(r => r.json())
             .then(data => {
                 const list = document.getElementById('suspendedUsersList');
-                if (!data.users || data.users.length === 0) {
-                    list.innerHTML = '<div class="text-center py-4 text-muted">No sanctioned entities detected.</div>';
+                if (!data.users?.length) {
+                    list.innerHTML = '<p class="text-center py-4 text-dim font-monospace small">NO_SANCTIONS_DETECTED</p>';
                     return;
                 }
-
                 list.innerHTML = '';
                 data.users.forEach(u => {
-                    const avatar = u.profile_pic ? u.profile_pic : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name) + '&background=random';
                     const card = document.createElement('div');
                     card.className = 'suspended-user-card';
                     card.innerHTML = `
-                        <img src="${avatar}" class="s-avatar">
-                        <div class="s-info">
+                        <div class="s-avatar"></div>
+                        <div class="flex-grow-1">
                             <div class="s-name">${u.name}</div>
                             <div class="s-role">${u.role.toUpperCase()}</div>
                         </div>
-                        <button class="btn-unsuspend" onclick="unsuspendUser(${u.id})">Restore Privileges</button>
+                        <button class="btn-transmit" style="width: auto; padding: 5px 10px; font-size: 0.6rem; background: var(--accent-emerald);" onclick="unsuspendUser(${u.id})">RESTORE</button>
                     `;
                     list.appendChild(card);
                 });
@@ -579,8 +532,7 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: id })
-        })
-            .then(() => loadSuspendedUsers());
+        }).then(() => loadSuspendedUsers());
     }
 
     function escapeHtml(text) {
@@ -589,4 +541,5 @@
         return div.innerHTML;
     }
 </script>
+
 {% endblock %}

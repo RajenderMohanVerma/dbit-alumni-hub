@@ -53,8 +53,9 @@
                             {% if user['profile_pic'] and user['profile_pic'].startswith('/') %}
                             <img src="{{ user['profile_pic'] }}" alt="Avatar" class="avatar-img shadow-lg">
                             {% else %}
-                            <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&size=120&background=0D6EFD&color=fff"
-                                alt="Avatar" class="avatar-img shadow-lg">
+                            <div class="avatar-img shadow-lg initials-avatar-large">
+                                {{ user['name'] | initials }}
+                            </div>
                             {% endif %}
                             <div class="glass-tag">
                                 <span class="tag-dot"></span>
@@ -456,6 +457,17 @@
         border-radius: 50%;
         border: 6px solid #fff;
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    .initials-avatar-large {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 3rem;
+        text-transform: uppercase;
     }
 
     .glass-tag {

@@ -75,8 +75,9 @@
                                 {% if user['profile_pic'] and user['profile_pic'].startswith('/') %}
                                 <img src="{{ user['profile_pic'] }}" alt="Avatar" class="avatar-img-extreme">
                                 {% else %}
-                                <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&size=250&background=0f172a&color=fff"
-                                    class="avatar-img-extreme">
+                                <div class="avatar-img-extreme initials-avatar-extreme">
+                                    {{ user['name'] | initials }}
+                                </div>
                                 {% endif %}
                                 <div class="online-indicator"></div>
                             </div>
@@ -398,6 +399,17 @@
         height: 100%;
         object-fit: cover;
         border-radius: 50%;
+    }
+
+    .initials-avatar-extreme {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 5rem;
+        text-transform: uppercase;
     }
 
     .profile-avatar-xl:hover {

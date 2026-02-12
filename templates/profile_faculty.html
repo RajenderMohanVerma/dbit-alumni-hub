@@ -51,9 +51,10 @@
                             <img src="{{ user['profile_pic'] }}" alt="{{ user['name'] }}"
                                 class="rounded-circle shadow-lg main-profile-img animate__animated animate__zoomIn">
                             {% else %}
-                            <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&background=f59e0b&color=fff&size=200"
-                                alt="{{ user['name'] }}"
-                                class="rounded-circle shadow-lg main-profile-img animate__animated animate__zoomIn">
+                            <div
+                                class="rounded-circle shadow-lg main-profile-img animate__animated animate__zoomIn initials-avatar-faculty">
+                                {{ user['name'] | initials }}
+                            </div>
                             {% endif %}
                             <div class="status-indicator online border-white"></div>
                         </div>
@@ -375,6 +376,18 @@
         border: 4px solid rgba(255, 255, 255, 0.2);
         padding: 4px;
         background: rgba(255, 255, 255, 0.1);
+    }
+
+    .initials-avatar-faculty {
+        background: var(--warning-gradient);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 4rem;
+        text-transform: uppercase;
+        border: 4px solid white;
     }
 
     .info-pill {

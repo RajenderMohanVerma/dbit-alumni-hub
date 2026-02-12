@@ -8,54 +8,100 @@
     rel="stylesheet">
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
     :root {
-        --glass-bg: rgba(255, 255, 255, 0.85);
-        --glass-border: rgba(255, 255, 255, 0.5);
-        --primary-accent: #6366f1;
-        --secondary-accent: #4f46e5;
-        --text-main: #1e293b;
-        --text-light: #64748b;
+        --terminal-bg: #030712;
+        --accent-primary: #6366f1;
+        --accent-secondary: #a855f7;
+        --accent-success: #10b981;
+        --accent-warning: #f59e0b;
+        --glass-bg: rgba(15, 23, 42, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --text-dim: #94a3b8;
     }
 
-    .premium-admin-container {
-        min-height: 100vh;
-        background: radial-gradient(circle at 0% 0%, #f1f5f9 0%, #e2e8f0 100%);
-        padding: 100px 20px 40px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-
-    .header-reveal {
-        margin-bottom: 40px;
-        animation: fadeInUp 0.8s ease;
-    }
-
-    .page-title {
+    body {
+        background: var(--terminal-bg);
+        color: white;
         font-family: 'Outfit', sans-serif;
-        font-weight: 800;
-        font-size: 2.8rem;
-        background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
-        margin-bottom: 8px;
+        overflow-x: hidden;
     }
 
-    .glass-panel {
+    /* --- Background Layer --- */
+    .premium-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+        z-index: -2;
+    }
+
+    .mesh-gradient {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .mesh-ball {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.15;
+        animation: floatOrb 20s infinite alternate;
+    }
+
+    @keyframes floatOrb {
+        0% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        100% {
+            transform: translate(100px, 50px) scale(1.1);
+        }
+    }
+
+    /* --- Glass Components --- */
+    .glass-card {
         background: var(--glass-bg);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         border: 1px solid var(--glass-border);
         border-radius: 24px;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
         padding: 30px;
         margin-bottom: 30px;
-        transition: transform 0.3s ease;
     }
 
-    .glass-panel:hover {
-        transform: translateY(-2px);
+    .reg-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 120px 2rem 4rem;
     }
 
-    .stats-hub {
+    .matrix-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(to right, #fff, #94a3b8);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -1px;
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    /* --- Stats Matrix --- */
+    .stats-matrix {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 20px;
@@ -63,30 +109,21 @@
     }
 
     .stat-orb {
-        background: white;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
         border-radius: 20px;
         padding: 24px;
-        display: flex;
-        flex-direction: column;
-        border: 1px solid #f1f5f9;
-        position: relative;
-        overflow: hidden;
+        transition: 0.3s;
     }
 
-    .stat-orb::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
-        pointer-events: none;
+    .stat-orb:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-5px);
     }
 
     .stat-icon {
-        width: 45px;
-        height: 45px;
+        width: 48px;
+        height: 48px;
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -95,95 +132,52 @@
         margin-bottom: 15px;
     }
 
-    .orb-student {
-        color: #3b82f6;
-        background: rgba(59, 130, 246, 0.1);
-    }
-
-    .orb-alumni {
-        color: #10b981;
-        background: rgba(16, 185, 129, 0.1);
-    }
-
-    .orb-faculty {
-        color: #f59e0b;
-        background: rgba(245, 158, 11, 0.1);
-    }
-
-    .orb-total {
-        color: #6366f1;
+    .orb-indigo {
         background: rgba(99, 102, 241, 0.1);
+        color: #818cf8;
+    }
+
+    .orb-emerald {
+        background: rgba(16, 185, 129, 0.1);
+        color: #34d399;
+    }
+
+    .orb-amber {
+        background: rgba(245, 158, 11, 0.1);
+        color: #fbbf24;
     }
 
     .stat-count {
-        font-family: 'Outfit', sans-serif;
+        font-family: 'JetBrains Mono', monospace;
         font-size: 2.2rem;
-        font-weight: 800;
-        margin-bottom: 5px;
-        color: var(--text-main);
+        font-weight: 700;
+        color: white;
     }
 
-    .stat-desc {
-        font-size: 0.85rem;
-        color: var(--text-light);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
+    /* --- Filter Control --- */
     .filter-dock {
         display: flex;
-        align-items: center;
         gap: 15px;
+        align-items: center;
         flex-wrap: wrap;
     }
 
     .dock-input {
-        background: white;
-        border: 2px solid #f1f5f9;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
         border-radius: 14px;
         padding: 12px 20px;
-        font-size: 0.95rem;
-        color: var(--text-main);
-        transition: all 0.3s;
+        color: white;
         outline: none;
+        transition: 0.3s;
     }
 
     .dock-input:focus {
-        border-color: var(--primary-accent);
-        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        border-color: var(--accent-primary);
+        background: rgba(255, 255, 255, 0.1);
     }
 
-    .btn-dock {
-        background: var(--primary-accent);
-        color: white;
-        border: none;
-        border-radius: 14px;
-        padding: 12px 28px;
-        font-weight: 700;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .btn-dock:hover {
-        background: var(--secondary-accent);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
-    }
-
-    .btn-dock-outline {
-        background: transparent;
-        border: 2px solid #e2e8f0;
-        color: var(--text-main);
-    }
-
-    .premium-table-container {
-        overflow-x: auto;
-        border-radius: 16px;
-    }
-
+    /* --- Premium Table --- */
     .premium-table {
         width: 100%;
         border-collapse: separate;
@@ -191,151 +185,102 @@
     }
 
     .premium-table thead th {
-        background: transparent;
-        color: var(--text-light);
-        font-weight: 700;
+        color: var(--text-dim);
+        font-size: 0.8rem;
         text-transform: uppercase;
-        font-size: 0.75rem;
         letter-spacing: 1px;
-        padding: 15px 20px;
-        border: none;
+        padding: 1rem 1.5rem;
     }
 
     .premium-table tbody tr {
-        background: white;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-        transition: all 0.2s;
+        background: rgba(255, 255, 255, 0.03);
+        transition: 0.3s;
     }
 
     .premium-table tbody tr:hover {
-        transform: scale(1.005);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        background: rgba(255, 255, 255, 0.07);
     }
 
-    .premium-table td {
-        padding: 20px;
-        font-size: 0.95rem;
-        color: var(--text-main);
-    }
-
-    .premium-table td:first-child {
-        border-top-left-radius: 16px;
-        border-bottom-left-radius: 16px;
-    }
-
-    .premium-table td:last-child {
-        border-top-right-radius: 16px;
-        border-bottom-right-radius: 16px;
+    .premium-table tbody td {
+        padding: 1.5rem;
+        vertical-align: middle;
     }
 
     .role-pill {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 14px;
-        border-radius: 10px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-    .pill-student {
-        background: rgba(59, 130, 246, 0.1);
-        color: #2563eb;
-    }
-
-    .pill-alumni {
-        background: rgba(16, 185, 129, 0.1);
-        color: #059669;
-    }
-
-    .pill-faculty {
-        background: rgba(245, 158, 11, 0.1);
-        color: #d97706;
-    }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-    }
-
-    .empty-icon {
-        font-size: 4rem;
-        color: #e2e8f0;
-        margin-bottom: 20px;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        background: rgba(255, 255, 255, 0.1);
     }
 </style>
 
-<div class="premium-admin-container">
-    <div class="container-fluid">
-        <!-- Header -->
-        <div class="header-reveal text-center">
-            <h1 class="page-title">Registration Ecosystem</h1>
-            <p class="text-light fw-medium">Monitor and manage the pulse of DBIT Alumni Hub community growth</p>
-        </div>
+<!-- Background Layer -->
+<div class="premium-bg"></div>
+<div class="mesh-gradient">
+    <div class="mesh-ball" style="background: #4f46e5; top: -10%; left: -10%;"></div>
+    <div class="mesh-ball" style="background: #7c3aed; bottom: -10%; right: -10%;"></div>
+</div>
 
-        <!-- Stats Hub -->
-        <div class="stats-hub">
-            <div class="stat-orb">
-                <div class="stat-icon orb-student"><i class="fas fa-user-graduate"></i></div>
-                <div class="stat-count">{{ stats.students }}</div>
-                <div class="stat-desc">Academicians</div>
-            </div>
-            <div class="stat-orb">
-                <div class="stat-icon orb-alumni"><i class="fas fa-award"></i></div>
-                <div class="stat-count">{{ stats.alumni }}</div>
-                <div class="stat-desc">Legacy Bearers</div>
-            </div>
-            <div class="stat-orb">
-                <div class="stat-icon orb-faculty"><i class="fas fa-chalkboard-teacher"></i></div>
-                <div class="stat-count">{{ stats.faculty }}</div>
-                <div class="stat-desc">Mentors</div>
-            </div>
-            <div class="stat-orb">
-                <div class="stat-icon orb-total"><i class="fas fa-globe"></i></div>
-                <div class="stat-count">{{ stats.total }}</div>
-                <div class="stat-desc">Aggregate Users</div>
-            </div>
-        </div>
+<div class="reg-container">
+    <div class="matrix-header animate__animated animate__fadeInDown">
+        <h1 class="matrix-title">Registration Ecosystem</h1>
+        <p class="text-center text-dim fs-5 mb-5">Growth Telemetry • Cohort Management • Synchronization Matrix</p>
+    </div>
 
-        <!-- Filter Dock -->
-        <div class="glass-panel">
-            <form method="GET" action="{{ url_for('admin_registrations') }}" class="filter-dock">
-                <select name="role_filter" class="dock-input" onchange="this.form.submit()">
-                    <option value="">All Cohorts</option>
-                    <option value="student" {% if current_filter=='student' %}selected{% endif %}>Students</option>
-                    <option value="alumni" {% if current_filter=='alumni' %}selected{% endif %}>Alumni</option>
-                    <option value="faculty" {% if current_filter=='faculty' %}selected{% endif %}>Faculty</option>
-                </select>
-                <div class="position-relative flex-grow-1">
-                    <i class="fas fa-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
-                    <input type="text" name="search" class="dock-input ps-5 w-100"
-                        placeholder="Search by name or hyper-reference..." value="{{ search_query or '' }}">
-                </div>
-                <button type="submit" class="btn-dock"><i class="fas fa-filter"></i> Apply Matrix</button>
-                <a href="{{ url_for('admin_registrations') }}" class="btn-dock btn-dock-outline text-decoration-none">
-                    <i class="fas fa-redo-alt"></i>
-                </a>
-                <button type="button" onclick="exportData()" class="btn-dock btn-dock-outline ms-auto">
-                    <i class="fas fa-file-export"></i> Cloud Export
-                </button>
-            </form>
+    <!-- Stats Matrix -->
+    <div class="stats-matrix">
+        <div class="stat-orb animate__animated animate__zoomIn">
+            <div class="stat-icon orb-indigo"><i class="fas fa-user-graduate"></i></div>
+            <div class="stat-count">{{ stats.students }}</div>
+            <div class="text-dim small fw-bold">STUDENT_SEGMENT</div>
         </div>
+        <div class="stat-orb animate__animated animate__zoomIn" style="animation-delay: 0.1s;">
+            <div class="stat-icon orb-emerald"><i class="fas fa-award"></i></div>
+            <div class="stat-count">{{ stats.alumni }}</div>
+            <div class="text-dim small fw-bold">LEGACY_NODES</div>
+        </div>
+        <div class="stat-orb animate__animated animate__zoomIn" style="animation-delay: 0.2s;">
+            <div class="stat-icon orb-amber"><i class="fas fa-chalkboard-teacher"></i></div>
+            <div class="stat-count">{{ stats.faculty }}</div>
+            <div class="text-dim small fw-bold">MENTOR_NETWORK</div>
+        </div>
+        <div class="stat-orb animate__animated animate__zoomIn" style="animation-delay: 0.3s;">
+            <div class="stat-icon orb-indigo"><i class="fas fa-globe"></i></div>
+            <div class="stat-count">{{ stats.total }}</div>
+            <div class="text-dim small fw-bold">AGGREGATE_MATRIX</div>
+        </div>
+    </div>
 
-        <!-- Table -->
-        <div class="premium-table-container">
-            {% if registrations %}
+    <!-- Filter Dock -->
+    <div class="glass-card mb-4 animate__animated animate__fadeInUp">
+        <form method="GET" action="{{ url_for('admin_registrations') }}" class="filter-dock">
+            <select name="role_filter" class="dock-input" onchange="this.form.submit()">
+                <option value="">ALL_COHORTS</option>
+                <option value="student" {% if current_filter=='student' %}selected{% endif %}>STUDENTS</option>
+                <option value="alumni" {% if current_filter=='alumni' %}selected{% endif %}>ALUMNI</option>
+                <option value="faculty" {% if current_filter=='faculty' %}selected{% endif %}>FACULTY</option>
+            </select>
+            <div class="flex-grow-1 position-relative">
+                <i class="fas fa-search position-absolute top-50 translate-middle-y ms-3 text-primary"></i>
+                <input type="text" name="search" class="dock-input ps-5 w-100"
+                    placeholder="Scan node by name or hyper-reference..." value="{{ search_query or '' }}">
+            </div>
+            <button type="submit" class="btn btn-primary px-4 py-2 border-0"
+                style="background: var(--accent-primary); border-radius: 12px;">
+                <i class="fas fa-filter me-2"></i> APPLY_FILTER
+            </button>
+            <button type="button" onclick="exportData()" class="btn btn-outline-light px-4 py-2"
+                style="border-radius: 12px;">
+                <i class="fas fa-file-csv me-2"></i> MATRIX_EXPORT
+            </button>
+        </form>
+    </div>
+
+    <!-- Main Matrix -->
+    <div class="glass-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+        {% if registrations %}
+        <div class="table-responsive">
             <table class="premium-table">
                 <thead>
                     <tr>
@@ -344,84 +289,79 @@
                         <th>Classification</th>
                         <th>Sector/Department</th>
                         <th>Temporal Log</th>
-                        <th>Action</th>
+                        <th>Access</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for reg in registrations %}
                     <tr>
-                        <td><span class="fw-bold text-muted">ID: {{ reg.user_id }}</span></td>
+                        <td><span class="text-dim fw-bold">#{{ reg.user_id }}</span></td>
                         <td>
                             <div class="d-flex flex-column">
-                                <span class="fw-bold fs-6">{{ reg.name }}</span>
-                                <span class="text-muted small">{{ reg.email }}</span>
+                                <span class="fw-bold text-white">{{ reg.name }}</span>
+                                <span class="text-dim small">{{ reg.email }}</span>
                             </div>
                         </td>
-                        <td>
-                            <span class="role-pill pill-{{ reg.role }}">{{ reg.role }}</span>
-                        </td>
+                        <td><span class="role-pill">{{ reg.role|upper }}</span></td>
                         <td>
                             <div class="d-flex flex-column">
-                                <span class="fw-semibold">{{ reg.department or 'General' }}</span>
-                                <span class="text-muted small">
-                                    {% if reg.role == 'student' %}{{ reg.enrollment_no or 'N/A' }}{% else %}{{
-                                    reg.designation or 'N/A' }}{% endif %}
-                                </span>
+                                <span class="fw-semibold text-white">{{ reg.department or 'GENERAL' }}</span>
+                                <span class="text-dim small">{% if reg.role == 'student' %}{{ reg.enrollment_no }}{%
+                                    else %}{{ reg.designation }}{% endif %}</span>
                             </div>
                         </td>
+                        <td><span class="text-dim small"><i class="far fa-clock me-1"></i> {{ reg.registered_at
+                                }}</span></td>
                         <td>
-                            <span class="text-muted">{{ reg.registered_at }}</span>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-light border btn-view-details"
-                                data-user-id="{{ reg.user_id }}">
-                                <i class="fas fa-external-link-alt"></i>
+                            <button class="btn btn-sm btn-outline-primary btn-view-details"
+                                data-user-id="{{ reg.user_id }}" data-user-role="{{ reg.role }}"
+                                style="border-radius: 8px;">
+                                <i class="fas fa-fingerprint"></i>
                             </button>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            {% else %}
-            <div class="empty-state glass-panel">
-                <i class="fas fa-radar empty-icon"></i>
-                <h3>No Entities Detected</h3>
-                <p class="text-muted">The registration matrix is currently empty for the selected criteria.</p>
-            </div>
-            {% endif %}
         </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-radar fa-4x text-dim opacity-25 mb-4"></i>
+            <h4 class="text-white fw-bold">No Entities Detected</h4>
+            <p class="text-dim">The registration matrix is currently empty for the selected criteria.</p>
+        </div>
+        {% endif %}
     </div>
 </div>
 
 <script>
     function exportData() {
-        alert('📦 Orchestrating cloud export records...');
-    }
-
-    function viewDetails(userId) {
-        window.location.href = `/profile/${userId}`;
+        const btn = document.querySelector('button[onclick="exportData()"]');
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Orchestrating...';
+        btn.disabled = true;
+        setTimeout(() => {
+            window.location.href = '/admin/export/registrations';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-file-csv me-2"></i> MATRIX_EXPORT';
+                btn.disabled = false;
+            }, 2000);
+        }, 800);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // Event listener for role filter dropdown
-        const roleFilterSelect = document.querySelector('select[name="role_filter"]');
-        if (roleFilterSelect) {
-            roleFilterSelect.addEventListener('change', () => {
-                roleFilterSelect.closest('form').submit();
-            });
-        }
-
-        // Event listener for Cloud Export button
-        const exportButton = document.querySelector('[data-action="export-data"]');
-        if (exportButton) {
-            exportButton.addEventListener('click', exportData);
-        }
-
-        // Event listener for View Details buttons
         document.querySelectorAll('.btn-view-details').forEach(btn => {
             btn.addEventListener('click', () => {
                 const userId = btn.getAttribute('data-user-id');
-                viewDetails(userId);
+                const role = btn.getAttribute('data-user-role');
+                let path = '';
+                switch (role) {
+                    case 'student': path = `/student/profile/${userId}`; break;
+                    case 'alumni': path = `/alumni/profile/${userId}`; break;
+                    case 'faculty': path = `/faculty/profile/${userId}`; break;
+                    case 'admin': path = `/admin/profile/${userId}`; break;
+                    default: path = `/profile/${userId}`;
+                }
+                window.location.href = path;
             });
         });
     });
