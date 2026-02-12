@@ -298,11 +298,246 @@
             transform: translateY(0);
         }
     }
+
+    /* PRINT STYLES - INTELLIGENCE EXPORT */
+    @media print {
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+
+        html,
+        body {
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+        }
+
+        body {
+            background: white !important;
+            color: black !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+        }
+
+        /* Hide UI Elements */
+        #mainNavbar,
+        .footer-custom,
+        .role-navbar,
+        .search-dock,
+        .row-actions,
+        .btn,
+        .alert,
+        #scrollToTopBtn,
+        .mobile-menu-overlay,
+        .header-section p,
+        .page-header-actions {
+            display: none !important;
+        }
+
+        /* Layout Adjustments */
+        .premium-admin-base {
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+            min-height: 0 !important;
+            height: auto !important;
+        }
+
+        .container-fluid {
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+
+        .glass-card {
+            background: white !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            backdrop-filter: none !important;
+        }
+
+        /* Header Restyling for Print */
+        .header-section {
+            margin-bottom: 20px !important;
+            text-align: left !important;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+            display: flex !important;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 24pt !important;
+            background: none !important;
+            -webkit-text-fill-color: black !important;
+            color: black !important;
+            margin: 0 !important;
+            display: none;
+            /* We use the custom print header instead */
+        }
+
+        /* Custom Print Header */
+        .print-header {
+            display: flex !important;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #1e3a8a;
+            padding-bottom: 20px;
+        }
+
+        .print-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .print-logo-box {
+            width: 60px;
+            height: 60px;
+            background: #1e3a8a !important;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border-radius: 8px;
+        }
+
+        .print-title h1 {
+            font-size: 22pt;
+            font-weight: 800;
+            color: #1e3a8a !important;
+            margin: 0;
+            line-height: 1.2;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .print-title p {
+            font-size: 10pt;
+            color: #64748b !important;
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .print-meta {
+            text-align: right;
+            font-size: 9pt;
+            color: #475569 !important;
+        }
+
+        /* Table Styling */
+        .table-responsive {
+            overflow: visible !important;
+        }
+
+        .premium-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            font-size: 10pt !important;
+        }
+
+        .premium-table thead th {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-bottom: 2px solid #cbd5e1 !important;
+            padding: 10px !important;
+            font-weight: 800 !important;
+        }
+
+        .user-row {
+            box-shadow: none !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            page-break-inside: avoid;
+        }
+
+        .user-row td {
+            padding: 12px 10px !important;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle !important;
+            border-radius: 0 !important;
+        }
+
+        /* Hide Avatar in print to save ink/space or keep it small */
+        .u-avatar {
+            width: 30px !important;
+            height: 30px !important;
+            border: 1px solid #cbd5e1 !important;
+            box-shadow: none !important;
+        }
+
+        .role-pill {
+            border: 1px solid #e2e8f0;
+            background: white !important;
+            color: black !important;
+            padding: 4px 8px !important;
+        }
+
+        .status-badge {
+            background: none !important;
+            color: black !important;
+            padding: 0 !important;
+        }
+
+        /* Hide the Command column header and cells */
+        .premium-table thead th:last-child,
+        .user-row td:last-child {
+            display: none !important;
+        }
+
+        /* Footer for print */
+        .print-footer {
+            display: block !important;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 8pt;
+            color: #94a3b8 !important;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+        }
+    }
+
+    /* Hide print elements on screen */
+    .print-header,
+    .print-footer {
+        display: none;
+    }
 </style>
 
 <div class="premium-admin-base">
     <div class="container-fluid">
-        <!-- Header -->
+
+        <!-- PRINT HEADER (Visible only in print) -->
+        <div class="print-header">
+            <div class="print-brand">
+                <div class="print-logo-box">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="print-title">
+                    <h1>ALUMNI INTELLIGENCE</h1>
+                    <p>CONFIDENTIAL DIRECTORATE REPORT</p>
+                </div>
+            </div>
+            <div class="print-meta">
+                <div><strong>GENERATED:</strong> <span id="printDate"></span></div>
+                <div><strong>OFFICER:</strong> {{ current_user.name }}</div>
+                <div><strong>REF:</strong> DBIT-ADMIN-EXPORT</div>
+            </div>
+        </div>
+
+        <!-- Header (Screen Only) -->
         <div class="header-section text-center">
             <h1 class="header-title">Member Directorate</h1>
             <p class="text-muted fw-medium">Governance and identity lifecycle management for the Alumni ecosystem</p>
@@ -495,5 +730,17 @@
     });
 
 
+    // Set Print Date
+    const printDateElement = document.getElementById('printDate');
+    if (printDateElement) {
+        const now = new Date();
+        printDateElement.textContent = now.toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).toUpperCase();
+    }
 </script>
 {% endblock %}
