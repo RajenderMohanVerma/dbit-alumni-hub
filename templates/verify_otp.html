@@ -251,7 +251,7 @@
         {% endif %}
         {% endwith %}
 
-        <form method="POST" action="/verify-otp" id="otpForm">
+        <form method="POST" action="{{ action_url or '/verify-otp' }}" id="otpForm">
             <input type="hidden" name="email" value="{{ email }}">
             <input type="hidden" name="otp" id="finalOtp">
 

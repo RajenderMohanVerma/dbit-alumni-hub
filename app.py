@@ -1935,7 +1935,7 @@ def verify_reset_otp():
             if record and record['otp'] == otp:
                 # Check expiry (10 mins)
                 otp_time = datetime.strptime(record['created_at'], '%Y-%m-%d %H:%M:%S')
-                if (datetime.now() - otp_time).total_seconds() > 600:
+                if (datetime.utcnow() - otp_time).total_seconds() > 600:
                     flash('OTP has expired! Please request a new one.', 'danger')
                     return redirect(url_for('forgot_password'))
 

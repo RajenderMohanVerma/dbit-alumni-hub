@@ -92,6 +92,8 @@ def send_connection_request():
                     'emails/request_email.html',
                     receiver_name=receiver['name'],
                     sender_name=sender['name'],
+                    sender_email=sender['email'],
+                    sender_phone=sender['phone'],
                     profile_url=profile_url,
                     year=2026
                 )
@@ -171,6 +173,8 @@ def accept_connection_request(request_id):
                 'emails/accepted_email.html',
                 sender_name=sender['name'],
                 receiver_name=receiver['name'],
+                receiver_email=receiver['email'],
+                receiver_phone=receiver['phone'],
                 profile_url=profile_url,
                 year=2026
             )
