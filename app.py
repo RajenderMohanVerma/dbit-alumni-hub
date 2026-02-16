@@ -167,7 +167,9 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 class User(UserMixin):
-    def __init__(self, id, name, email, role, profile_pic, is_verified=1, is_suspended=0):
+    def __init__(self, id, name, email, role, profile_pic, is_verified=1, is_suspended=0, 
+                 branch=None, passing_year=None, current_domain=None, skills=None, 
+                 interests=None, city=None, company=None):
         self.id = id
         self.name = name
         self.email = email
@@ -175,6 +177,13 @@ class User(UserMixin):
         self.profile_pic = profile_pic
         self.is_verified = is_verified
         self.is_suspended = is_suspended
+        self.branch = branch
+        self.passing_year = passing_year
+        self.current_domain = current_domain
+        self.skills = skills
+        self.interests = interests
+        self.city = city
+        self.company = company
 
     @property
     def is_active(self):
@@ -190,8 +199,20 @@ def load_user(user_id):
         avatar = user['profile_pic'] if user['profile_pic'] else f"https://ui-avatars.com/api/?name={user['name']}&background=0D6EFD&color=fff"
         # Handle verification status (default to True for old users if column missing/null)
         is_verified = user['is_verified'] if 'is_verified' in user.keys() else 1
-        return User(user['id'], user['name'], user['email'], user['role'], avatar, is_verified)
-    return None
+        
+        # Get new recommendation fields
+        def get_field(key):
+            try:
+                return user[key]
+            except (IndexError, KeyError):
+                return None
+
+        return User(
+            user['id'], user['name'], user['email'], user['role'], avatar, is_verified,
+            get_field('is_suspended') or 0,
+            get_field('branch'), get_field('passing_year'), get_field('current_domain'),
+            get_field('skills'), get_field('interests'), get_field('city'), get_field('company')
+        )
 
 # --- DATABASE SETUP ---
 def init_db():
@@ -215,6 +236,13 @@ def init_db():
                 otp_code TEXT,
                 is_approved BOOLEAN DEFAULT 1,
                 is_suspended BOOLEAN DEFAULT 0,
+                branch TEXT,
+                passing_year INTEGER,
+                current_domain TEXT,
+                skills TEXT,
+                interests TEXT,
+                city TEXT,
+                company TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -224,7 +252,14 @@ def init_db():
             ("is_verified", "BOOLEAN DEFAULT 0", "UPDATE users SET is_verified = 1"),
             ("is_approved", "BOOLEAN DEFAULT 1", "UPDATE users SET is_approved = 1"),
             ("is_suspended", "BOOLEAN DEFAULT 0", None),
-            ("otp_code", "TEXT", None)
+            ("otp_code", "TEXT", None),
+            ("branch", "TEXT", None),
+            ("passing_year", "INTEGER", None),
+            ("current_domain", "TEXT", None),
+            ("skills", "TEXT", None),
+            ("interests", "TEXT", None),
+            ("city", "TEXT", None),
+            ("company", "TEXT", None)
         ]
 
         for col_name, col_def, update_sql in columns_to_add:
@@ -411,6 +446,97 @@ def init_db():
     finally:
         if conn:
             conn.close()
+
+# --- RECOMMENDATION SYSTEM ---
+
+def get_recommended_users(user):
+    """
+    Rule-based recommendation system:
+    1. Same branch: +5
+    2. Same skill match: +5 (for each matching skill)
+    3. Same domain: +3
+    4. Same city: +2
+    
+    Excludes: Self, already connected, pending requests.
+    Returns: Top 5 recommendations.
+    """
+    if not user or user.role not in ['student', 'alumni']:
+        return []
+
+    conn = get_db_connection()
+    c = conn.cursor()
+
+    # Determine target role (Students get Alumni, Alumni get Students)
+    target_role = 'alumni' if user.role == 'student' else 'student'
+
+    # Get already connected or pending user IDs to exclude
+    excluded_ids = [user.id]
+    
+    # Already connected
+    connections = c.execute(
+        'SELECT user_id_1, user_id_2 FROM connections WHERE user_id_1 = ? OR user_id_2 = ?',
+        (user.id, user.id)
+    ).fetchall()
+    for conn_row in connections:
+        excluded_ids.append(conn_row['user_id_1'] if conn_row['user_id_1'] != user.id else conn_row['user_id_2'])
+    
+    # Pending requests (sent or received)
+    pending = c.execute(
+        'SELECT sender_id, receiver_id FROM connection_requests WHERE (sender_id = ? OR receiver_id = ?) AND status = "pending"',
+        (user.id, user.id)
+    ).fetchall()
+    for p_row in pending:
+        excluded_ids.append(p_row['sender_id'] if p_row['sender_id'] != user.id else p_row['receiver_id'])
+
+    # Fetch potential candidates
+    query = f"SELECT * FROM users WHERE role = ? AND id NOT IN ({','.join(['?']*len(excluded_ids))})"
+    candidates = c.execute(query, [target_role] + excluded_ids).fetchall()
+
+    recommendations = []
+    user_skills = set([s.strip().lower() for s in (user.skills or "").split(',') if s.strip()])
+    
+    for cand in candidates:
+        score = 0
+        
+        # Rule 1: Same branch
+        if cand['branch'] and user.branch and cand['branch'].lower() == user.branch.lower():
+            score += 5
+            
+        # Rule 2: Skill match (+5 per matching skill)
+        cand_skills = [s.strip().lower() for s in (cand['skills'] or "").split(',') if s.strip()]
+        for skill in cand_skills:
+            if skill in user_skills:
+                score += 5
+                
+        # Rule 3: Same domain
+        if cand['current_domain'] and user.current_domain and cand['current_domain'].lower() == user.current_domain.lower():
+            score += 3
+            
+        # Rule 4: Same city
+        if cand['city'] and user.city and cand['city'].lower() == user.city.lower():
+            score += 2
+            
+        if score > 0:
+            recommendations.append({
+                'id': cand['id'],
+                'name': cand['name'],
+                'role': cand['role'],
+                'branch': cand['branch'],
+                'skills': cand['skills'],
+                'score': score,
+                'profile_pic': cand['profile_pic'] or f"https://ui-avatars.com/api/?name={cand['name']}&background=random"
+            })
+
+    # Sort by score descending and return top 5
+    recommendations.sort(key=lambda x: x['score'], reverse=True)
+    conn.close()
+    return recommendations[:5]
+
+@app.route('/recommendations')
+@login_required
+def recommendations_api():
+    recs = get_recommended_users(current_user)
+    return jsonify(recs)
 
 # --- ROUTES ---
 
@@ -1185,13 +1311,17 @@ def dashboard_student():
             ORDER BY u.name ASC
         """, (current_user.id,)).fetchall()
 
+        # Fetch recommendations
+        recommendations = get_recommended_users(current_user)
+
         return render_template('student/dashboard.html',
                              alumni=alumni,
                              faculty=faculty,
                              student=student,
                              other_students=other_students,
                              pending_requests=pending_requests,
-                             pending_count=len(pending_requests))
+                             pending_count=len(pending_requests),
+                             recommendations=recommendations)
     finally:
         if conn:
             conn.close()
@@ -1216,10 +1346,14 @@ def dashboard_alumni():
         # Get alumni profile for completeness tracking
         alumni_profile = conn.execute('SELECT * FROM alumni_profile WHERE user_id = ?', (current_user.id,)).fetchone()
 
+        # Fetch recommendations
+        recommendations = get_recommended_users(current_user)
+
         return render_template('alumni/dashboard.html',
                              pending_requests=pending_requests,
                              pending_count=len(pending_requests),
-                             alumni=alumni_profile)
+                             alumni=alumni_profile,
+                             recommendations=recommendations)
     finally:
         if conn:
             conn.close()

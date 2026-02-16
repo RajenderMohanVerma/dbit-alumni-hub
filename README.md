@@ -12,6 +12,12 @@ A comprehensive, professional Flask-based Alumni Management System with modern d
 - **1-to-1 Private Chat**: Secure messaging with typing indicators and read receipts.
 - **WhatsApp Integration**: Direct "💬 WhatsApp" buttons on profiles for seamless external connection.
 
+### 🧠 Smart Recommendation System (Rule-Based)
+- **Profile Matching**: Suggests relevant users based on branch, skills, domain, and city.
+- **Role-Based Suggestions**: Smartly recommends Alumni to Students and Students to Alumni.
+- **Dynamic Scoring**: Uses a score-based priority system (+5 for branch/skills, +3 for domain, +2 for city).
+- **One-Click Connect**: Integration with the connection system directly from recommendation cards.
+
 ### 📧 Reliable Communication System
 - **Gmail SMTP Integration**: High-reliability email delivery for OTPs and notifications using Gmail App Passwords (`smtp.gmail.com`).
 - **Professional OTP Redesign**: Premium glassmorphic verification page with a 2-minute (120s) countdown bar and automatic backspace/focus handling.
@@ -40,6 +46,15 @@ A comprehensive, professional Flask-based Alumni Management System with modern d
 ### 🔗 Connection Request System
 - **Instagram-Style**: Send, accept, or reject requests with real-time dashboard updates.
 - **Pending Section**: Dedicated area for managing incoming connection requests.
+
+### 🧠 Rule-Based Recommendations
+- **Scoring Engine**:
+  - Same Branch: **+5 Points**
+  - Skill Overlap: **+5 Points per match**
+  - Same Domain: **+3 Points**
+  - Same City: **+2 Points**
+- **Smart Filtering**: Excludes already connected users, self, and pending requests.
+- **Top 5 Limit**: Shows the most relevant connections to keep the UI clean.
 
 ### 📊 Admin Control Center
 - **Registration Tracking**: Automatic logging of all user registrations with role-specific meta-data.
@@ -91,6 +106,8 @@ pip install -r requirements.txt
 ```bash
 # Initialize main user database
 python app.py  # Initial run creates tables
+# Migrate to Recommendation System schema
+python migrate_db.py
 # Initialize messaging specific tables
 python init_messaging_db.py
 ```
