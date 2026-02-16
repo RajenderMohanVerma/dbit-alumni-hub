@@ -47,15 +47,17 @@
                 <div class="col-lg-5 text-center d-none d-lg-block">
                     <div class="hero-card-3d animate__animated animate__zoomIn animate__delay-1s" data-tilt
                         data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2">
-                        <div class="glass-panel text-center p-4">
-                            <div class="profile-img-wrap mb-3">
+                        <div class="glass-panel text-center p-5 border-0 shadow-premium"
+                            style="background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(30px);">
+                            <div class="profile-img-wrap mb-4">
                                 <img src="{{ current_user.profile_pic or 'https://ui-avatars.com/api/?name=' + current_user.name + '&background=f59e0b&color=fff' }}"
-                                    alt="Profile"
                                     class="img-fluid rounded-circle shadow-lg main-profile-img animate__animated animate__bounceIn animate__delay-2s">
-                                <div class="status-indicator online"></div>
+                                <div class="status-indicator online"
+                                    style="width: 25px; height: 25px; bottom: 15px; right: 15px; border-width: 4px;">
+                                </div>
                             </div>
-                            <h3 class="text-white mb-1 animate__animated animate__fadeInUp animate__delay-2s">{{
-                                current_user.name }}</h3>
+                            <h2 class="text-white fw-bold mb-1 animate__animated animate__fadeInUp animate__delay-2s">{{
+                                current_user.name }}</h2>
                             <p class="text-white-50 mb-0 animate__animated animate__fadeInUp animate__delay-3s">{{
                                 profile['designation'] or 'Faculty Member' }}</p>
                             <div
@@ -476,8 +478,63 @@
         background: #0f172a;
         color: white;
         overflow: hidden;
+        padding-top: 100px;
         padding-bottom: 100px;
         clip-path: polygon(0 0, 100% 0, 100% 95%, 0 100%);
+    }
+
+    .animated-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    }
+
+    .blob-shape {
+        position: absolute;
+        filter: blur(80px);
+        opacity: 0.5;
+        border-radius: 50%;
+        animation: rotate 20s infinite linear;
+    }
+
+    .blob-1 {
+        width: 500px;
+        height: 500px;
+        background: #4f46e5;
+        top: -100px;
+        left: -100px;
+    }
+
+    .blob-2 {
+        width: 400px;
+        height: 400px;
+        background: #f59e0b;
+        bottom: -50px;
+        right: -50px;
+        animation-delay: -5s;
+    }
+
+    .blob-3 {
+        width: 300px;
+        height: 300px;
+        background: #ec4899;
+        top: 20%;
+        right: 10%;
+        animation-delay: -10s;
+    }
+
+    @keyframes rotate {
+        from {
+            transform: rotate(0deg) scale(1);
+        }
+
+        to {
+            transform: rotate(360deg) scale(1.1);
+        }
     }
 
     .mesh-gradient-bg {
@@ -609,9 +666,20 @@
     }
 
     .main-profile-img {
-        width: 150px;
-        height: 150px;
-        border: 4px solid rgba(255, 255, 255, 0.2);
+        width: 180px;
+        height: 180px;
+        border: 6px solid rgba(255, 255, 255, 0.25);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .profile-img-wrap {
+        position: relative;
+        display: inline-block;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     @keyframes float {

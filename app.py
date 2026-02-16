@@ -780,38 +780,54 @@ def register():
             
             # Collect Role-Specific Data
             profile_data = {}
+            missing_fields = []
+
             if role == 'student':
-                profile_data['enrollment_no'] = request.form.get('enrollment_no', '').strip()
-                profile_data['department'] = request.form.get('department', '').strip()
-                profile_data['degree'] = request.form.get('degree', '').strip()
-                profile_data['semester'] = request.form.get('semester', '')
+                profile_data['enrollment_no'] = request.form.get('stu_enrollment_no', request.form.get('enrollment_no', '')).strip()
+                profile_data['department'] = request.form.get('stu_department', request.form.get('department', '')).strip()
+                profile_data['degree'] = request.form.get('stu_degree', request.form.get('degree', '')).strip()
+                profile_data['semester'] = request.form.get('stu_semester', request.form.get('semester', ''))
                 
-                if not all([profile_data['enrollment_no'], profile_data['department'], profile_data['degree']]):
-                    flash('Student details are incomplete!', 'warning')
+                if not profile_data['enrollment_no']: missing_fields.append('Enrollment No')
+                if not profile_data['department']: missing_fields.append('Department')
+                if not profile_data['degree']: missing_fields.append('Course/Degree')
+                
+                if missing_fields:
+                    flash(f'Student details are incomplete: Missing {", ".join(missing_fields)}', 'warning')
                     return render_template('auth/register.html', role='student', form_data=request.form)
 
             elif role == 'alumni':
-                profile_data['enrollment_no'] = request.form.get('enrollment_no', '').strip()
-                profile_data['department'] = request.form.get('department', '').strip()
-                profile_data['degree'] = request.form.get('degree', '').strip()
-                profile_data['pass_year'] = request.form.get('pass_year', '')
-                profile_data['company_name'] = request.form.get('company_name', '')
-                profile_data['designation'] = request.form.get('designation', '')
+                profile_data['enrollment_no'] = request.form.get('alum_enrollment_no', request.form.get('enrollment_no', '')).strip()
+                profile_data['department'] = request.form.get('alum_department', request.form.get('department', '')).strip()
+                profile_data['degree'] = request.form.get('alum_degree', request.form.get('degree', '')).strip()
+                profile_data['pass_year'] = request.form.get('alum_pass_year', request.form.get('pass_year', ''))
+                profile_data['company_name'] = request.form.get('alum_company_name', request.form.get('company_name', ''))
+                profile_data['designation'] = request.form.get('alum_designation', request.form.get('designation', ''))
                 profile_data['experience_years'] = request.form.get('experience_years', '')
 
-                if not all([profile_data['enrollment_no'], profile_data['department'], profile_data['degree'], profile_data['pass_year']]):
-                    flash('Alumni details are incomplete!', 'warning')
+                if not profile_data['enrollment_no']: missing_fields.append('Enrollment No')
+                if not profile_data['department']: missing_fields.append('Department')
+                if not profile_data['degree']: missing_fields.append('Course/Degree')
+                if not profile_data['pass_year']: missing_fields.append('Passing Year')
+
+                if missing_fields:
+                    flash(f'Alumni details are incomplete: Missing {", ".join(missing_fields)}', 'warning')
                     return render_template('auth/register.html', role='alumni', form_data=request.form)
 
             elif role == 'faculty':
-                profile_data['employee_id'] = request.form.get('employee_id', '').strip()
-                profile_data['department'] = request.form.get('department', '').strip()
-                profile_data['designation'] = request.form.get('designation', '').strip()
-                profile_data['qualification'] = request.form.get('qualification', '').strip()
+                profile_data['employee_id'] = request.form.get('fac_employee_id', request.form.get('employee_id', '')).strip()
+                profile_data['department'] = request.form.get('fac_department', request.form.get('department', '')).strip()
+                profile_data['designation'] = request.form.get('fac_designation', request.form.get('designation', '')).strip()
+                profile_data['qualification'] = request.form.get('fac_qualification', request.form.get('qualification', '')).strip()
                 profile_data['experience_years'] = request.form.get('experience_years', '')
 
-                if not all([profile_data['employee_id'], profile_data['department'], profile_data['designation'], profile_data['qualification']]):
-                    flash('Faculty details are incomplete!', 'warning')
+                if not profile_data['employee_id']: missing_fields.append('Employee ID')
+                if not profile_data['department']: missing_fields.append('Department')
+                if not profile_data['designation']: missing_fields.append('Designation')
+                if not profile_data['qualification']: missing_fields.append('Qualification')
+
+                if missing_fields:
+                    flash(f'Faculty details are incomplete: Missing {", ".join(missing_fields)}', 'warning')
                     return render_template('auth/register.html', role='faculty', form_data=request.form)
 
             # Generate Secure 6-digit OTP
@@ -3567,6 +3583,8 @@ def send_user_email():
 
 @app.route('/events')
 def events():
+    if current_user.is_authenticated and current_user.role == 'faculty':
+        return render_template('faculty/events.html')
     return render_template('events.html')
 
 # Removed - moved to student-specific routes below
@@ -3579,7 +3597,7 @@ def events():
 @app.route('/network')
 @login_required
 def network():
-    if current_user.role != 'student':
+    if current_user.role not in ['student', 'faculty', 'alumni']:
         flash('Access denied!', 'danger')
         return redirect(url_for('home'))
     return render_template('student/network.html')
@@ -3587,7 +3605,7 @@ def network():
 @app.route('/messages')
 @login_required
 def messages():
-    if current_user.role != 'student':
+    if current_user.role not in ['student', 'faculty', 'alumni']:
         flash('Access denied!', 'danger')
         return redirect(url_for('home'))
     return render_template('student/messages.html')
@@ -3619,18 +3637,22 @@ def upgrade():
 @app.route('/notifications')
 @login_required
 def notifications():
-    if current_user.role != 'student':
-        flash('Access denied!', 'danger')
-        return redirect(url_for('home'))
-    return render_template('student/notifications.html')
+    if current_user.role == 'faculty':
+        return render_template('faculty/notifications.html')
+    if current_user.role == 'student':
+        return render_template('student/notifications.html')
+    flash('Access denied!', 'danger')
+    return redirect(url_for('home'))
 
 @app.route('/settings')
 @login_required
 def settings():
-    if current_user.role != 'student':
-        flash('Access denied!', 'danger')
-        return redirect(url_for('home'))
-    return render_template('student/settings.html')
+    if current_user.role == 'faculty':
+        return render_template('faculty/settings.html')
+    if current_user.role == 'student':
+        return render_template('student/settings.html')
+    flash('Access denied!', 'danger')
+    return redirect(url_for('home'))
 
 # --- ALUMNI ROUTES ---
 
@@ -3655,18 +3677,22 @@ def spotlight():
 @app.route('/announcements')
 @login_required
 def announcements():
-    if current_user.role not in ['faculty', 'admin']:
-        flash('Access denied!', 'danger')
-        return redirect(url_for('home'))
-    return render_template('announcements.html')
+    if current_user.role == 'faculty':
+        return render_template('faculty/announcements.html')
+    if current_user.role == 'admin':
+        return render_template('announcements.html')
+    flash('Access denied!', 'danger')
+    return redirect(url_for('home'))
 
 @app.route('/reports')
 @login_required
 def reports():
-    if current_user.role not in ['faculty', 'admin']:
-        flash('Access denied!', 'danger')
-        return redirect(url_for('home'))
-    return render_template('admin/reports.html')
+    if current_user.role == 'faculty':
+        return render_template('faculty/reports.html')
+    if current_user.role == 'admin':
+        return render_template('admin/reports.html')
+    flash('Access denied!', 'danger')
+    return redirect(url_for('home'))
 
 # --- ADMIN ROUTES ---
 

@@ -321,14 +321,14 @@
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Enrollment
                                                     No</label><input type="text" class="form-control bg-light border-0"
-                                                    id="enrollment_no" name="enrollment_no"
-                                                    value="{{ form_data.get('enrollment_no', '') if form_data else '' }}">
+                                                    id="enrollment_no" name="stu_enrollment_no"
+                                                    value="{{ form_data.get('stu_enrollment_no', '') if form_data else '' }}">
                                             </div>
 
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Category</label>
                                                 <select class="form-select bg-light border-0" id="category"
-                                                    name="category" onchange="updateCourseDropdown()">
+                                                    name="stu_category" onchange="updateCourseDropdown()">
                                                     <option value="">Select Category</option>
                                                     <option value="IT">IT / Technology</option>
                                                     <option value="Engineering">Engineering</option>
@@ -343,8 +343,8 @@
 
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Level</label>
-                                                <select class="form-select bg-light border-0" id="level" name="level"
-                                                    onchange="updateCourseDropdown()">
+                                                <select class="form-select bg-light border-0" id="level"
+                                                    name="stu_level" onchange="updateCourseDropdown()">
                                                     <option value="">Select Level</option>
                                                     <option value="UG">Undergraduate</option>
                                                     <option value="PG">Postgraduate</option>
@@ -353,14 +353,15 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Course</label>
-                                                <select class="form-select bg-light border-0" id="degree" name="degree">
+                                                <select class="form-select bg-light border-0" id="degree"
+                                                    name="stu_degree">
                                                     <option value="">Select Course</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Department</label>
                                                 <select class="form-select bg-light border-0" id="department"
-                                                    name="department">
+                                                    name="stu_department">
                                                     <option value="">Select Department</option>
                                                     <option value="Information Technology">IT</option>
                                                     <option value="Computer Science">CS</option>
@@ -373,7 +374,7 @@
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Semester</label>
                                                 <select class="form-select bg-light border-0" id="semester"
-                                                    name="semester">
+                                                    name="stu_semester">
                                                     <option value="">Select Semester</option>
                                                     <option value="1">1</option>
                                                     <option value="2">2</option>
@@ -394,15 +395,15 @@
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Enrollment
                                                     No</label><input type="text" class="form-control bg-light border-0"
-                                                    id="alum_enrollment_no" name="enrollment_no"
-                                                    value="{{ form_data.get('enrollment_no', '') if form_data else '' }}">
+                                                    id="alum_enrollment_no" name="alum_enrollment_no"
+                                                    value="{{ form_data.get('alum_enrollment_no', '') if form_data else '' }}">
                                             </div>
 
                                             <!-- Alumni Education Fields (Mirrors Student) -->
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Category</label>
                                                 <select class="form-select bg-light border-0" id="alum_category"
-                                                    name="category" onchange="updateAlumniCourseDropdown()">
+                                                    name="alum_category" onchange="updateAlumniCourseDropdown()">
                                                     <option value="">Select Category</option>
                                                     <option value="IT">IT / Technology</option>
                                                     <option value="Engineering">Engineering</option>
@@ -414,7 +415,7 @@
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Level</label>
                                                 <select class="form-select bg-light border-0" id="alum_level"
-                                                    name="level" onchange="updateAlumniCourseDropdown()">
+                                                    name="alum_level" onchange="updateAlumniCourseDropdown()">
                                                     <option value="">Select Level</option>
                                                     <option value="UG">Undergraduate</option>
                                                     <option value="PG">Postgraduate</option>
@@ -424,14 +425,14 @@
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Course</label>
                                                 <select class="form-select bg-light border-0" id="alum_degree"
-                                                    name="degree">
+                                                    name="alum_degree">
                                                     <option value="">Select Course</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Department</label>
                                                 <select class="form-select bg-light border-0" id="alum_department"
-                                                    name="department">
+                                                    name="alum_department">
                                                     <option value="">Select Department</option>
                                                     <option value="Information Technology">IT</option>
                                                     <option value="Computer Science">CS</option>
@@ -444,7 +445,7 @@
                                                     class="form-label small fw-bold text-muted">Passing
                                                     Year</label>
                                                 <select class="form-select bg-light border-0" id="pass_year"
-                                                    name="pass_year">
+                                                    name="alum_pass_year">
                                                     {% for year in range(2024, 1999, -1) %}<option value="{{ year }}">{{
                                                         year }}</option>{% endfor %}
                                                 </select>
@@ -453,13 +454,13 @@
                                                     class="form-label small fw-bold text-muted">Current
                                                     Company</label><input type="text"
                                                     class="form-control bg-light border-0" id="company_name"
-                                                    name="company_name"
-                                                    value="{{ form_data.get('company_name', '') if form_data else '' }}">
+                                                    name="alum_company_name"
+                                                    value="{{ form_data.get('alum_company_name', '') if form_data else '' }}">
                                             </div>
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Designation</label><input
                                                     type="text" class="form-control bg-light border-0"
-                                                    id="alum_designation" name="designation"></div>
+                                                    id="alum_designation" name="alum_designation"></div>
                                         </div>
                                     </div>
 
@@ -469,13 +470,13 @@
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Employee
                                                     ID</label><input type="text" class="form-control bg-light border-0"
-                                                    id="fac_employee_id" name="employee_id"
-                                                    value="{{ form_data.get('employee_id', '') if form_data else '' }}">
+                                                    id="fac_employee_id" name="fac_employee_id"
+                                                    value="{{ form_data.get('fac_employee_id', '') if form_data else '' }}">
                                             </div>
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Department</label>
                                                 <select class="form-select bg-light border-0" id="fac_department"
-                                                    name="department">
+                                                    name="fac_department">
                                                     <option value="">Select Department</option>
                                                     <option value="Information Technology">IT</option>
                                                     <option value="Computer Science">CS</option>
@@ -484,7 +485,7 @@
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Designation</label>
                                                 <select class="form-select bg-light border-0" id="fac_designation"
-                                                    name="designation">
+                                                    name="fac_designation">
                                                     <option value="Professor">Professor</option>
                                                     <option value="Associate Professor">Associate Professor</option>
                                                     <option value="Assistant Professor">Assistant Professor</option>
@@ -494,9 +495,9 @@
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Qualification</label>
                                                 <input type="text" class="form-control bg-light border-0"
-                                                    id="fac_qualification" name="qualification" required
+                                                    id="fac_qualification" name="fac_qualification"
                                                     placeholder="e.g., Ph.D, M.Tech, M.Sc"
-                                                    value="{{ form_data.get('qualification', '') if form_data else '' }}">
+                                                    value="{{ form_data.get('fac_qualification', '') if form_data else '' }}">
                                             </div>
                                         </div>
                                     </div>
@@ -1067,11 +1068,11 @@
             const degree = document.getElementById('degree');
             const department = document.getElementById('department');
 
-            if (!enrollment_no.value.trim()) return showError(enrollment_no, 'Enrollment No details are incomplete!');
-            if (!category.value) return showError(category, 'Category details are incomplete!');
-            if (!level.value) return showError(level, 'Level details are incomplete!');
-            if (!degree.value) return showError(degree, 'Course/Degree details are incomplete!');
-            if (!department.value) return showError(department, 'Department details are incomplete!');
+            if (!enrollment_no.value.trim()) return showError(enrollment_no, 'Enrollment No is required!');
+            if (!category.value) return showError(category, 'Category is required!');
+            if (!level.value) return showError(level, 'Level is required!');
+            if (!degree.value) return showError(degree, 'Course/Degree is required!');
+            if (!department.value) return showError(department, 'Department is required!');
         }
         else if (role === 'alumni') {
             const enrollment_no = document.getElementById('alum_enrollment_no');
@@ -1081,12 +1082,12 @@
             const department = document.getElementById('alum_department');
             const pass_year = document.getElementById('pass_year');
 
-            if (!enrollment_no.value.trim()) return showError(enrollment_no, 'Enrollment No details are incomplete!');
-            if (!category.value) return showError(category, 'Category details are incomplete!');
-            if (!level.value) return showError(level, 'Level details are incomplete!');
-            if (!degree.value) return showError(degree, 'Course/Degree details are incomplete!');
-            if (!department.value) return showError(department, 'Department details are incomplete!');
-            if (!pass_year.value) return showError(pass_year, 'Passing Year details are incomplete!');
+            if (!enrollment_no.value.trim()) return showError(enrollment_no, 'Enrollment No is required!');
+            if (!category.value) return showError(category, 'Category is required!');
+            if (!level.value) return showError(level, 'Level is required!');
+            if (!degree.value) return showError(degree, 'Course/Degree is required!');
+            if (!department.value) return showError(department, 'Department is required!');
+            if (!pass_year.value) return showError(pass_year, 'Passing Year is required!');
         }
         else if (role === 'faculty') {
             const employee_id = document.getElementById('fac_employee_id');
@@ -1094,10 +1095,10 @@
             const designation = document.getElementById('fac_designation');
             const qualification = document.getElementById('fac_qualification');
 
-            if (!employee_id.value.trim()) return showError(employee_id, 'Employee ID details are incomplete!');
-            if (!department.value) return showError(department, 'Department details are incomplete!');
-            if (!designation.value) return showError(designation, 'Designation details are incomplete!');
-            if (!qualification.value.trim()) return showError(qualification, 'Qualification details are incomplete!');
+            if (!employee_id.value.trim()) return showError(employee_id, 'Employee ID is required!');
+            if (!department.value) return showError(department, 'Department is required!');
+            if (!designation.value) return showError(designation, 'Designation is required!');
+            if (!qualification.value.trim()) return showError(qualification, 'Qualification is required!');
         }
 
         // Strict Gmail Validation

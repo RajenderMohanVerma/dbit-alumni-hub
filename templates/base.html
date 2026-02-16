@@ -324,21 +324,21 @@
 
                     {% elif current_user.role == 'faculty' %}
                     <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/faculty/dashboard">
-                            <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                        <a class="nav-link nav-pill-link nav-faculty-link" href="/faculty/dashboard">
+                            <i class="fas fa-tachometer-alt"></i> <span class="d-none d-xl-inline">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/profile">
-                            <i class="fas fa-user"></i> <span>My Profile</span>
+                        <a class="nav-link nav-pill-link nav-faculty-link" href="/profile">
+                            <i class="fas fa-user"></i> <span class="d-none d-lg-inline">My Profile</span>
                         </a>
                     </li>
 
                     <!-- Connect Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="facultyConnectDropdown"
-                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-users"></i> <span>Connect</span>
+                        <a class="nav-link nav-pill-link dropdown-toggle nav-faculty-link" href="#"
+                            id="facultyConnectDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-users"></i> <span class="d-none d-lg-inline">Connect</span>
                         </a>
                         <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="facultyConnectDropdown">
                             <li>
@@ -356,9 +356,9 @@
 
                     <!-- Manage Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="manageDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-tasks"></i> <span>Manage</span>
+                        <a class="nav-link nav-pill-link dropdown-toggle nav-faculty-link" href="#" id="manageDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-tasks"></i> <span class="d-none d-lg-inline">Manage</span>
                         </a>
                         <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="manageDropdown">
                             <li>
@@ -375,21 +375,21 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/events">
-                            <i class="fas fa-calendar-alt"></i> <span>Events</span>
+                        <a class="nav-link nav-pill-link nav-faculty-link" href="/events">
+                            <i class="fas fa-calendar-alt"></i> <span class="d-none d-xl-inline">Events</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/notifications">
-                            <i class="fas fa-bell"></i> <span>Notifications</span>
+                        <a class="nav-link nav-pill-link nav-faculty-link" href="/notifications">
+                            <i class="fas fa-bell"></i> <span class="d-none d-xl-inline">Notifications</span>
                         </a>
                     </li>
 
                     <!-- More Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="facultyMoreDropdown"
-                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-h"></i> <span>More</span>
+                        <a class="nav-link nav-pill-link dropdown-toggle nav-faculty-link" href="#"
+                            id="facultyMoreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-h"></i> <span class="d-none d-lg-inline">More</span>
                         </a>
                         <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="facultyMoreDropdown">
                             <li>
