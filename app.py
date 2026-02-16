@@ -781,7 +781,7 @@ def register():
             if conn:
                 conn.close()
 
-        return render_template('auth/register.html', role=role)
+    return render_template('auth/register.html', role=role)
 
 @app.route('/logout')
 @login_required
@@ -2058,11 +2058,11 @@ def change_password():
 
         if new_password != confirm_password:
             flash('New passwords do not match!', 'warning')
-            return render_template('change_password.html')
+            return render_template('auth/change_password.html')
 
         if len(new_password) < 6:
             flash('Password must be at least 6 characters long!', 'warning')
-            return render_template('change_password.html')
+            return render_template('auth/change_password.html')
 
         conn = None
         try:
@@ -2071,7 +2071,7 @@ def change_password():
 
             if not check_password_hash(user['password'], old_password):
                 flash('Old password is incorrect!', 'danger')
-                return render_template('change_password.html')
+                return render_template('auth/change_password.html')
 
             new_password_hash = generate_password_hash(new_password)
             conn.execute('UPDATE users SET password = ? WHERE id = ?',
@@ -2089,7 +2089,7 @@ def change_password():
             if conn:
                 conn.close()
 
-    return render_template('change_password.html')
+    return render_template('auth/change_password.html')
 
 # Add new routes for comprehensive profile features
 

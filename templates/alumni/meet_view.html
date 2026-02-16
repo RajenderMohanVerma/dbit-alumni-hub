@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5 mb-5">
+<div class="container mb-5" style="margin-top: 120px;">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow">
@@ -11,9 +11,10 @@
                 </div>
                 <div class="card-body p-4">
                     <div class="alert alert-success">
-                        <strong>✓ Registration Confirmed!</strong> Your alumni meet registration has been successfully submitted.
+                        <strong>✓ Registration Confirmed!</strong> Your alumni meet registration has been successfully
+                        submitted.
                     </div>
-                    
+
                     <h5 class="mt-4 mb-3"><strong>Personal Details</strong></h5>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -45,7 +46,7 @@
                         <label class="text-muted">Current Address</label>
                         <p>{{ registration['current_address'] }}</p>
                     </div>
-                    
+
                     <h5 class="mt-4 mb-3"><strong>Academic Details</strong></h5>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -67,7 +68,7 @@
                             <p>{{ registration['current_status'] }}</p>
                         </div>
                     </div>
-                    
+
                     {% if registration['company_name'] %}
                     <h5 class="mt-4 mb-3"><strong>Professional Details</strong></h5>
                     <div class="row">
@@ -91,7 +92,7 @@
                         </div>
                     </div>
                     {% endif %}
-                    
+
                     {% if registration['university_name'] %}
                     <h5 class="mt-4 mb-3"><strong>Higher Studies Details</strong></h5>
                     <div class="mb-3">
@@ -119,7 +120,7 @@
                         </div>
                     </div>
                     {% endif %}
-                    
+
                     <h5 class="mt-4 mb-3"><strong>Alumni Contributions</strong></h5>
                     <div class="mb-3">
                         <label class="text-muted">Want to Contribute?</label>
@@ -131,13 +132,13 @@
                         <p>{{ registration['contribution_areas'].replace(',', ', ') }}</p>
                     </div>
                     {% endif %}
-                    
+
                     <h5 class="mt-4 mb-3"><strong>Event Confirmation</strong></h5>
                     <div class="mb-3">
                         <label class="text-muted">Attending Alumni Meet?</label>
                         <p><strong class="text-success">{{ registration['attending_meet'] }}</strong></p>
                     </div>
-                    
+
                     <div class="d-grid gap-2 mt-4">
                         <a href="{{ url_for('dashboard_alumni') }}" class="btn btn-primary">Back to Dashboard</a>
                     </div>

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5 mb-5">
+<div class="container mb-5" style="margin-top: 120px;">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow-lg border-0" style="border-radius: 15px; animation: slideInUp 0.6s ease;">
@@ -17,7 +17,7 @@
 
                 <div class="card-body p-5">
                     <div class="alert alert-success mb-4">
-                        <i class="fas fa-check-circle"></i> <strong>Congratulations!</strong> 
+                        <i class="fas fa-check-circle"></i> <strong>Congratulations!</strong>
                         You're ready to transition to alumni status after graduation!
                     </div>
 
@@ -31,21 +31,25 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Enrollment No.</label>
-                                        <input type="text" class="form-control" value="{{ profile['enrollment_no'] }}" disabled>
+                                        <input type="text" class="form-control" value="{{ profile['enrollment_no'] }}"
+                                            disabled>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Department</label>
-                                        <input type="text" class="form-control" value="{{ profile['department'] }}" disabled>
+                                        <input type="text" class="form-control" value="{{ profile['department'] }}"
+                                            disabled>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Degree</label>
-                                        <input type="text" class="form-control" value="{{ profile['degree'] }}" disabled>
+                                        <input type="text" class="form-control" value="{{ profile['degree'] }}"
+                                            disabled>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">CGPA</label>
-                                        <input type="text" class="form-control" value="{{ profile['cgpa'] or 'N/A' }}" disabled>
+                                        <input type="text" class="form-control" value="{{ profile['cgpa'] or 'N/A' }}"
+                                            disabled>
                                     </div>
                                 </div>
                             </div>
@@ -60,27 +64,29 @@
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <label for="pass_year" class="form-label">Year of Passing <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="pass_year" name="pass_year" 
-                                           min="2000" max="2030" required placeholder="e.g., 2024">
+                                    <label for="pass_year" class="form-label">Year of Passing <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="pass_year" name="pass_year" min="2000"
+                                        max="2030" required placeholder="e.g., 2024">
                                     <small class="text-muted">When did you graduate?</small>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="company_name" class="form-label">Current Company</label>
-                                        <input type="text" class="form-control" id="company_name" name="company_name" 
-                                               placeholder="e.g., Google, Microsoft, Startup">
+                                        <input type="text" class="form-control" id="company_name" name="company_name"
+                                            placeholder="e.g., Google, Microsoft, Startup">
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="designation" class="form-label">Current Designation</label>
-                                        <input type="text" class="form-control" id="designation" name="designation" 
-                                               placeholder="e.g., Software Engineer, Product Manager">
+                                        <input type="text" class="form-control" id="designation" name="designation"
+                                            placeholder="e.g., Software Engineer, Product Manager">
                                     </div>
                                 </div>
 
                                 <div class="alert alert-info mt-3">
-                                    <small>💡 <strong>Tip:</strong> You can update your professional details later in your profile.</small>
+                                    <small>💡 <strong>Tip:</strong> You can update your professional details later in
+                                        your profile.</small>
                                 </div>
                             </div>
                         </div>
@@ -130,6 +136,7 @@
             opacity: 0;
             transform: translateY(30px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);

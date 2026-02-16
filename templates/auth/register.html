@@ -486,8 +486,17 @@
                                                 <select class="form-select bg-light border-0" id="fac_designation"
                                                     name="designation">
                                                     <option value="Professor">Professor</option>
+                                                    <option value="Associate Professor">Associate Professor</option>
                                                     <option value="Assistant Professor">Assistant Professor</option>
+                                                    <option value="Lecturer">Lecturer</option>
                                                 </select>
+                                            </div>
+                                            <div class="col-md-6"><label
+                                                    class="form-label small fw-bold text-muted">Qualification</label>
+                                                <input type="text" class="form-control bg-light border-0"
+                                                    id="fac_qualification" name="qualification" required
+                                                    placeholder="e.g., Ph.D, M.Tech, M.Sc"
+                                                    value="{{ form_data.get('qualification', '') if form_data else '' }}">
                                             </div>
                                         </div>
                                     </div>
@@ -801,42 +810,70 @@
 
     // Progress Bar Calculation
     function calculateProgress() {
-        let totalFields = 0;
-        let filledFields = 0;
+        let totalRequired = 0;
+        let filledRequired = 0;
 
-        // Common fields
-        const commonInputs = document.querySelectorAll('#name, #email, #phone, #password');
-        totalFields += commonInputs.length;
-        commonInputs.forEach(input => {
-            if (input.value.trim() !== '') filledFields++;
+        // 1. Common Required Fields
+        const commonIds = ['name', 'email', 'phone', 'password', 'confirm_password'];
+        commonIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                totalRequired++;
+                if (el.value.trim() !== '') filledRequired++;
+            }
         });
 
-        // Role specific fields
+        // Terms (Checkbox)
+        const terms = document.getElementById('terms');
+        if (terms) {
+            totalRequired++;
+            if (terms.checked) filledRequired++;
+        }
+
+        // 2. Role Specific Required Fields
         const roleSelector = document.querySelector('input[name="role"]:checked');
         if (roleSelector) {
             const role = roleSelector.value;
-            const roleContainer = document.getElementById(role + 'Fields');
-            if (roleContainer) {
-                const roleInputs = roleContainer.querySelectorAll('input, select');
-                roleInputs.forEach(input => {
-                    totalFields++;
-                    if (input.value.trim() !== '') filledFields++;
-                });
+            let roleIds = [];
+
+            if (role === 'student') {
+                // Based on validateRegisterForm logic
+                roleIds = ['enrollment_no', 'category', 'level', 'degree', 'department'];
+            } else if (role === 'alumni') {
+                // Based on validateRegisterForm logic
+                roleIds = ['alum_enrollment_no', 'alum_category', 'alum_level', 'alum_degree', 'alum_department', 'pass_year'];
+            } else if (role === 'faculty') {
+                // Based on validation logic + new qualification field
+                roleIds = ['fac_employee_id', 'fac_department', 'fac_designation', 'fac_qualification'];
             }
+
+            roleIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    totalRequired++;
+                    if (el.value.trim() !== '') filledRequired++;
+                }
+            });
         }
 
-        const percentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
+        const percentage = totalRequired === 0 ? 0 : Math.round((filledRequired / totalRequired) * 100);
+
+        // Update UI
         const progressBar = document.getElementById('form-progress');
         const badge = document.getElementById('completion-badge');
 
         if (progressBar) progressBar.style.width = `${percentage}%`;
-        if (badge) badge.textContent = `${percentage}% Complete`;
+        if (badge) badge.textContent = `${percentage}% Completed`;
 
         // Color change based on progress
-        if (percentage < 50) {
-            if (progressBar) progressBar.style.background = 'linear-gradient(90deg, #ef4444, #f59e0b)';
-        } else {
-            if (progressBar) progressBar.style.background = 'linear-gradient(90deg, #6366f1, #10b981)';
+        if (progressBar) {
+            if (percentage < 50) {
+                progressBar.style.background = 'linear-gradient(90deg, #ef4444, #f59e0b)';
+            } else if (percentage < 100) {
+                progressBar.style.background = 'linear-gradient(90deg, #f59e0b, #6366f1)';
+            } else {
+                progressBar.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+            }
         }
     }
 
@@ -890,19 +927,26 @@
         // Initial form field setup
         updateFormFields();
 
-        // Magnetic Button Logic
+        // Magnetic Button Logic (Optimized)
         const magneticBtns = document.querySelectorAll('.magnetic-button');
         magneticBtns.forEach(btn => {
+            let ticking = false;
             btn.addEventListener('mousemove', (e) => {
-                const { left, top, width, height } = btn.getBoundingClientRect();
-                const x = (e.clientX - left - width / 2) * 0.3;
-                const y = (e.clientY - top - height / 2) * 0.3;
-                const glow = btn.querySelector('.btn-glow');
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        const { left, top, width, height } = btn.getBoundingClientRect();
+                        const x = (e.clientX - left - width / 2) * 0.3;
+                        const y = (e.clientY - top - height / 2) * 0.3;
+                        const glow = btn.querySelector('.btn-glow');
 
-                btn.style.transform = `translate(${x}px, ${y}px)`;
-                if (glow) {
-                    glow.style.left = `${e.clientX - left}px`;
-                    glow.style.top = `${e.clientY - top}px`;
+                        btn.style.transform = `translate(${x}px, ${y}px)`;
+                        if (glow) {
+                            glow.style.left = `${e.clientX - left}px`;
+                            glow.style.top = `${e.clientY - top}px`;
+                        }
+                        ticking = false;
+                    });
+                    ticking = true;
                 }
             });
             btn.addEventListener('mouseleave', () => {
@@ -910,22 +954,29 @@
             });
         });
 
-        // 3D Parallax Tilt & Glow for Register Card
+        // 3D Parallax Tilt & Glow for Register Card (Optimized)
         const registerCard = document.querySelector('.card-modern');
         if (registerCard) {
+            let ticking = false;
             registerCard.addEventListener('mousemove', (e) => {
-                const rect = registerCard.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        const rect = registerCard.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
 
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
 
-                // Subtle tilt
-                const rotateX = (y - centerY) / 50;
-                const rotateY = (centerX - x) / 50;
+                        // Subtle tilt
+                        const rotateX = (y - centerY) / 50;
+                        const rotateY = (centerX - x) / 50;
 
-                registerCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                        registerCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
             });
 
             registerCard.addEventListener('mouseleave', () => {
@@ -934,9 +985,11 @@
         }
 
         // --- Floating Label Fix for Overlap (Always-Up Persistence) ---
-        const formInputs = document.querySelectorAll('.form-control-modern, .form-select');
+        // Updated to include standard .form-control and .form-check-input for proper progress tracking
+        const formInputs = document.querySelectorAll('.form-control, .form-select, .form-check-input');
 
         function updateLabel(input) {
+            // value check only relevant for text-like inputs, but harmless for others
             if (input.value && input.value.trim() !== '') {
                 input.classList.add('has-content');
             } else {
@@ -951,6 +1004,7 @@
             input.addEventListener('input', () => updateLabel(input));
             input.addEventListener('change', () => updateLabel(input));
             input.addEventListener('blur', () => updateLabel(input));
+            input.addEventListener('click', () => updateLabel(input)); // For checkboxes
 
             input.addEventListener('animationstart', (e) => {
                 if (e.animationName === 'onAutoFillStart') {
@@ -1038,10 +1092,12 @@
             const employee_id = document.getElementById('fac_employee_id');
             const department = document.getElementById('fac_department');
             const designation = document.getElementById('fac_designation');
+            const qualification = document.getElementById('fac_qualification');
 
             if (!employee_id.value.trim()) return showError(employee_id, 'Employee ID details are incomplete!');
             if (!department.value) return showError(department, 'Department details are incomplete!');
             if (!designation.value) return showError(designation, 'Designation details are incomplete!');
+            if (!qualification.value.trim()) return showError(qualification, 'Qualification details are incomplete!');
         }
 
         // Strict Gmail Validation
@@ -1176,30 +1232,37 @@
         updateProgress();
 
 
-        // 3. 3D Tilt Effect with Parallax
+        // 3. 3D Tilt Effect with Parallax (Optimized)
         const cardTilts = document.querySelectorAll('[data-tilt], .glass-card');
 
         cardTilts.forEach(card => {
             const innerIcon = card.querySelector('i');
+            let ticking = false;
 
             card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
 
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
 
-                const rotateX = ((y - centerY) / centerY) * -12; // Max tilt 12deg
-                const rotateY = ((x - centerX) / centerX) * 12;
+                        const rotateX = ((y - centerY) / centerY) * -12; // Max tilt 12deg
+                        const rotateY = ((x - centerX) / centerX) * 12;
 
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
 
-                // Parallax depth for the icon inside
-                if (innerIcon) {
-                    const moveX = ((x - centerX) / centerX) * 15; // Move icon opposite
-                    const moveY = ((y - centerY) / centerY) * 15;
-                    innerIcon.style.transform = `translateZ(50px) translateX(${moveX}px) translateY(${moveY}px)`;
+                        // Parallax depth for the icon inside
+                        if (innerIcon) {
+                            const moveX = ((x - centerX) / centerX) * 15; // Move icon opposite
+                            const moveY = ((y - centerY) / centerY) * 15;
+                            innerIcon.style.transform = `translateZ(50px) translateX(${moveX}px) translateY(${moveY}px)`;
+                        }
+                        ticking = false;
+                    });
+                    ticking = true;
                 }
             });
 

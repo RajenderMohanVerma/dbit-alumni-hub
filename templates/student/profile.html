@@ -98,8 +98,7 @@
                         {% else %}
                         <!-- Connection Request Button -->
                         <div class="d-grid gap-2">
-                            <button id="connection-btn" class="btn btn-success"
-                                onclick="sendConnectionRequest({{ user['id'] }})">
+                            <button id="connection-btn" class="btn btn-success" data-user-id="{{ user['id'] }}">
                                 <i class="fas fa-user-plus"></i> Send Connection Request
                             </button>
                             <button type="button" class="btn btn-outline-primary mt-2" data-bs-toggle="modal"
@@ -337,7 +336,7 @@
 
     /* Hero Section */
     .profile-hero {
-        padding: 100px 0 80px;
+        padding: 120px 0 80px;
         background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
         position: relative;
         overflow: hidden;
@@ -662,6 +661,17 @@
                 }
             };
             setTimeout(type, 500);
+        }
+
+        // Connection Request Button Event Listener
+        const connectionBtn = document.getElementById('connection-btn');
+        if (connectionBtn) {
+            connectionBtn.addEventListener('click', function () {
+                const userId = this.getAttribute('data-user-id');
+                if (userId) {
+                    sendConnectionRequest(userId);
+                }
+            });
         }
     });
 
