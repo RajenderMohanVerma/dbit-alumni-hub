@@ -416,15 +416,15 @@ def init_db():
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('common/home.html')
 
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    return render_template('common/about.html')
 
 @app.route('/services')
 def services():
-    return render_template('services.html')
+    return render_template('common/services.html')
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -437,7 +437,7 @@ def contact():
 
             if not all([name, email, subject, message]):
                 flash('All fields are required!', 'warning')
-                return render_template('contact.html')
+                return render_template('common/contact.html')
 
             # ===== SEND EMAIL TO ADMIN =====
             try:
@@ -565,7 +565,7 @@ def contact():
         except Exception as e:
             flash('Error sending message. Please try again.', 'danger')
 
-    return render_template('contact.html')
+    return render_template('common/contact.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -612,7 +612,7 @@ def login():
         finally:
             if conn:
                 conn.close()
-    return render_template('login.html')
+    return render_template('auth/login.html')
 
 
 
@@ -631,17 +631,17 @@ def register():
 
             if not name or not email or not phone or not password:
                 flash('Name, Email, Phone, and Password are required!', 'warning')
-                return render_template('register.html', role=role, form_data=request.form)
+                return render_template('auth/register.html', role=role, form_data=request.form)
 
             # Strict Gmail Validation
             if not email.endswith('@gmail.com'):
                 flash('Only Gmail addresses (ending in @gmail.com) are allowed.', 'warning')
-                return render_template('register.html', role=role, form_data=request.form)
+                return render_template('auth/register.html', role=role, form_data=request.form)
 
             # Password Strength Validation
             if len(password) < 8:
                 flash('Password must be at least 8 characters long.', 'warning')
-                return render_template('register.html', role=role, form_data=request.form)
+                return render_template('auth/register.html', role=role, form_data=request.form)
 
             # Check if email already exists
             conn = get_db_connection()
@@ -662,7 +662,7 @@ def register():
                 
                 if not all([profile_data['enrollment_no'], profile_data['department'], profile_data['degree']]):
                     flash('Student details are incomplete!', 'warning')
-                    return render_template('register.html', role='student', form_data=request.form)
+                    return render_template('auth/register.html', role='student', form_data=request.form)
 
             elif role == 'alumni':
                 profile_data['enrollment_no'] = request.form.get('enrollment_no', '').strip()
@@ -675,7 +675,7 @@ def register():
 
                 if not all([profile_data['enrollment_no'], profile_data['department'], profile_data['degree'], profile_data['pass_year']]):
                     flash('Alumni details are incomplete!', 'warning')
-                    return render_template('register.html', role='alumni', form_data=request.form)
+                    return render_template('auth/register.html', role='alumni', form_data=request.form)
 
             elif role == 'faculty':
                 profile_data['employee_id'] = request.form.get('employee_id', '').strip()
@@ -686,7 +686,7 @@ def register():
 
                 if not all([profile_data['employee_id'], profile_data['department'], profile_data['designation'], profile_data['qualification']]):
                     flash('Faculty details are incomplete!', 'warning')
-                    return render_template('register.html', role='faculty', form_data=request.form)
+                    return render_template('auth/register.html', role='faculty', form_data=request.form)
 
             # Generate Secure 6-digit OTP
             otp = ''.join(secrets.choice(string.digits) for _ in range(6))
@@ -781,7 +781,7 @@ def register():
             if conn:
                 conn.close()
 
-        return render_template('register.html', role=role)
+        return render_template('auth/register.html', role=role)
 
 @app.route('/logout')
 @login_required
@@ -794,7 +794,7 @@ def verify_otp():
     email = request.args.get('email') or request.form.get('email')
     
     if request.method == 'GET':
-        return render_template('verify_otp.html', email=email)
+        return render_template('auth/verify_otp.html', email=email)
     
     if request.method == 'POST':
         otp = request.form.get('otp', '').strip()
@@ -814,12 +814,12 @@ def verify_otp():
                     conn.execute('DELETE FROM temp_users WHERE email = ?', (email,))
                     conn.commit()
                     flash('OTP has expired! Please register again.', 'danger')
-                    return render_template('verify_otp.html', email=email)
+                    return render_template('auth/verify_otp.html', email=email)
                 
                 # Verify OTP
                 if temp_user['otp'] != otp:
                     flash('Invalid OTP! Please try again.', 'danger')
-                    return render_template('verify_otp.html', email=email)
+                    return render_template('auth/verify_otp.html', email=email)
                 
                 # OTP is correct - create actual user account
                 import json
@@ -903,17 +903,17 @@ def verify_otp():
                     import traceback
                     traceback.print_exc()
                     flash(f'Error creating account: {str(e)}', 'danger')
-                    return render_template('verify_otp.html', email=email)
+                    return render_template('auth/verify_otp.html', email=email)
             else:
                 flash('No registration found for this email. Please register first.', 'danger')
-                return render_template('verify_otp.html', email=email)
+                return render_template('auth/verify_otp.html', email=email)
                 
         except Exception as e:
             print(f"OTP Verification Error: {e}")
             import traceback
             traceback.print_exc()
             flash(f'An error occurred: {str(e)}', 'danger')
-            return render_template('verify_otp.html', email=email)
+            return render_template('auth/verify_otp.html', email=email)
         finally:
             if conn:
                 conn.close()
@@ -960,15 +960,15 @@ def resend_otp():
             else:
                 flash(f'⚠ OTP: {new_otp} - {msg_text}', 'warning')
             
-            return render_template('verify_otp.html', email=email)
+            return render_template('auth/verify_otp.html', email=email)
         else:
             flash('No registration found for this email.', 'danger')
-            return render_template('verify_otp.html', email=email)
+            return render_template('auth/verify_otp.html', email=email)
             
     except Exception as e:
         print(f"Error resending OTP: {e}")
         flash('Failed to resend OTP. Please try again.', 'danger')
-        return render_template('verify_otp.html', email=email)
+        return render_template('auth/verify_otp.html', email=email)
     finally:
         if conn:
             conn.close()
@@ -1004,7 +1004,7 @@ def student_profile(user_id):
             flash('Student not found!', 'danger')
             return redirect(url_for('home'))
 
-        return render_template('profile_student.html', user=user, profile=profile)
+        return render_template('student/profile.html', user=user, profile=profile)
     finally:
         if conn:
             conn.close()
@@ -1059,7 +1059,7 @@ def faculty_profile(user_id):
                 print(f"Error creating faculty profile: {e}")
                 profile = None
 
-        return render_template('profile_faculty.html', user=user, profile=profile)
+        return render_template('faculty/profile.html', user=user, profile=profile)
     except Exception as e:
         print(f"Faculty profile error: {e}")
         flash('Error loading profile!', 'danger')
@@ -1185,7 +1185,7 @@ def dashboard_student():
             ORDER BY u.name ASC
         """, (current_user.id,)).fetchall()
 
-        return render_template('dashboard_student.html',
+        return render_template('student/dashboard.html',
                              alumni=alumni,
                              faculty=faculty,
                              student=student,
@@ -1291,7 +1291,7 @@ def dashboard_faculty():
             ORDER BY f.department
         """, (current_user.id,)).fetchall()
 
-        return render_template('dashboard_faculty.html',
+        return render_template('faculty/dashboard.html',
                              profile=profile,
                              pending_requests=pending_requests,
                              pending_count=len(pending_requests),
@@ -1421,7 +1421,7 @@ def private_chat(other_user_id):
         flash('User not found', 'danger')
         return redirect(url_for('messaging_dashboard'))
 
-    return render_template('private_chat.html',
+    return render_template('messaging/private_chat.html',
                          other_user_id=other_user_id,
                          other_user_name=other_user['name'],
                          other_user_role=other_user['role'],
@@ -1615,7 +1615,7 @@ def edit_student_profile(user_id):
                 user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
                 profile = conn.execute('SELECT * FROM student_profile WHERE user_id = ?', (user_id,)).fetchone()
                 flash('Name and Phone are required!', 'warning')
-                return render_template('edit_student_profile.html', user=user, profile=profile)
+                return render_template('student/edit_profile.html', user=user, profile=profile)
 
             # Handle profile photo upload
             profile_pic = None
@@ -1651,7 +1651,7 @@ def edit_student_profile(user_id):
             flash('Student not found!', 'danger')
             return redirect(url_for('home'))
 
-        return render_template('edit_student_profile.html', user=user, profile=profile)
+        return render_template('student/edit_profile.html', user=user, profile=profile)
 
     except Exception as e:
         if conn:
@@ -1782,7 +1782,7 @@ def edit_faculty_profile(user_id):
                 user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
                 profile = conn.execute('SELECT * FROM faculty_profile WHERE user_id = ?', (user_id,)).fetchone()
                 flash('Name and Phone are required!', 'warning')
-                return render_template('edit_faculty_profile.html', user=user, profile=profile)
+                return render_template('faculty/edit_profile.html', user=user, profile=profile)
 
             # Handle profile photo upload
             profile_pic = None
@@ -1817,7 +1817,7 @@ def edit_faculty_profile(user_id):
             flash('Faculty not found!', 'danger')
             return redirect(url_for('home'))
 
-        return render_template('edit_faculty_profile.html', user=user, profile=profile)
+        return render_template('faculty/edit_profile.html', user=user, profile=profile)
 
     except Exception as e:
         if conn:

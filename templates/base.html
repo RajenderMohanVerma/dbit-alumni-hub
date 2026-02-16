@@ -237,27 +237,13 @@
 
 
                     <!-- More Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-h"></i> <span>More</span>
+
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link" href="/notifications">
+                            <i class="fas fa-bell"></i> <span>Notifications</span>
                         </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/notifications">
-                                    <i class="fas fa-bell"></i> <span>Notifications</span>
-                                </a>
-                            </li>
-                            <li><a class="dropdown-item" href="/upgrade"><i class="fas fa-crown me-2 text-warning"></i>
-                                    Upgrade</a></li>
-                            <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog me-2"></i> Settings</a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item text-danger" href="/logout"><i
-                                        class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
-                        </ul>
                     </li>
+
                     {% elif current_user.role == 'alumni' %}
                     <li class="nav-item">
                         <a class="nav-link nav-pill-link nav-alumni-link" href="/alumni/dashboard">

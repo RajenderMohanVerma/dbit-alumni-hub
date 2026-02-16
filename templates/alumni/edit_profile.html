@@ -81,14 +81,14 @@
 
                                                 <!-- Images -->
                                                 <img id="uploadPreview" src="{{ user['profile_pic'] }}"
-                                                    style="{{ 'display: block;' if user['profile_pic'] else 'display: none;' }}">
+                                                    class="{% if user['profile_pic'] %}d-block{% else %}d-none{% endif %}">
                                                 <img id="svgPlaceholder"
                                                     src="{{ url_for('static', filename='images/camera_pic.svg') }}"
-                                                    alt="Upload Photo" class="camera-svg-placeholder"
-                                                    style="{{ 'display: none;' if user['profile_pic'] else 'display: block;' }}">
+                                                    alt="Upload Photo"
+                                                    class="camera-svg-placeholder {% if user['profile_pic'] %}d-none{% else %}d-block{% endif %}">
 
                                                 <!-- Hover Overlay -->
-                                                <div class="photo-hover-overlay-advanced" id="photoPlaceholder">
+                                                <div class="photo" id="photoPlaceholder">
                                                     <div class="overlay-content">
                                                         <i class="fas fa-camera fa-3x mb-3 pulse-icon"></i>
                                                         <span class="fw-bold fs-5 mb-2">Upload Photo</span>
@@ -104,8 +104,8 @@
                                         </div>
 
                                         <!-- Edit/Remove Buttons -->
-                                        <div class="photo-actions" id="photoActions"
-                                            style="{{ 'display: flex;' if user['profile_pic'] else 'display: none;' }}">
+                                        <div class="photo-actions {% if user['profile_pic'] %}d-flex{% else %}d-none{% endif %}"
+                                            id="photoActions">
                                             <button type="button" class="action-btn edit-btn"
                                                 onclick="document.getElementById('profile_pic').click()">
                                                 <i class="fas fa-edit"></i>
