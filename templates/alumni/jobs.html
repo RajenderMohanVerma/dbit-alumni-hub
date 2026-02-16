@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Jobs & Internships - DBIT Alumni Hub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5 align-items-center animate__animated animate__fadeInDown">
+        <div class="col-md-8">
+            <h1 class="fw-bold gradient-text display-5 mb-3">Career Opportunities</h1>
+            <p class="lead text-muted">Explore exclusive job openings and internships posted by our alumni network.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="/post-job" class="btn btn-premium-gradient btn-lg shadow-premium">
+                <i class="fas fa-plus-circle me-2"></i> Post a Job
+            </a>
+        </div>
+    </div>
+
+    <!-- Search/Filter -->
+    <div class="glass-card p-4 mb-5 animate__animated animate__fadeInUp" style="--delay: 0.1s">
+        <div class="row g-3">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0"><i
+                            class="fas fa-search text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0"
+                        placeholder="Search jobs, skills, or companies...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select">
+                    <option selected>Job Type</option>
+                    <option>Full Time</option>
+                    <option>Part Time</option>
+                    <option>Internship</option>
+                    <option>Freelance</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select">
+                    <option selected>Location</option>
+                    <option>Remote</option>
+                    <option>On-site</option>
+                    <option>Hybrid</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">Find Jobs</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Listings -->
+    <div class="row g-4">
+        <!-- Job Card 1 -->
+        <div class="col-12 animate__animated animate__fadeInUp" style="--delay: 0.2s">
+            <div
+                class="glass-card p-4 hover-card transition-transform d-flex flex-column flex-md-row align-items-center gap-4">
+                <div class="job-company-logo bg-light rounded p-3 d-flex align-items-center justify-content-center"
+                    style="width: 80px; height: 80px;">
+                    <i class="fab fa-google fa-2x text-primary"></i>
+                </div>
+                <div class="flex-grow-1 text-center text-md-start">
+                    <h4 class="mb-1 fw-bold">Frontend Developer</h4>
+                    <p class="mb-2 text-muted">Google • Bangalore • <span
+                            class="badge bg-light text-success border border-success">Full Time</span></p>
+                    <div class="d-flex justify-content-center justify-content-md-start gap-2">
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis">React</span>
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis">TypeScript</span>
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis">3+ Years</span>
+                    </div>
+                </div>
+                <div class="text-center text-md-end">
+                    <h5 class="fw-bold text-success mb-1">₹18L - ₹25L</h5>
+                    <p class="text-muted small mb-3">Posted 2 days ago</p>
+                    <button class="btn btn-premium px-4">Apply Now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Card 2 -->
+        <div class="col-12 animate__animated animate__fadeInUp" style="--delay: 0.3s">
+            <div
+                class="glass-card p-4 hover-card transition-transform d-flex flex-column flex-md-row align-items-center gap-4">
+                <div class="job-company-logo bg-light rounded p-3 d-flex align-items-center justify-content-center"
+                    style="width: 80px; height: 80px;">
+                    <i class="fab fa-amazon fa-2x text-warning"></i>
+                </div>
+                <div class="flex-grow-1 text-center text-md-start">
+                    <h4 class="mb-1 fw-bold">SDE Intern</h4>
+                    <p class="mb-2 text-muted">Amazon • Hyderabad • <span
+                            class="badge bg-light text-info border border-info">Internship</span></p>
+                    <div class="d-flex justify-content-center justify-content-md-start gap-2">
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis">Java</span>
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis">DSA</span>
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis">Freshers</span>
+                    </div>
+                </div>
+                <div class="text-center text-md-end">
+                    <h5 class="fw-bold text-success mb-1">₹45k / month</h5>
+                    <p class="text-muted small mb-3">Posted 5 days ago</p>
+                    <button class="btn btn-premium px-4">Apply Now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Card 3 -->
+        <div class="col-12 animate__animated animate__fadeInUp" style="--delay: 0.4s">
+            <div
+                class="glass-card p-4 hover-card transition-transform d-flex flex-column flex-md-row align-items-center gap-4">
+                <div class="job-company-logo bg-light rounded p-3 d-flex align-items-center justify-content-center"
+                    style="width: 80px; height: 80px;">
+                    <i class="fab fa-microsoft fa-2x text-info"></i>
+                </div>
+                <div class="flex-grow-1 text-center text-md-start">
+                    <h4 class="mb-1 fw-bold">DevOps Engineer</h4>
+                    <p class="mb-2 text-muted">Microsoft • Remote • <span
+                            class="badge bg-light text-success border border-success">Full Time</span></p>
+                    <div class="d-flex justify-content-center justify-content-md-start gap-2">
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis">Azure</span>
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis">Docker</span>
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis">Kubernetes</span>
+                    </div>
+                </div>
+                <div class="text-center text-md-end">
+                    <h5 class="fw-bold text-success mb-1">₹12L - ₹18L</h5>
+                    <p class="text-muted small mb-3">Posted 1 week ago</p>
+                    <button class="btn btn-premium px-4">Apply Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

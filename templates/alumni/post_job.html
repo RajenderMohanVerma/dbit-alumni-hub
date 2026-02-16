@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Post a Job - DBIT Alumni Hub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card p-5 animate__animated animate__fadeInUp">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold gradient-text">Post a Job Opportunity</h2>
+                    <p class="text-muted">Share career opportunities with your alma mater's talent pool.</p>
+                </div>
+
+                <form>
+                    <!-- Job Details -->
+                    <h5 class="text-primary mb-4"><i class="fas fa-briefcase me-2"></i> Job Details</h5>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Job Title</label>
+                        <input type="text" class="form-control" placeholder="e.g. Senior Software Engineer">
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Company Name</label>
+                            <input type="text" class="form-control" placeholder="e.g. Tech Solutions Inc.">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Location</label>
+                            <input type="text" class="form-control" placeholder="e.g. Bangalore / Remote">
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Job Type</label>
+                            <select class="form-select">
+                                <option>Full Time</option>
+                                <option>Part Time</option>
+                                <option>Internship</option>
+                                <option>Contract</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Experience Level</label>
+                            <select class="form-select">
+                                <option>Entry Level (0-2 years)</option>
+                                <option>Mid Level (2-5 years)</option>
+                                <option>Senior Level (5+ years)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Job Description</label>
+                        <textarea class="form-control" rows="5"
+                            placeholder="Describe the role, responsibilities, and requirements..."></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Skills Required</label>
+                        <input type="text" class="form-control" placeholder="e.g. Python, React, SQL (comma separated)">
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="form-label fw-bold">Application Link / Email</label>
+                        <input type="text" class="form-control" placeholder="Where should candidates apply?">
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-premium-gradient btn-lg shadow-premium">
+                            Publish Job Post
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

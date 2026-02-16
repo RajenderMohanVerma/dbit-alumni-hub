@@ -96,6 +96,26 @@
             z-index: 0;
             opacity: 0.6;
         }
+
+        /* Alumni Navbar Compact Styles */
+        .nav-alumni-link {
+            font-size: 0.9rem !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+            white-space: nowrap;
+        }
+
+        .nav-alumni-link i {
+            font-size: 1rem;
+            color: var(--primary-color, #4f46e5);
+            /* Brand color hint */
+        }
+
+        @media (max-width: 1200px) {
+            .nav-alumni-link span.d-xl-inline {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 
@@ -240,94 +260,82 @@
                     </li>
                     {% elif current_user.role == 'alumni' %}
                     <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/alumni/dashboard">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/profile">
-                            <i class="fas fa-user"></i> My Profile
+                        <a class="nav-link nav-pill-link nav-alumni-link" href="/alumni/dashboard">
+                            <i class="fas fa-tachometer-alt"></i> <span class="d-none d-xl-inline">Dashboard</span>
                         </a>
                     </li>
 
                     <!-- Connect Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="alumniConnectDropdown"
-                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-users"></i> <span>Connect</span>
+                        <a class="nav-link nav-pill-link dropdown-toggle nav-alumni-link" href="#"
+                            id="alumniConnectDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-users"></i> <span class="d-none d-lg-inline">Connect</span>
                         </a>
                         <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="alumniConnectDropdown">
                             <li>
-                                <a class="dropdown-item" href="/network">
+                                <a class="dropdown-item" href="/alumni/network">
                                     <i class="fas fa-network-wired me-2"></i> Network
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="/messages">
-                                    <i class="fas fa-comment-alt me-2"></i> Messages
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="/mentorship">
+                                <a class="dropdown-item" href="/alumni/mentorship">
                                     <i class="fas fa-chalkboard-teacher me-2"></i> Mentorship
                                 </a>
                             </li>
-                        </ul>
-                    </li>
-
-                    <!-- Contribute Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="contributeDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-hands-helping"></i> <span>Contribute</span>
-                        </a>
-                        <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="contributeDropdown">
                             <li>
-                                <a class="dropdown-item" href="/post-job">
-                                    <i class="fas fa-plus-circle me-2"></i> Post Jobs
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="/spotlight">
+                                <a class="dropdown-item" href="/alumni/spotlight">
                                     <i class="fas fa-star me-2"></i> Spotlight
                                 </a>
                             </li>
                         </ul>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/events">
-                            <i class="fas fa-calendar-alt"></i> <span>Events</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link" href="/notifications">
-                            <i class="fas fa-bell"></i> <span>Notifications</span>
-                        </a>
-                    </li>
-
-                    <!-- More Dropdown -->
+                    <!-- Opportunities Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="alumniMoreDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-h"></i> <span>More</span>
+                        <a class="nav-link nav-pill-link dropdown-toggle nav-alumni-link" href="#"
+                            id="opportunitiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-briefcase"></i> <span class="d-none d-lg-inline">Opportunities</span>
                         </a>
-                        <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="alumniMoreDropdown">
+                        <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="opportunitiesDropdown">
                             <li>
-                                <a class="dropdown-item" href="/settings">
-                                    <i class="fas fa-cog me-2"></i> Settings
+                                <a class="dropdown-item" href="/alumni/jobs">
+                                    <i class="fas fa-search me-2"></i> Find Jobs
                                 </a>
                             </li>
                             <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="/logout">
-                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                <a class="dropdown-item" href="/alumni/post-job">
+                                    <i class="fas fa-plus-circle me-2"></i> Post a Job
                                 </a>
                             </li>
                         </ul>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill-link nav-alumni-link" href="/alumni/events">
+                            <i class="fas fa-calendar-alt"></i> <span class="d-none d-xl-inline">Events</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link nav-pill-link dropdown-toggle nav-alumni-link" href="#" id="updatesDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell"></i> <span class="d-none d-lg-inline">Updates</span>
+                        </a>
+                        <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="updatesDropdown">
+                            <li>
+                                <a class="dropdown-item" href="/alumni/messages">
+                                    <i class="fas fa-comment-alt me-2"></i> Messages
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/alumni/notifications">
+                                    <i class="fas fa-bell me-2"></i> Notifications
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+
                     {% elif current_user.role == 'faculty' %}
                     <li class="nav-item">
                         <a class="nav-link nav-pill-link" href="/faculty/dashboard">
@@ -997,10 +1005,10 @@
         }
 
         // 6. AUTO-DISMISS ALERTS (5 SECONDS)
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             const alerts = document.querySelectorAll('.alert-modern');
-            alerts.forEach(function(alert) {
-                setTimeout(function() {
+            alerts.forEach(function (alert) {
+                setTimeout(function () {
                     const closeButton = alert.querySelector('.btn-close');
                     if (closeButton) {
                         closeButton.click();

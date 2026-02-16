@@ -781,7 +781,7 @@ def register():
             if conn:
                 conn.close()
 
-    return render_template('register.html', role=role)
+        return render_template('register.html', role=role)
 
 @app.route('/logout')
 @login_required
@@ -1025,7 +1025,7 @@ def alumni_profile(user_id):
             flash('Alumni not found!', 'danger')
             return redirect(url_for('home'))
 
-        return render_template('profile_alumni.html', user=user, profile=profile)
+        return render_template('alumni/profile.html', user=user, profile=profile)
     finally:
         if conn:
             conn.close()
@@ -1216,7 +1216,7 @@ def dashboard_alumni():
         # Get alumni profile for completeness tracking
         alumni_profile = conn.execute('SELECT * FROM alumni_profile WHERE user_id = ?', (current_user.id,)).fetchone()
 
-        return render_template('dashboard_alumni.html',
+        return render_template('alumni/dashboard.html',
                              pending_requests=pending_requests,
                              pending_count=len(pending_requests),
                              alumni=alumni_profile)
@@ -1475,7 +1475,7 @@ def alumni_meet_register():
 
             if not all([full_name, contact_no, email, enrollment_no, course, passing_year]):
                 flash('Please fill in all required fields!', 'warning')
-                return render_template('alumni_meet_register.html')
+                return render_template('alumni/meet_register.html')
 
             conn = get_db_connection()
             conn.execute('''INSERT INTO alumni_meet_registration
@@ -1507,7 +1507,7 @@ def alumni_meet_register():
             if conn:
                 conn.close()
 
-    return render_template('alumni_meet_register.html')
+    return render_template('alumni/meet_register.html')
 
 @app.route('/alumni/meet/view')
 @login_required
@@ -1525,10 +1525,66 @@ def alumni_meet_view():
             flash('You have not registered for the Alumni Meet yet!', 'info')
             return redirect(url_for('alumni_meet_register'))
 
-        return render_template('alumni_meet_view.html', registration=registration)
+        return render_template('alumni/meet_view.html', registration=registration)
     finally:
         if conn:
             conn.close()
+
+# --- ALUMNI FEATURE ROUTES ---
+
+@app.route('/alumni/network')
+@login_required
+def alumni_network():
+    if current_user.role != 'alumni': return redirect(url_for('home'))
+    return render_template('alumni/network.html')
+
+@app.route('/alumni/messages')
+@login_required
+def alumni_messages():
+    if current_user.role != 'alumni': return redirect(url_for('home'))
+    return render_template('alumni/messages.html')
+
+@app.route('/alumni/mentorship')
+@login_required
+def alumni_mentorship():
+    if current_user.role != 'alumni': return redirect(url_for('home'))
+    return render_template('alumni/mentorship.html')
+
+@app.route('/alumni/post-job')
+@login_required
+def alumni_post_job():
+    if current_user.role != 'alumni': return redirect(url_for('home'))
+    return render_template('alumni/post_job.html')
+
+@app.route('/alumni/jobs')
+@login_required
+def alumni_jobs():
+    if current_user.role != 'alumni': return redirect(url_for('home'))
+    return render_template('alumni/jobs.html')
+
+@app.route('/alumni/spotlight')
+@login_required
+def alumni_spotlight():
+    if current_user.role != 'alumni': return redirect(url_for('home'))
+    return render_template('alumni/spotlight.html')
+
+@app.route('/alumni/events')
+@login_required
+def alumni_events():
+    if current_user.role != 'alumni': return redirect(url_for('home'))
+    return render_template('alumni/events.html')
+
+@app.route('/alumni/notifications')
+@login_required
+def alumni_notifications():
+    if current_user.role != 'alumni': return redirect(url_for('home'))
+    return render_template('alumni/notifications.html')
+
+@app.route('/alumni/settings')
+@login_required
+def alumni_settings():
+    if current_user.role != 'alumni': return redirect(url_for('home'))
+    return render_template('alumni/settings.html')
 
 # --- PROFILE EDIT ROUTES ---
 
@@ -1636,7 +1692,7 @@ def edit_alumni_profile(user_id):
                 user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
                 profile = conn.execute('SELECT * FROM alumni_profile WHERE user_id = ?', (user_id,)).fetchone()
                 flash('Name and Phone are required!', 'warning')
-                return render_template('edit_alumni_profile.html', user=user, profile=profile)
+                return render_template('alumni/edit_profile.html', user=user, profile=profile)
 
             # Handle profile photo upload
             profile_pic = None
@@ -1687,7 +1743,7 @@ def edit_alumni_profile(user_id):
                 flash('Error loading profile!', 'danger')
                 return redirect(url_for('home'))
 
-        return render_template('edit_alumni_profile.html', user=user, profile=profile)
+        return render_template('alumni/edit_profile.html', user=user, profile=profile)
 
     except Exception as e:
         if conn:
