@@ -17,6 +17,7 @@ from extensions import mail
 from db_utils import get_db_connection
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from models.recommendation import get_recommended_users
 
 
 # Load environment variables
@@ -167,7 +168,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 class User(UserMixin):
-    def __init__(self, id, name, email, role, profile_pic, is_verified=1, is_suspended=0, 
+    def __init__(self, id, name, email, role, profile_pic, phone=None, is_verified=1, is_suspended=0, 
                  branch=None, passing_year=None, current_domain=None, skills=None, 
                  interests=None, city=None, company=None):
         self.id = id
@@ -175,6 +176,7 @@ class User(UserMixin):
         self.email = email
         self.role = role
         self.profile_pic = profile_pic
+        self.phone = phone
         self.is_verified = is_verified
         self.is_suspended = is_suspended
         self.branch = branch
@@ -208,7 +210,7 @@ def load_user(user_id):
                 return None
 
         return User(
-            user['id'], user['name'], user['email'], user['role'], avatar, is_verified,
+            user['id'], user['name'], user['email'], user['role'], avatar, user['phone'], is_verified,
             get_field('is_suspended') or 0,
             get_field('branch'), get_field('passing_year'), get_field('current_domain'),
             get_field('skills'), get_field('interests'), get_field('city'), get_field('company')
@@ -449,94 +451,7 @@ def init_db():
 
 # --- RECOMMENDATION SYSTEM ---
 
-def get_recommended_users(user):
-    """
-    Rule-based recommendation system:
-    1. Same branch: +5
-    2. Same skill match: +5 (for each matching skill)
-    3. Same domain: +3
-    4. Same city: +2
-    
-    Excludes: Self, already connected, pending requests.
-    Returns: Top 5 recommendations.
-    """
-    if not user or user.role not in ['student', 'alumni']:
-        return []
-
-    conn = get_db_connection()
-    c = conn.cursor()
-
-    # Determine target role (Students get Alumni, Alumni get Students)
-    target_role = 'alumni' if user.role == 'student' else 'student'
-
-    # Get already connected or pending user IDs to exclude
-    excluded_ids = [user.id]
-    
-    # Already connected
-    connections = c.execute(
-        'SELECT user_id_1, user_id_2 FROM connections WHERE user_id_1 = ? OR user_id_2 = ?',
-        (user.id, user.id)
-    ).fetchall()
-    for conn_row in connections:
-        excluded_ids.append(conn_row['user_id_1'] if conn_row['user_id_1'] != user.id else conn_row['user_id_2'])
-    
-    # Pending requests (sent or received)
-    pending = c.execute(
-        'SELECT sender_id, receiver_id FROM connection_requests WHERE (sender_id = ? OR receiver_id = ?) AND status = "pending"',
-        (user.id, user.id)
-    ).fetchall()
-    for p_row in pending:
-        excluded_ids.append(p_row['sender_id'] if p_row['sender_id'] != user.id else p_row['receiver_id'])
-
-    # Fetch potential candidates
-    query = f"SELECT * FROM users WHERE role = ? AND id NOT IN ({','.join(['?']*len(excluded_ids))})"
-    candidates = c.execute(query, [target_role] + excluded_ids).fetchall()
-
-    recommendations = []
-    user_skills = set([s.strip().lower() for s in (user.skills or "").split(',') if s.strip()])
-    
-    for cand in candidates:
-        score = 0
-        
-        # Rule 1: Same branch
-        if cand['branch'] and user.branch and cand['branch'].lower() == user.branch.lower():
-            score += 5
-            
-        # Rule 2: Skill match (+5 per matching skill)
-        cand_skills = [s.strip().lower() for s in (cand['skills'] or "").split(',') if s.strip()]
-        for skill in cand_skills:
-            if skill in user_skills:
-                score += 5
-                
-        # Rule 3: Same domain
-        if cand['current_domain'] and user.current_domain and cand['current_domain'].lower() == user.current_domain.lower():
-            score += 3
-            
-        # Rule 4: Same city
-        if cand['city'] and user.city and cand['city'].lower() == user.city.lower():
-            score += 2
-            
-        if score > 0:
-            recommendations.append({
-                'id': cand['id'],
-                'name': cand['name'],
-                'role': cand['role'],
-                'branch': cand['branch'],
-                'skills': cand['skills'],
-                'score': score,
-                'profile_pic': cand['profile_pic'] or f"https://ui-avatars.com/api/?name={cand['name']}&background=random"
-            })
-
-    # Sort by score descending and return top 5
-    recommendations.sort(key=lambda x: x['score'], reverse=True)
-    conn.close()
-    return recommendations[:5]
-
-@app.route('/recommendations')
-@login_required
-def recommendations_api():
-    recs = get_recommended_users(current_user)
-    return jsonify(recs)
+# Recommendation logic and routes moved to models/recommendation.py and routes/recommendation_routes.py
 
 # --- ROUTES ---
 
@@ -3543,6 +3458,44 @@ def report_issue():
     return render_template('report_issue.html')
 
 
+@app.route('/contact/whatsapp/<int:user_id>')
+@login_required
+def whatsapp_bridge(user_id):
+    """
+    Secure bridge for WhatsApp redirection. 
+    Prevents raw number exposure and requests user consent.
+    """
+    conn = get_db_connection()
+    user = conn.execute('SELECT id, name, phone FROM users WHERE id = ?', (user_id,)).fetchone()
+    conn.close()
+    
+    if not user or not user['phone']:
+        flash('Contact number not available.', 'danger')
+        return redirect(request.referrer or url_for('home'))
+        
+    return render_template('contact_bridge.html', target_user=user)
+
+
+@app.route('/contact/whatsapp/jump/<int:user_id>')
+@login_required
+def whatsapp_jump(user_id):
+    """
+    Final redirection jump. Handles the API call to wa.me on the server 
+    so the phone number is never exposed in the HTML.
+    """
+    conn = get_db_connection()
+    user = conn.execute('SELECT phone FROM users WHERE id = ?', (user_id,)).fetchone()
+    conn.close()
+    
+    if not user or not user['phone']:
+        flash('Contact number not available.', 'danger')
+        return redirect(url_for('home'))
+        
+    # Standardize number for WhatsApp
+    clean_phone = user['phone'].replace(' ', '').replace('+', '').replace('-', '')
+    return redirect(f"https://wa.me/{clean_phone}")
+
+
 @app.route('/send-email', methods=['POST'])
 @login_required
 def send_user_email():
@@ -3555,13 +3508,58 @@ def send_user_email():
         return redirect(request.referrer or url_for('home'))
         
     try:
+        # Fetch sender additional info (LinkedIn, WhatsApp etc)
+        conn = get_db_connection()
+        sender_profile = None
+        
+        if current_user.role == 'alumni':
+            sender_profile = conn.execute('SELECT linkedin_url FROM alumni_profile WHERE user_id = ?', (current_user.id,)).fetchone()
+        elif current_user.role == 'student':
+            sender_profile = conn.execute('SELECT bio FROM student_profile WHERE user_id = ?', (current_user.id,)).fetchone()
+        
+        conn.close()
+
+        # Build interactive signature
+        base_url = request.host_url.rstrip('/')
+        profile_url = f"{base_url}/{current_user.role}/profile/{current_user.id}"
+        
+        # SECURE: Use bridge URL instead of raw wa.me link to hide phone number
+        whatsapp_bridge_url = f"{base_url}/contact/whatsapp/{current_user.id}"
+        
+        linkedin_html = ""
+        if current_user.role == 'alumni' and sender_profile and 'linkedin_url' in sender_profile.keys():
+            if sender_profile['linkedin_url']:
+                linkedin_html = f'<p style="margin-top: 15px; font-size: 13px; color: #6b7280;"><a href="{sender_profile["linkedin_url"]}" style="color: #3b82f6; text-decoration: none;">Connect on LinkedIn →</a></p>'
+
+        # Enriched HTML Content
         html_content = f'''
-        <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto;">
-            <p style="color: #333; line-height: 1.8;">Message from <strong>{current_user.name}</strong> ({current_user.email}):</p>
-            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #1e3a8a;">
-                <p style="margin: 0; color: #333; line-height: 1.8; white-space: pre-wrap;">{message_body}</p>
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; border-radius: 16px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+            <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 30px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 1px;">ALUMNI HUB</h1>
+                <p style="color: rgba(255,255,255,0.8); margin-top: 5px; font-size: 14px;">Official Communication</p>
             </div>
-            <p style="color: #999; font-size: 0.9rem; margin-top: 20px;">Sent via Alumni Hub</p>
+            
+            <div style="padding: 40px 30px; background: white;">
+                <p style="color: #6b7280; font-size: 14px; text-transform: uppercase; font-weight: 700; margin-bottom: 20px; letter-spacing: 0.5px;">Message from {current_user.name}:</p>
+                <div style="background: #f3f4f6; padding: 25px; border-radius: 12px; border-left: 4px solid #3b82f6; margin-bottom: 30px;">
+                    <p style="margin: 0; color: #1f2937; line-height: 1.6; font-size: 16px; white-space: pre-wrap;">{message_body}</p>
+                </div>
+                
+                <div style="border-top: 1px solid #f3f4f6; padding-top: 30px;">
+                    <p style="color: #374151; font-weight: 700; font-size: 16px; margin-bottom: 20px;">Contact the Sender</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="{profile_url}" style="display: inline-block; padding: 12px 20px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">View Hub Profile</a>
+                        <a href="{whatsapp_bridge_url}" style="display: inline-block; padding: 12px 20px; background-color: #25D366; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">WhatsApp Message</a>
+                        <a href="mailto:{current_user.email}" style="display: inline-block; padding: 12px 20px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">Reply via Email</a>
+                    </div>
+                    {linkedin_html}
+                </div>
+            </div>
+            
+            <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <p style="color: #9ca3af; font-size: 12px; margin: 0;">Sent via <a href="{base_url}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">DBIT Alumni Hub</a></p>
+                <p style="color: #9ca3af; font-size: 11px; margin-top: 5px;">This is an authenticated message sent directly from our secure portal.</p>
+            </div>
         </div>
         '''
         
@@ -3576,6 +3574,21 @@ def send_user_email():
         flash('Failed to send email. Please try again later.', 'danger')
         
     return redirect(request.referrer or url_for('home'))
+
+
+@app.route('/compose-email/<int:user_id>')
+@login_required
+def compose_email(user_id):
+    # Fetch user details securely
+    conn = get_db_connection()
+    user = conn.execute('SELECT id, name, email FROM users WHERE id = ?', (user_id,)).fetchone()
+    conn.close()
+    
+    if not user:
+        flash('User not found!', 'danger')
+        return redirect(url_for('home'))
+        
+    return render_template('compose_email.html', recipient=user)
 
 
 
@@ -3766,7 +3779,11 @@ if __name__ == '__main__':
     try:
         from routes.connection_routes import connection_bp
         app.register_blueprint(connection_bp)
+        
+        # Register Recommendation Routes
+        from routes.recommendation_routes import recommendation_bp
+        app.register_blueprint(recommendation_bp)
     except Exception as e:
-        print(f"Warning: connection_routes blueprint not found: {e}")
+        print(f"Warning: routes blueprint error: {e}")
 
     socketio.run(app, debug=app.config['DEBUG'], host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)

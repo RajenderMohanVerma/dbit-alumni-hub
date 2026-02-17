@@ -1,5 +1,5 @@
 """
-Messaging Routes for Alumni Hub
+Messaging Routes for DBIT Alumni Hub
 Handles all API endpoints for public messages, private messages, search, and admin controls
 """
 

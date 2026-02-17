@@ -134,16 +134,21 @@ Visit `http://localhost:5000`
 
 ---
 
+- **[RECOMMENDATIONS.md](file:///d:/RajenderMohan_BCA/BCA_Major_Project/dbit-alumni-hub/RECOMMENDATIONS.md)**: Detailed technical documentation for the scoring engine and AI roadmap.
+
+---
+
 ## 📁 Project Architecture
 
 ```
 dbit-alumni-hub/
 ├── database/            # DB Helpers (messaging_db.py, etc.)
-├── routes/              # API & Page Routes (messaging, social, connection)
+├── models/              # Core Logic (recommendation.py, etc.)
+├── routes/              # API & Page Routes (messaging, social, recommendation)
 ├── static/              # Assets (JS, CSS, Images)
 ├── templates/           # Jinja2 Layouts
 ├── app.py               # Main Application Entry (SocketIO)
-├── init_messaging_db.py # Messaging DB Setup
+├── db_utils.py          # Database connection utility
 └── .env                 # Environment Config
 ```
 

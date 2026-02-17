@@ -74,36 +74,50 @@
 
                         <hr>
 
-                        <!-- Contact -->
-                        <div class="mb-3 text-start">
-                            <small class="text-muted d-block mb-2"><i class="fas fa-envelope"></i> Email</small>
-                            <p class="text-break mb-3" style="font-size: 0.9rem;">{{ user['email'] }}</p>
+                        <!-- Contact & Actions -->
+                        <div class="mb-4 text-start">
+                            <h6 class="fw-bold mb-3" style="font-size: 0.85rem; letter-spacing: 0.5px; color: #64748b;">
+                                <i class="fas fa-id-card me-2"></i> CONTACT OPTIONS
+                            </h6>
 
-                            <small class="text-muted d-block mb-2"><i class="fas fa-phone"></i> Phone</small>
-                            <p class="mb-0">{{ user['phone'] }}</p>
+                            <div class="d-grid gap-2">
+                                <!-- WhatsApp Bridge Button -->
+                                <a href="{{ url_for('whatsapp_bridge', user_id=user['id']) }}"
+                                    class="btn btn-whatsapp-modern w-100">
+                                    <i class="fab fa-whatsapp me-2"></i> WhatsApp Connect
+                                </a>
+
+                                <!-- Internal Compose Email Button -->
+                                <a href="{{ url_for('compose_email', user_id=user['id']) }}"
+                                    class="btn btn-email-modern w-100">
+                                    <i class="fas fa-paper-plane me-2"></i> Professional Mail
+                                </a>
+
+                                <!-- Gmail Redirection Button -->
+                                <a href="https://mail.google.com/mail/?view=cm&fs=1&to={{ user['email'] }}"
+                                    target="_blank" class="btn btn-outline-modern-small w-100">
+                                    <i class="fab fa-google me-2" style="color: #EA4335;"></i> Gmail Compose
+                                </a>
+                            </div>
                         </div>
 
-                        <hr>
+                        <hr class="my-4">
 
                         <!-- Actions -->
                         {% if current_user.id == user['id'] %}
                         <div class="d-grid gap-2">
-                            <a href="{{ url_for('edit_student_profile', user_id=user['id']) }}" class="btn btn-primary">
-                                <i class="fas fa-edit"></i> Edit Profile
+                            <a href="{{ url_for('edit_student_profile', user_id=user['id']) }}"
+                                class="btn btn-primary-premium">
+                                <i class="fas fa-user-edit me-2"></i> Edit Profile
                             </a>
-                            <a href="{{ url_for('change_password') }}" class="btn btn-outline-warning">
-                                <i class="fas fa-lock"></i> Change Password
+                            <a href="{{ url_for('change_password') }}" class="btn btn-outline-warning-premium">
+                                <i class="fas fa-key me-2"></i> Change Password
                             </a>
                         </div>
                         {% else %}
-                        <!-- Connection Request Button -->
                         <div class="d-grid gap-2">
-                            <button id="connection-btn" class="btn btn-success" data-user-id="{{ user['id'] }}">
-                                <i class="fas fa-user-plus"></i> Send Connection Request
-                            </button>
-                            <button type="button" class="btn btn-outline-primary mt-2" data-bs-toggle="modal"
-                                data-bs-target="#emailModal">
-                                <i class="fas fa-envelope"></i> Send Email
+                            <button id="connection-btn" class="btn btn-success-premium" data-user-id="{{ user['id'] }}">
+                                <i class="fas fa-user-plus me-2"></i> Send Connection Request
                             </button>
                         </div>
                         {% endif %}
@@ -224,35 +238,6 @@
     </div>
 </div>
 
-<!-- Email Modal -->
-<div class="modal fade" id="emailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content glass-card border-0" style="background: rgba(255, 255, 255, 0.95);">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold">Send Email to {{ user['name'] }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="/send-email" method="POST">
-                    <input type="hidden" name="recipient_email" value="{{ user['email'] }}">
-                    <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold">Subject</label>
-                        <input type="text" name="subject" class="form-control rounded-3" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold">Message</label>
-                        <textarea name="message" class="form-control rounded-3" rows="5" required></textarea>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary fw-bold py-2">
-                            <i class="fas fa-paper-plane me-2"></i> Send Message
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 <style>
     /* Global Typography & Mesh */
@@ -625,6 +610,129 @@
     .small-text {
         font-size: 0.75rem;
         color: #94a3b8;
+    }
+
+    /* New Contact Buttons */
+    .btn-whatsapp-modern {
+        background: rgba(37, 211, 102, 0.1);
+        color: #25D366;
+        border: 1px solid rgba(37, 211, 102, 0.2);
+        font-weight: 700;
+        border-radius: 12px;
+        padding: 12px;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .btn-whatsapp-modern:hover {
+        background: #25D366;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-email-modern {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        font-weight: 700;
+        border-radius: 12px;
+        padding: 12px;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-email-modern:hover {
+        background: #6366f1;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-modern-small {
+        background: transparent;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border-radius: 12px;
+        padding: 10px;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-outline-modern-small:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    /* Premium Action Buttons */
+    .btn-primary-premium {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 14px;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+    }
+
+    .btn-primary-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3);
+        color: white;
+    }
+
+    .btn-success-premium {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 14px;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+    }
+
+    .btn-success-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
+        color: white;
+    }
+
+    .btn-outline-warning-premium {
+        background: transparent;
+        color: #f59e0b;
+        border: 2px solid rgba(245, 158, 11, 0.3);
+        padding: 12px;
+        border-radius: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: 0.3s;
+    }
+
+    .btn-outline-warning-premium:hover {
+        background: rgba(245, 158, 11, 0.05);
+        border-color: #f59e0b;
+        color: #d97706;
+        transform: translateY(-2px);
     }
 </style>
 

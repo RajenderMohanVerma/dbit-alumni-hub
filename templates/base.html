@@ -328,11 +328,6 @@
                             <i class="fas fa-tachometer-alt"></i> <span class="d-none d-xl-inline">Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link nav-faculty-link" href="/profile">
-                            <i class="fas fa-user"></i> <span class="d-none d-lg-inline">My Profile</span>
-                        </a>
-                    </li>
 
                     <!-- Connect Dropdown -->
                     <li class="nav-item dropdown">
@@ -347,8 +342,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="/messages">
-                                    <i class="fas fa-comment-alt me-2"></i> Messages
+                                <a class="dropdown-item" href="/profile">
+                                    <i class="fas fa-user me-2"></i> My Profile
                                 </a>
                             </li>
                         </ul>
@@ -379,34 +374,28 @@
                             <i class="fas fa-calendar-alt"></i> <span class="d-none d-xl-inline">Events</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-pill-link nav-faculty-link" href="/notifications">
-                            <i class="fas fa-bell"></i> <span class="d-none d-xl-inline">Notifications</span>
-                        </a>
-                    </li>
 
-                    <!-- More Dropdown -->
+                    <!-- Updates Dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link nav-pill-link dropdown-toggle nav-faculty-link" href="#"
-                            id="facultyMoreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-h"></i> <span class="d-none d-lg-inline">More</span>
+                            id="facultyUpdatesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell"></i> <span class="d-none d-lg-inline">Updates</span>
                         </a>
-                        <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="facultyMoreDropdown">
+                        <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="facultyUpdatesDropdown">
                             <li>
-                                <a class="dropdown-item" href="/settings">
-                                    <i class="fas fa-cog me-2"></i> Settings
+                                <a class="dropdown-item" href="/messages">
+                                    <i class="fas fa-comment-alt me-2"></i> Messages
                                 </a>
                             </li>
                             <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="/logout">
-                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                <a class="dropdown-item" href="/notifications">
+                                    <i class="fas fa-bell me-2"></i> Notifications
                                 </a>
                             </li>
                         </ul>
                     </li>
+
+
                     {% elif current_user.role == 'admin' %}
                     <li class="nav-item">
                         <a class="nav-link nav-pill-link {% if request.endpoint == 'dashboard_admin' %}active{% endif %}"

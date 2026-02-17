@@ -1,5 +1,5 @@
 """
-WebSocket Handlers for Alumni Hub Messaging System
+WebSocket Handlers for DBIT Alumni Hub Messaging System
 Real-time communication for public messages, private messages, typing indicators, and system events
 """
 
