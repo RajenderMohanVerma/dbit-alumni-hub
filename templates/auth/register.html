@@ -427,7 +427,7 @@
                         style="width: 40px; height: 40px;">
                         <i class="fas fa-graduation-cap text-white"></i>
                     </div>
-                    <h4 class="mb-0">DBIT Hub</h4>
+                    <h4 class="mb-0">DBIT ALUMNI HUB</h4>
                 </div>
                 <div class="my-auto">
                     <h1 class="display-5 mb-4">Reconnect. <br><span class="text-gradient">Empower.</span> <br>Excel.
@@ -524,6 +524,16 @@
                                     value="{{ form_data.get('phone', '') if form_data else '' }}">
                             </div>
                             <div class="col-md-6">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-control" name="city" id="city" required
+                                    placeholder="Mumbai / Delhi" list="cityList">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">State</label>
+                                <input type="text" class="form-control" name="state" id="state" required
+                                    placeholder="Maharashtra" list="stateList">
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label">Password</label>
                                 <div class="position-relative">
                                     <input type="password" class="form-control" name="password" id="password" required
@@ -562,44 +572,93 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Category</label>
-                                <select class="form-select" name="category" id="category"
-                                    onchange="updateCourseDropdown()">
-                                    <option value="">Select Category</option>
+                                <input type="text" class="form-control" name="category" id="category"
+                                    placeholder="IT / Engineering" list="categoryList" oninput="updateCourseDropdown()">
+                                <datalist id="categoryList">
                                     <option value="IT">IT / Technology</option>
                                     <option value="Engineering">Engineering</option>
-                                </select>
+                                    <option value="Management">Management</option>
+                                    <option value="Science">Science (Pure/Applied)</option>
+                                    <option value="Commerce">Commerce & Finance</option>
+                                    <option value="Arts & Humanities">Arts / Humanities</option>
+                                    <option value="Medical">Medical / Healthcare</option>
+                                    <option value="Law">Law / Legal Studies</option>
+                                    <option value="Design">Architecture & Design</option>
+                                    <option value="Education">Education / Teaching</option>
+                                    <option value="Media">Media & Communications</option>
+                                    <option value="Hospitality">Hospitality & Tourism</option>
+                                    <option value="Fine Arts">Fine Arts & Music</option>
+                                </datalist>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Level</label>
-                                <select class="form-select" name="level" id="level" onchange="updateCourseDropdown()">
-                                    <option value="">Select Level</option>
-                                    <option value="UG">Undergraduate</option>
-                                    <option value="PG">Postgraduate</option>
-                                </select>
+                                <input type="text" class="form-control" name="level" id="level" placeholder="UG / PG"
+                                    list="levelList" oninput="updateCourseDropdown()">
+                                <datalist id="levelList">
+                                    <option value="UG">Undergraduate / Bachelor's</option>
+                                    <option value="PG">Postgraduate / Master's</option>
+                                    <option value="Diploma">Diploma (Polytechnic/Vocational)</option>
+                                    <option value="PG Diploma">Postgraduate Diploma (PGD)</option>
+                                    <option value="Integrated">Integrated Degree (UG+PG)</option>
+                                    <option value="PhD">Doctorate (PhD)</option>
+                                    <option value="M.Phil">Master of Philosophy (M.Phil)</option>
+                                    <option value="Post-Doc">Post-Doctoral Fellowship</option>
+                                    <option value="Certificate">Certificate / Short-term Course</option>
+                                    <option value="Professional">Professional Qualification (CA/CS/CMA)</option>
+                                </datalist>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Course</label>
-                                <select class="form-select" name="degree" id="degree">
-                                    <option value="">Select Course</option>
-                                </select>
+                                <input type="text" class="form-control" name="degree" id="degree"
+                                    placeholder="BCA / B.Tech" list="courseList">
+                                <datalist id="courseList">
+                                    <!-- Dynamically populated -->
+                                </datalist>
                             </div>
                         </div>
                     </div>
 
                     <div id="alumniFields" class="fade-in-section mb-5" style="display: none;">
-                        <h5 class="mb-4 text-success">Professional Details</h5>
+                        <h5 class="mb-4 text-success">Academic & Professional Details</h5>
                         <div class="row g-4">
                             <div class="col-md-6">
+                                <label class="form-label">Degree Category (Completed)</label>
+                                <input type="text" class="form-control" name="alumni_category" id="alumni_category"
+                                    placeholder="IT / Engineering" list="categoryList"
+                                    oninput="updateAlumniCourseDropdown()">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Degree Level</label>
+                                <input type="text" class="form-control" name="alumni_level" id="alumni_level"
+                                    placeholder="UG / PG" list="levelList" oninput="updateAlumniCourseDropdown()">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Course / Degree</label>
+                                <input type="text" class="form-control" name="alumni_degree" id="alumni_degree"
+                                    placeholder="BCA / B.Tech" list="alumniCourseList">
+                                <datalist id="alumniCourseList">
+                                    <!-- Dynamically populated -->
+                                </datalist>
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label">Passing Year</label>
-                                <select class="form-select" name="pass_year" id="pass_year">
-                                    {% for year in range(2024, 1999, -1) %}<option value="{{ year }}">{{ year }}
-                                    </option>{% endfor %}
-                                </select>
+                                <input type="text" class="form-control" name="pass_year" id="pass_year"
+                                    placeholder="e.g. 2024" list="yearList">
+                                <datalist id="yearList">
+                                    {% for year in range(2025, 1999, -1) %}
+                                    <option value="{{ year }}">
+                                        {% endfor %}
+                                </datalist>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Current Company</label>
                                 <input type="text" class="form-control" name="company_name" id="company_name"
-                                    placeholder="Google / Microsoft">
+                                    placeholder="Google / Microsoft" list="companyList">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Current Designation</label>
+                                <input type="text" class="form-control" name="designation" id="alumni_designation"
+                                    placeholder="Software Engineer / Manager" list="designationList">
                             </div>
                         </div>
                     </div>
@@ -613,10 +672,13 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Department</label>
-                                <select class="form-select" name="department" id="fac_department">
-                                    <option value="Information Technology">IT</option>
-                                    <option value="Computer Engineering">Computer Engg</option>
-                                </select>
+                                <input type="text" class="form-control" name="department" id="fac_department"
+                                    placeholder="IT / Mechanical" list="deptList">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Current Designation</label>
+                                <input type="text" class="form-control" name="designation" id="fac_designation"
+                                    placeholder="Professor / HOD" list="designationList">
                             </div>
                         </div>
                     </div>
@@ -633,6 +695,203 @@
                         </div>
                     </div>
 
+                    <!-- DataLists for Autocomplete -->
+                    <datalist id="cityList">
+                        <option value="Mumbai">
+                        <option value="Pune">
+                        <option value="Delhi">
+                        <option value="Bangalore">
+                        <option value="Hyderabad">
+                        <option value="Chennai">
+                        <option value="Kolkata">
+                        <option value="Ahmedabad">
+                        <option value="Surat">
+                        <option value="Jaipur">
+                        <option value="Lucknow">
+                        <option value="Kanpur">
+                        <option value="Nagpur">
+                        <option value="Indore">
+                        <option value="Thane">
+                        <option value="Bhopal">
+                        <option value="Visakhapatnam">
+                        <option value="Pimpri-Chinchwad">
+                        <option value="Patna">
+                        <option value="Vadodara">
+                        <option value="Ghaziabad">
+                        <option value="Ludhiana">
+                        <option value="Agra">
+                        <option value="Nashik">
+                        <option value="Faridabad">
+                        <option value="Meerut">
+                        <option value="Rajkot">
+                        <option value="Kalyan-Dombivli">
+                        <option value="Vasai-Virar">
+                        <option value="Varanasi">
+                        <option value="Srinagar">
+                        <option value="Aurangabad">
+                        <option value="Dhanbad">
+                        <option value="Amritsar">
+                        <option value="Navi Mumbai">
+                        <option value="Allahabad">
+                        <option value="Ranchi">
+                        <option value="Howrah">
+                        <option value="Coimbatore">
+                        <option value="Jabalpur">
+                        <option value="Gwalior">
+                        <option value="Vijayawada">
+                        <option value="Jodhpur">
+                        <option value="Madurai">
+                        <option value="Raipur">
+                        <option value="Kota">
+                        <option value="Guwahati">
+                        <option value="Chandigarh">
+                        <option value="Solapur">
+                    </datalist>
+
+                    <datalist id="stateList">
+                        <option value="Andhra Pradesh">
+                        <option value="Arunachal Pradesh">
+                        <option value="Assam">
+                        <option value="Bihar">
+                        <option value="Chhattisgarh">
+                        <option value="Goa">
+                        <option value="Gujarat">
+                        <option value="Haryana">
+                        <option value="Himachal Pradesh">
+                        <option value="Jharkhand">
+                        <option value="Karnataka">
+                        <option value="Kerala">
+                        <option value="Madhya Pradesh">
+                        <option value="Maharashtra">
+                        <option value="Manipur">
+                        <option value="Meghalaya">
+                        <option value="Mizoram">
+                        <option value="Nagaland">
+                        <option value="Odisha">
+                        <option value="Punjab">
+                        <option value="Rajasthan">
+                        <option value="Sikkim">
+                        <option value="Tamil Nadu">
+                        <option value="Telangana">
+                        <option value="Tripura">
+                        <option value="Uttar Pradesh">
+                        <option value="Uttarakhand">
+                        <option value="West Bengal">
+                        <option value="Andaman and Nicobar Islands">
+                        <option value="Chandigarh">
+                        <option value="Dadra and Nagar Haveli and Daman and Diu">
+                        <option value="Delhi">
+                        <option value="Jammu and Kashmir">
+                        <option value="Ladakh">
+                        <option value="Lakshadweep">
+                        <option value="Puducherry">
+                    </datalist>
+
+                    <datalist id="designationList">
+                        <option value="Software Engineer">
+                        <option value="Senior Software Engineer">
+                        <option value="Associate Engineer">
+                        <option value="System Analyst">
+                        <option value="Data Scientist">
+                        <option value="Web Developer">
+                        <option value="UI/UX Designer">
+                        <option value="Project Manager">
+                        <option value="Product Manager">
+                        <option value="Technical Lead">
+                        <option value="CTO">
+                        <option value="CEO">
+                        <option value="Founder">
+                        <option value="Operations Manager">
+                        <option value="Marketing Executive">
+                        <option value="Sales Manager">
+                        <option value="Assistant Professor">
+                        <option value="Associate Professor">
+                        <option value="Professor">
+                        <option value="HOD (Head of Department)">
+                        <option value="Dean">
+                        <option value="Network Engineer">
+                        <option value="Cybersecurity Analyst">
+                        <option value="Full Stack Developer">
+                        <option value="DevOps Engineer">
+                        <option value="QA Tester">
+                        <option value="Mechanical Engineer">
+                        <option value="Civil Engineer">
+                        <option value="Electrical Engineer">
+                        <option value="Consultant">
+                        <option value="HR Manager">
+                    </datalist>
+
+                    <datalist id="companyList">
+                        <option value="Google">
+                        <option value="Microsoft">
+                        <option value="Amazon">
+                        <option value="Meta (Facebook)">
+                        <option value="Apple">
+                        <option value="TCS (Tata Consultancy Services)">
+                        <option value="Infosys">
+                        <option value="Wipro">
+                        <option value="HCLTech">
+                        <option value="Tech Mahindra">
+                        <option value="Accenture">
+                        <option value="Capgemini">
+                        <option value="IBM">
+                        <option value="Oracle">
+                        <option value="Adobe">
+                        <option value="Salesforce">
+                        <option value="Intel">
+                        <option value="Nvidia">
+                        <option value="Netflix">
+                        <option value="Spotify">
+                        <option value="Tesla">
+                        <option value="SpaceX">
+                        <option value="Uber">
+                        <option value="Airbnb">
+                        <option value="Flipkart">
+                        <option value="Zomato">
+                        <option value="Swiggy">
+                        <option value="Paytm">
+                        <option value="Reliance Industries">
+                        <option value="Larsen & Toubro (L&T)">
+                        <option value="J.P. Morgan Chase">
+                        <option value="Morgan Stanley">
+                        <option value="Goldman Sachs">
+                        <option value="Barclays">
+                        <option value="HSBC">
+                        <option value="Deloitte">
+                        <option value="KPMG">
+                        <option value="PwC">
+                        <option value="EY (Ernst & Young)">
+                        <option value="HDFC Bank">
+                        <option value="ICICI Bank">
+                        <option value="State Bank of India (SBI)">
+                        <option value="Cognizant">
+                        <option value="DXC Technology">
+                        <option value="Cisco">
+                        <option value="HP">
+                        <option value="Dell">
+                        <option value="SAP">
+                        <option value="ServiceNow">
+                        <option value="Atlassian">
+                        <option value="Red Hat">
+                        <option value="Viacom18">
+                        <option value="Walt Disney">
+                        <option value="Warner Bros">
+                    </datalist>
+
+                    <datalist id="deptList">
+                        <option value="Information Technology">
+                        <option value="Computer Engineering">
+                        <option value="Mechanical Engineering">
+                        <option value="Electronics & Telecommunication">
+                        <option value="First Year Engineering">
+                        <option value="Civil Engineering">
+                        <option value="Applied Science & Humanities">
+                        <option value="Management Studies">
+                        <option value="Administration">
+                        <option value="Library">
+                        <option value="Placements Cell">
+                    </datalist>
+
                     <button type="submit" class="btn btn-premium btn-lg">
                         Create Account <i class="fas fa-arrow-right ms-2"></i>
                     </button>
@@ -648,12 +907,76 @@
     <script>
         const courseData = {
             'IT': {
-                'UG': ['BCA', 'B.Sc IT', 'B.Sc CS'],
-                'PG': ['MCA', 'M.Sc IT']
+                'UG': ['BCA', 'B.Sc IT', 'B.Sc CS', 'B.Sc Data Science', 'B.Sc Cyber Security', 'B.Sc AI', 'BIT'],
+                'PG': ['MCA', 'M.Sc IT', 'M.Sc CS', 'M.Sc Data Science', 'M.Sc AI', 'MIT'],
+                'Diploma': ['Diploma in CS', 'Diploma in IT', 'Diploma in Hardware & Networking'],
+                'PG Diploma': ['PGDCA', 'PGDIT', 'PG Diploma in Data Science'],
+                'Integrated': ['Integrated MCA (BCA+MCA)'],
+                'Certificate': ['Python Certification', 'Web Dev Bootcamp', 'Cloud Computing Cert']
             },
             'Engineering': {
-                'UG': ['B.Tech IT', 'B.Tech CS', 'B.Tech Mech'],
-                'PG': ['M.Tech CS']
+                'UG': ['B.Tech CS', 'B.Tech IT', 'B.Tech Mechanical', 'B.Tech Civil', 'B.Tech E&TC', 'B.Tech Electrical', 'B.Tech Aerospace', 'B.Tech Biotech'],
+                'PG': ['M.Tech CS', 'M.Tech Mechanical', 'M.Tech Electronics', 'M.Tech Civil', 'M.Tech AI & Data Science'],
+                'Diploma': ['Diploma in Mechanical', 'Diploma in Civil', 'Diploma in Electrical'],
+                'Integrated': ['Integrated B.Tech-M.Tech (5-Year)'],
+                'PhD': ['PhD in Mechanical', 'PhD in CS', 'PhD in Engineering']
+            },
+            'Management': {
+                'UG': ['BBA', 'BMS', 'BMM', 'BHM (Hospitality)'],
+                'PG': ['MBA Finance', 'MBA Marketing', 'MBA IT', 'MBA HR', 'MBA Operations', 'PGDM', 'MMS'],
+                'PG Diploma': ['PGDM', 'PGDBM', 'PGD in Marketing'],
+                'Integrated': ['Integrated MBA (BBA+MBA)']
+            },
+            'Medical': {
+                'UG': ['MBBS', 'BDS (Dental)', 'B.Pharm', 'B.Sc Nursing', 'BPT (Physiotherapy)', 'BAMS', 'BHMS'],
+                'PG': ['MD', 'MS (Surgery)', 'M.Pharm', 'MDS', 'M.Sc Nursing'],
+                'Diploma': ['Diploma in Pharmacy', 'Diploma in Nursing', 'DMLT'],
+                'Professional': ['Registered Medical Practitioner (RMP)']
+            },
+            'Law': {
+                'UG': ['LLB (3-Year)', 'Integrated BA-LLB (5-Year)', 'Integrated BBA-LLB', 'B.Com-LLB'],
+                'PG': ['LLM', 'LLD (Doctor of Laws)'],
+                'Integrated': ['BA-LLB', 'BBA-LLB']
+            },
+            'Science': {
+                'UG': ['B.Sc Physics', 'B.Sc Chemistry', 'B.Sc Maths', 'B.Sc Biotech', 'B.Sc Forensic Science', 'B.Sc Agriculture'],
+                'PG': ['M.Sc Physics', 'M.Sc Chemistry', 'M.Sc Pharma', 'M.Sc Environmental Science'],
+                'PhD': ['PhD in Physics', 'PhD in Chemistry', 'PhD in Mathematics']
+            },
+            'Commerce': {
+                'UG': ['B.Com General', 'B.Com Accounting', 'B.Com Banking', 'BBI', 'BAF'],
+                'PG': ['M.Com', 'MFA'],
+                'Professional': ['CA (Chartered Accountancy)', 'CS (Company Secretary)', 'CMA', 'CFA', 'ACCA', 'FRM']
+            },
+            'Arts & Humanities': {
+                'UG': ['BA Psychology', 'BA English', 'BA History', 'BA Sociology', 'BA Economics', 'BA Political Science'],
+                'PG': ['MA Psychology', 'MA English', 'MA Economics', 'MA History', 'MSW'],
+                'M.Phil': ['M.Phil in Psychology', 'M.Phil in Humanities']
+            },
+            'Design': {
+                'UG': ['B.Arch', 'B.Des (UI/UX)', 'B.Des (Fashion)', 'B.Des (Interior)', 'BFA'],
+                'PG': ['M.Arch', 'M.Des', 'MFA'],
+                'Diploma': ['Diploma in Interior Design', 'Diploma in Fashion']
+            },
+            'Education': {
+                'UG': ['B.Ed', 'B.El.Ed', 'B.P.Ed'],
+                'PG': ['M.Ed', 'MA Education'],
+                'Diploma': ['D.El.Ed', 'Nursery Teacher Training']
+            },
+            'Media': {
+                'UG': ['BJMC (Journalism)', 'BA Media', 'BA Animation'],
+                'PG': ['MJMC', 'MA Film Production'],
+                'Diploma': ['Diploma in Journalism', 'Diploma in Photography']
+            },
+            'Hospitality': {
+                'UG': ['BHMCT', 'B.Sc Hospitality', 'B.Sc Travel'],
+                'PG': ['MHM', 'MBA Hospitality'],
+                'Diploma': ['Diploma in Food & Beverage', 'Diploma in Hotel Operations']
+            },
+            'Fine Arts': {
+                'UG': ['B.Mus', 'BPA', 'BVA'],
+                'PG': ['M.Mus', 'MPA'],
+                'Certificate': ['Certificate in Music', 'Certificate in Painting']
             }
         };
 
@@ -685,13 +1008,28 @@
         function updateCourseDropdown() {
             const cat = document.getElementById('category').value;
             const lvl = document.getElementById('level').value;
-            const deg = document.getElementById('degree');
-            deg.innerHTML = '<option value="">Select Course</option>';
-            if (cat && lvl && courseData[cat][lvl]) {
+            const degList = document.getElementById('courseList');
+            degList.innerHTML = '';
+            if (cat && lvl && courseData[cat] && courseData[cat][lvl]) {
                 courseData[cat][lvl].forEach(c => {
                     const o = document.createElement('option');
-                    o.value = o.textContent = c;
-                    deg.appendChild(o);
+                    o.value = c;
+                    degList.appendChild(o);
+                });
+            }
+            calculateProgress();
+        }
+
+        function updateAlumniCourseDropdown() {
+            const cat = document.getElementById('alumni_category').value;
+            const lvl = document.getElementById('alumni_level').value;
+            const degList = document.getElementById('alumniCourseList');
+            degList.innerHTML = '';
+            if (cat && lvl && courseData[cat] && courseData[cat][lvl]) {
+                courseData[cat][lvl].forEach(c => {
+                    const o = document.createElement('option');
+                    o.value = c;
+                    degList.appendChild(o);
                 });
             }
             calculateProgress();
@@ -702,7 +1040,7 @@
             let filled = 0;
 
             // Common Fields
-            const common = ['name', 'email', 'phone', 'password', 'confirm_password'];
+            const common = ['name', 'email', 'phone', 'city', 'state', 'password', 'confirm_password'];
             total += common.length;
             common.forEach(id => {
                 if (document.getElementById(id).value.trim() !== '') filled++;

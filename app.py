@@ -18,6 +18,7 @@ from db_utils import get_db_connection
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from models.recommendation import get_recommended_users, get_recommended_jobs
+from flask_apscheduler import APScheduler
 
 
 # Load environment variables
@@ -40,6 +41,11 @@ socketio = SocketIO(app, cors_allowed_origins="*", ping_timeout=60, ping_interva
 
 # Initialize Mail
 mail.init_app(app)
+
+# Initialize Scheduler
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
 
 DB_NAME = app.config['DB_NAME']
 
@@ -4117,9 +4123,79 @@ def admin_stats():
         return redirect(url_for('home'))
     return render_template('admin/admin_stats.html')
 
+
+# Background Task: Every 2 hours, remind all users to update their profile
+@scheduler.task('interval', id='periodic_profile_reminder', hours=2, misfire_grace_time=900)
+def periodic_profile_reminder():
+    with app.app_context():
+        try:
+            print(f"🚀 [{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting scheduled profile reminder scan...")
+            conn = get_db_connection()
+            # Handle row factory if not already set to dict-like
+            conn.row_factory = sqlite3.Row
+            users = conn.execute('SELECT name, email FROM users WHERE is_suspended = 0').fetchall()
+            conn.close()
+            
+            if not users:
+                print("⚠️ No active users found to remind.")
+                return
+
+            base_url = os.getenv('BASE_URL', 'http://localhost:5000')
+            profile_url = f"{base_url}/profile"
+            
+            count = 0
+            for user in users:
+                name = user['name']
+                email = user['email']
+                
+                subject = "Reminder: Keep Your DBIT Alumni Profile Shine!"
+                html_content = f"""
+                <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background-color: #ffffff; border: 1px solid #f0f0f0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <span style="font-size: 24px; font-weight: bold; color: #0d6efd; letter-spacing: 1px;">DBIT ALUMNI HUB</span>
+                        <div style="height: 3px; background: linear-gradient(90deg, #0d6efd, #6610f2); width: 60px; margin: 8px auto 0;"></div>
+                    </div>
+                    
+                    <h3 style="color: #333;">Hello {name},</h3>
+                    
+                    <p style="color: #555; line-height: 1.6; font-size: 16px;">
+                        We noticed it's been a while since you last updated your profile. To make the most of the <strong>DBIT Alumni Hub</strong> and get the best career recommendations, please ensure your academic and professional details are current.
+                    </p>
+                    
+                    <div style="text-align: center; margin: 40px 0;">
+                        <a href="{profile_url}" 
+                           style="background: linear-gradient(135deg, #0d6efd, #6610f2); color: #ffffff; padding: 15px 35px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3); transition: transform 0.2s;">
+                           Update My Profile Now
+                        </a>
+                    </div>
+                    
+                    <p style="color: #666; font-size: 14px; line-height: 1.6;">
+                        A complete profile unlocks better networking opportunities and helps you stay connected with your batchmates and mentors.
+                    </p>
+                    
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+                    
+                    <p style="color: #999; font-size: 12px; text-align: center;">
+                        This is an automated 2-hourly reminder. If you've recently updated your details, please ignore this message.
+                    </p>
+                </div>
+                """
+                send_email(email, subject, html_content)
+                count += 1
+            
+            print(f"✅ [{datetime.now().strftime('%H:%M:%S')}] Periodic reminders successfully sent to {count} users.")
+            
+        except Exception as e:
+            print(f"❌ Error in periodic_profile_reminder task: {e}")
+            import traceback
+            traceback.print_exc()
+
 if __name__ == '__main__':
     with app.app_context():
         init_db()
+        # Trigger immediate email dispatch as per user request
+        print("📢 Triggering immediate profile reminder dispatch...")
+        periodic_profile_reminder()
 
     # Import and register messaging blueprint
     from routes.messaging_routes import messaging_bp
