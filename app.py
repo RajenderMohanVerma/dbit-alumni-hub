@@ -3047,7 +3047,6 @@ def upgrade_to_alumni():
     conn = None
     try:
         conn = get_db_connection()
-
         if request.method == 'POST':
             # Get student profile
             student_profile = conn.execute(
@@ -3105,6 +3104,23 @@ def upgrade_to_alumni():
     finally:
         if conn:
             conn.close()
+
+@app.route('/upgrade')
+@login_required
+def upgrade():
+    """Route to handle various upgrades based on role"""
+    if current_user.role == 'student':
+        return render_template('student/upgrade.html')
+    elif current_user.role == 'alumni':
+        conn = get_db_connection()
+        profile = conn.execute('SELECT * FROM alumni_profile WHERE user_id = ?', (current_user.id,)).fetchone()
+        conn.close()
+        return render_template('alumni/upgrade.html', profile=profile)
+    else:
+        # Default or common upgrade page
+        return render_template('upgrade.html')
+
+
 
 # --- API ROUTES FOR MODALS ---
 
@@ -4124,8 +4140,8 @@ def admin_stats():
     return render_template('admin/admin_stats.html')
 
 
-# Background Task: Every 2 hours, remind all users to update their profile
-@scheduler.task('interval', id='periodic_profile_reminder', hours=2, misfire_grace_time=900)
+# Background Task: Every 2 days, remind all users to update their profile
+@scheduler.task('interval', id='periodic_profile_reminder', days=2, misfire_grace_time=900)
 def periodic_profile_reminder():
     with app.app_context():
         try:
@@ -4176,7 +4192,7 @@ def periodic_profile_reminder():
                     <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
                     
                     <p style="color: #999; font-size: 12px; text-align: center;">
-                        This is an automated 2-hourly reminder. If you've recently updated your details, please ignore this message.
+                        This is an automated periodic reminder. If you've recently updated your details, please ignore this message.
                     </p>
                 </div>
                 """
@@ -4193,9 +4209,6 @@ def periodic_profile_reminder():
 if __name__ == '__main__':
     with app.app_context():
         init_db()
-        # Trigger immediate email dispatch as per user request
-        print("📢 Triggering immediate profile reminder dispatch...")
-        periodic_profile_reminder()
 
     # Import and register messaging blueprint
     from routes.messaging_routes import messaging_bp

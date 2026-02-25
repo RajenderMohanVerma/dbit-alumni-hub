@@ -139,7 +139,9 @@
             z-index: 10;
             margin-top: 80px;
             /* Space for navbar */
-            min-height: auto;
+            height: 85vh;
+            max-height: 900px;
+            min-height: 600px;
         }
 
         /* Navbar Styling */
@@ -216,12 +218,66 @@
         /* Branding Sidebar (v3 version) */
         .branding-sidebar {
             width: 38%;
-            background: rgba(15, 23, 42, 0.95);
-            padding: 3rem;
+            background: linear-gradient(165deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 100%);
+            padding: 4rem 3rem;
             display: flex;
             flex-direction: column;
             color: white;
             position: relative;
+            z-index: 1;
+        }
+
+        .branding-sidebar::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05), transparent 70%);
+            animation: shimmerRotate 20s linear infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes shimmerRotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Slide & Fade Animations */
+        .slide-rtl {
+            opacity: 0;
+            transform: translateX(40px);
+            animation: slideInRTL 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes slideInRTL {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .anim-delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .anim-delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .anim-delay-3 {
+            animation-delay: 0.6s;
+        }
+
+        .anim-delay-4 {
+            animation-delay: 0.8s;
         }
 
         .branding-sidebar::before {
@@ -240,6 +296,8 @@
             flex: 1;
             padding: 3rem 4rem;
             background: rgba(255, 255, 255, 0.5);
+            overflow-y: auto;
+            scrollbar-width: thin;
         }
 
         /* Typography */
@@ -422,7 +480,7 @@
         <div class="crystalline-card">
             <!-- Left Branding -->
             <div class="branding-sidebar">
-                <div class="mb-5 d-flex align-items-center gap-3">
+                <div class="mb-5 d-flex align-items-center gap-3 slide-rtl anim-delay-1">
                     <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
                         style="width: 40px; height: 40px;">
                         <i class="fas fa-graduation-cap text-white"></i>
@@ -430,12 +488,15 @@
                     <h4 class="mb-0">DBIT ALUMNI HUB</h4>
                 </div>
                 <div class="my-auto">
-                    <h1 class="display-5 mb-4">Reconnect. <br><span class="text-gradient">Empower.</span> <br>Excel.
+                    <h1 class="h2 mb-4 slide-rtl anim-delay-2">Empowering Innovation. <br><span
+                            class="text-gradient">Catalyzing
+                            Success.</span> <br>Upholding Excellence.
                     </h1>
-                    <p class="text-white-50 lead">Join our elite community of professionals and shape the legacy of
-                        DBIT.</p>
+                    <p class="text-white-50 small slide-rtl anim-delay-3">Step into an exclusive ecosystem of DBIT
+                        visionaries and shape the
+                        future of professional excellence.</p>
                 </div>
-                <div class="mt-auto">
+                <div class="mt-auto slide-rtl anim-delay-4">
                     <a href="/" class="text-white-50 text-decoration-none small transition-all">
                         <i class="fas fa-arrow-left me-2"></i> Back to Home
                     </a>
@@ -571,8 +632,8 @@
                                     placeholder="D123456789">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Category</label>
-                                <input type="text" class="form-control" name="category" id="category"
+                                <label class="form-label">Department / Branch</label>
+                                <input type="text" class="form-control" name="stu_department" id="stu_department"
                                     placeholder="IT / Engineering" list="categoryList" oninput="updateCourseDropdown()">
                                 <datalist id="categoryList">
                                     <option value="IT">IT / Technology</option>
@@ -591,9 +652,24 @@
                                 </datalist>
                             </div>
                             <div class="col-md-6">
+                                <label class="form-label">Year of Study / Semester</label>
+                                <input type="text" class="form-control" name="stu_semester" id="stu_semester"
+                                    placeholder="e.g. 4th Semester" list="semesterList">
+                                <datalist id="semesterList">
+                                    <option value="1st Semester">
+                                    <option value="2nd Semester">
+                                    <option value="3rd Semester">
+                                    <option value="4th Semester">
+                                    <option value="5th Semester">
+                                    <option value="6th Semester">
+                                    <option value="7th Semester">
+                                    <option value="8th Semester">
+                                </datalist>
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label">Level</label>
-                                <input type="text" class="form-control" name="level" id="level" placeholder="UG / PG"
-                                    list="levelList" oninput="updateCourseDropdown()">
+                                <input type="text" class="form-control" name="stu_level" id="stu_level"
+                                    placeholder="UG / PG" list="levelList" oninput="updateCourseDropdown()">
                                 <datalist id="levelList">
                                     <option value="UG">Undergraduate / Bachelor's</option>
                                     <option value="PG">Postgraduate / Master's</option>
@@ -609,7 +685,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Course</label>
-                                <input type="text" class="form-control" name="degree" id="degree"
+                                <input type="text" class="form-control" name="stu_degree" id="stu_degree"
                                     placeholder="BCA / B.Tech" list="courseList">
                                 <datalist id="courseList">
                                     <!-- Dynamically populated -->
@@ -622,19 +698,24 @@
                         <h5 class="mb-4 text-success">Academic & Professional Details</h5>
                         <div class="row g-4">
                             <div class="col-md-6">
+                                <label class="form-label">Enrollment No (Alumni)</label>
+                                <input type="text" class="form-control" name="alum_enrollment_no"
+                                    id="alum_enrollment_no" placeholder="D123456789">
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label">Degree Category (Completed)</label>
-                                <input type="text" class="form-control" name="alumni_category" id="alumni_category"
+                                <input type="text" class="form-control" name="alum_department" id="alum_department"
                                     placeholder="IT / Engineering" list="categoryList"
                                     oninput="updateAlumniCourseDropdown()">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Degree Level</label>
-                                <input type="text" class="form-control" name="alumni_level" id="alumni_level"
+                                <input type="text" class="form-control" name="alum_level" id="alum_level"
                                     placeholder="UG / PG" list="levelList" oninput="updateAlumniCourseDropdown()">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Course / Degree</label>
-                                <input type="text" class="form-control" name="alumni_degree" id="alumni_degree"
+                                <input type="text" class="form-control" name="alum_degree" id="alum_degree"
                                     placeholder="BCA / B.Tech" list="alumniCourseList">
                                 <datalist id="alumniCourseList">
                                     <!-- Dynamically populated -->
@@ -668,17 +749,22 @@
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <label class="form-label">Employee ID</label>
-                                <input type="text" class="form-control" name="employee_id" id="fac_employee_id">
+                                <input type="text" class="form-control" name="fac_employee_id" id="fac_employee_id">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Department</label>
-                                <input type="text" class="form-control" name="department" id="fac_department"
+                                <input type="text" class="form-control" name="fac_department" id="fac_department"
                                     placeholder="IT / Mechanical" list="deptList">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Current Designation</label>
-                                <input type="text" class="form-control" name="designation" id="fac_designation"
+                                <input type="text" class="form-control" name="fac_designation" id="fac_designation"
                                     placeholder="Professor / HOD" list="designationList">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Qualification</label>
+                                <input type="text" class="form-control" name="fac_qualification" id="fac_qualification"
+                                    placeholder="PhD / M.Tech">
                             </div>
                         </div>
                     </div>
@@ -1006,8 +1092,8 @@
         }
 
         function updateCourseDropdown() {
-            const cat = document.getElementById('category').value;
-            const lvl = document.getElementById('level').value;
+            const cat = document.getElementById('stu_department').value;
+            const lvl = document.getElementById('stu_level').value;
             const degList = document.getElementById('courseList');
             degList.innerHTML = '';
             if (cat && lvl && courseData[cat] && courseData[cat][lvl]) {
@@ -1021,8 +1107,8 @@
         }
 
         function updateAlumniCourseDropdown() {
-            const cat = document.getElementById('alumni_category').value;
-            const lvl = document.getElementById('alumni_level').value;
+            const cat = document.getElementById('alum_department').value;
+            const lvl = document.getElementById('alum_level').value;
             const degList = document.getElementById('alumniCourseList');
             degList.innerHTML = '';
             if (cat && lvl && courseData[cat] && courseData[cat][lvl]) {

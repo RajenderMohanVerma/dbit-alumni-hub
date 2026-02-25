@@ -113,6 +113,8 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 1000px;
+            height: 85vh;
+            max-height: 850px;
             min-height: 600px;
             display: flex;
             overflow: hidden;
@@ -195,12 +197,66 @@
 
         .branding-sidebar {
             width: 40%;
-            background: rgba(15, 23, 42, 0.95);
-            padding: 3rem;
+            background: linear-gradient(165deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 100%);
+            padding: 4rem 3rem;
             display: flex;
             flex-direction: column;
             color: white;
             position: relative;
+            z-index: 1;
+        }
+
+        .branding-sidebar::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05), transparent 70%);
+            animation: shimmerRotate 20s linear infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes shimmerRotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Slide & Fade Animations */
+        .slide-rtl {
+            opacity: 0;
+            transform: translateX(40px);
+            animation: slideInRTL 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes slideInRTL {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .anim-delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .anim-delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .anim-delay-3 {
+            animation-delay: 0.6s;
+        }
+
+        .anim-delay-4 {
+            animation-delay: 0.8s;
         }
 
         .form-area {
@@ -209,6 +265,8 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            overflow-y: auto;
+            scrollbar-width: thin;
         }
 
         h1,
@@ -323,7 +381,7 @@
         <div class="crystalline-card reveal-fade">
             <!-- Left Branding -->
             <div class="branding-sidebar">
-                <div class="mb-5 d-flex align-items-center gap-3">
+                <div class="mb-5 d-flex align-items-center gap-3 slide-rtl anim-delay-1">
                     <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
                         style="width: 40px; height: 40px;">
                         <i class="fas fa-graduation-cap text-white"></i>
@@ -331,10 +389,13 @@
                     <h4 class="mb-0">DBIT ALUMNI HUB</h4>
                 </div>
                 <div class="my-auto">
-                    <h1 class="display-5 mb-4">Welcome <br><span class="text-gradient">Back...</span></h1>
-                    <p class="text-white-50 lead">Access your custom dashboard and stay connected with the network.</p>
+                    <h1 class="h2 mb-4 slide-rtl anim-delay-2">Welcome <br><span class="text-gradient">Back...</span>
+                    </h1>
+                    <p class="text-white-50 small slide-rtl anim-delay-3">Access your custom dashboard and stay
+                        connected
+                        with the network.</p>
                 </div>
-                <div class="mt-auto">
+                <div class="mt-auto slide-rtl anim-delay-4">
                     <a href="/" class="text-white-50 text-decoration-none small transition-all">
                         <i class="fas fa-arrow-left me-2"></i> Back to Home
                     </a>
@@ -366,11 +427,7 @@
                         <input type="email" class="form-control" name="email" required placeholder="name@domain.com">
                     </div>
                     <div class="mb-4">
-                        <div class="d-flex justify-content-between">
-                            <label class="form-label">Password</label>
-                            <a href="{{ url_for('forgot_password') }}"
-                                class="small text-primary text-decoration-none fw-bold">Recovery?</a>
-                        </div>
+                        <label class="form-label">Password</label>
                         <div class="position-relative">
                             <input type="password" class="form-control" name="password" id="password" required
                                 placeholder="••••••••" style="padding-right: 3.5rem;">
@@ -380,11 +437,15 @@
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
+                        <div class="text-end mt-2">
+                            <a href="{{ url_for('forgot_password') }}"
+                                class="small text-primary text-decoration-none fw-bold">Forgot Password?</a>
+                        </div>
                     </div>
 
                     <div class="mb-4 form-check">
                         <input type="checkbox" class="form-check-input" id="rememberMe">
-                        <label class="form-check-label text-muted small" for="rememberMe">Maintain session</label>
+                        <label class="form-check-label text-muted small" for="rememberMe">Remember me</label>
                     </div>
 
                     <button type="submit" class="btn btn-premium">
@@ -392,8 +453,8 @@
                     </button>
 
                     <div class="text-center mt-5 text-muted">
-                        New here? <a href="/register" class="text-primary text-decoration-none fw-bold">Request
-                            Access</a>
+                        New here? <a href="/register" class="text-primary text-decoration-none fw-bold">Create
+                            account</a>
                     </div>
                 </form>
             </div>
