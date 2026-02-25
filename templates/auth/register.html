@@ -321,14 +321,14 @@
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Enrollment
                                                     No</label><input type="text" class="form-control bg-light border-0"
-                                                    id="enrollment_no" name="stu_enrollment_no"
-                                                    value="{{ form_data.get('stu_enrollment_no', '') if form_data else '' }}">
+                                                    id="enrollment_no" name="enrollment_no"
+                                                    value="{{ form_data.get('enrollment_no', '') if form_data else '' }}">
                                             </div>
 
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Category</label>
                                                 <select class="form-select bg-light border-0" id="category"
-                                                    name="stu_category" onchange="updateCourseDropdown()">
+                                                    name="category" onchange="updateCourseDropdown()">
                                                     <option value="">Select Category</option>
                                                     <option value="IT">IT / Technology</option>
                                                     <option value="Engineering">Engineering</option>
@@ -343,8 +343,8 @@
 
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Level</label>
-                                                <select class="form-select bg-light border-0" id="level"
-                                                    name="stu_level" onchange="updateCourseDropdown()">
+                                                <select class="form-select bg-light border-0" id="level" name="level"
+                                                    onchange="updateCourseDropdown()">
                                                     <option value="">Select Level</option>
                                                     <option value="UG">Undergraduate</option>
                                                     <option value="PG">Postgraduate</option>
@@ -353,15 +353,14 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Course</label>
-                                                <select class="form-select bg-light border-0" id="degree"
-                                                    name="stu_degree">
+                                                <select class="form-select bg-light border-0" id="degree" name="degree">
                                                     <option value="">Select Course</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Department</label>
                                                 <select class="form-select bg-light border-0" id="department"
-                                                    name="stu_department">
+                                                    name="department">
                                                     <option value="">Select Department</option>
                                                     <option value="Information Technology">IT</option>
                                                     <option value="Computer Science">CS</option>
@@ -374,7 +373,7 @@
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Semester</label>
                                                 <select class="form-select bg-light border-0" id="semester"
-                                                    name="stu_semester">
+                                                    name="semester">
                                                     <option value="">Select Semester</option>
                                                     <option value="1">1</option>
                                                     <option value="2">2</option>
@@ -395,15 +394,15 @@
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Enrollment
                                                     No</label><input type="text" class="form-control bg-light border-0"
-                                                    id="alum_enrollment_no" name="alum_enrollment_no"
-                                                    value="{{ form_data.get('alum_enrollment_no', '') if form_data else '' }}">
+                                                    id="alum_enrollment_no" name="enrollment_no"
+                                                    value="{{ form_data.get('enrollment_no', '') if form_data else '' }}">
                                             </div>
 
                                             <!-- Alumni Education Fields (Mirrors Student) -->
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Category</label>
                                                 <select class="form-select bg-light border-0" id="alum_category"
-                                                    name="alum_category" onchange="updateAlumniCourseDropdown()">
+                                                    name="category" onchange="updateAlumniCourseDropdown()">
                                                     <option value="">Select Category</option>
                                                     <option value="IT">IT / Technology</option>
                                                     <option value="Engineering">Engineering</option>
@@ -415,7 +414,7 @@
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Level</label>
                                                 <select class="form-select bg-light border-0" id="alum_level"
-                                                    name="alum_level" onchange="updateAlumniCourseDropdown()">
+                                                    name="level" onchange="updateAlumniCourseDropdown()">
                                                     <option value="">Select Level</option>
                                                     <option value="UG">Undergraduate</option>
                                                     <option value="PG">Postgraduate</option>
@@ -425,14 +424,14 @@
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Course</label>
                                                 <select class="form-select bg-light border-0" id="alum_degree"
-                                                    name="alum_degree">
+                                                    name="degree">
                                                     <option value="">Select Course</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-bold text-muted">Department</label>
                                                 <select class="form-select bg-light border-0" id="alum_department"
-                                                    name="alum_department">
+                                                    name="department">
                                                     <option value="">Select Department</option>
                                                     <option value="Information Technology">IT</option>
                                                     <option value="Computer Science">CS</option>
@@ -445,7 +444,7 @@
                                                     class="form-label small fw-bold text-muted">Passing
                                                     Year</label>
                                                 <select class="form-select bg-light border-0" id="pass_year"
-                                                    name="alum_pass_year">
+                                                    name="pass_year">
                                                     {% for year in range(2024, 1999, -1) %}<option value="{{ year }}">{{
                                                         year }}</option>{% endfor %}
                                                 </select>
@@ -454,13 +453,13 @@
                                                     class="form-label small fw-bold text-muted">Current
                                                     Company</label><input type="text"
                                                     class="form-control bg-light border-0" id="company_name"
-                                                    name="alum_company_name"
-                                                    value="{{ form_data.get('alum_company_name', '') if form_data else '' }}">
+                                                    name="company_name"
+                                                    value="{{ form_data.get('company_name', '') if form_data else '' }}">
                                             </div>
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Designation</label><input
                                                     type="text" class="form-control bg-light border-0"
-                                                    id="alum_designation" name="alum_designation"></div>
+                                                    id="alum_designation" name="designation"></div>
                                         </div>
                                     </div>
 
@@ -470,13 +469,13 @@
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Employee
                                                     ID</label><input type="text" class="form-control bg-light border-0"
-                                                    id="fac_employee_id" name="fac_employee_id"
-                                                    value="{{ form_data.get('fac_employee_id', '') if form_data else '' }}">
+                                                    id="fac_employee_id" name="employee_id"
+                                                    value="{{ form_data.get('employee_id', '') if form_data else '' }}">
                                             </div>
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Department</label>
                                                 <select class="form-select bg-light border-0" id="fac_department"
-                                                    name="fac_department">
+                                                    name="department">
                                                     <option value="">Select Department</option>
                                                     <option value="Information Technology">IT</option>
                                                     <option value="Computer Science">CS</option>
@@ -485,19 +484,10 @@
                                             <div class="col-md-6"><label
                                                     class="form-label small fw-bold text-muted">Designation</label>
                                                 <select class="form-select bg-light border-0" id="fac_designation"
-                                                    name="fac_designation">
+                                                    name="designation">
                                                     <option value="Professor">Professor</option>
-                                                    <option value="Associate Professor">Associate Professor</option>
                                                     <option value="Assistant Professor">Assistant Professor</option>
-                                                    <option value="Lecturer">Lecturer</option>
                                                 </select>
-                                            </div>
-                                            <div class="col-md-6"><label
-                                                    class="form-label small fw-bold text-muted">Qualification</label>
-                                                <input type="text" class="form-control bg-light border-0"
-                                                    id="fac_qualification" name="fac_qualification"
-                                                    placeholder="e.g., Ph.D, M.Tech, M.Sc"
-                                                    value="{{ form_data.get('fac_qualification', '') if form_data else '' }}">
                                             </div>
                                         </div>
                                     </div>
@@ -811,70 +801,42 @@
 
     // Progress Bar Calculation
     function calculateProgress() {
-        let totalRequired = 0;
-        let filledRequired = 0;
+        let totalFields = 0;
+        let filledFields = 0;
 
-        // 1. Common Required Fields
-        const commonIds = ['name', 'email', 'phone', 'password', 'confirm_password'];
-        commonIds.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                totalRequired++;
-                if (el.value.trim() !== '') filledRequired++;
-            }
+        // Common fields
+        const commonInputs = document.querySelectorAll('#name, #email, #phone, #password');
+        totalFields += commonInputs.length;
+        commonInputs.forEach(input => {
+            if (input.value.trim() !== '') filledFields++;
         });
 
-        // Terms (Checkbox)
-        const terms = document.getElementById('terms');
-        if (terms) {
-            totalRequired++;
-            if (terms.checked) filledRequired++;
-        }
-
-        // 2. Role Specific Required Fields
+        // Role specific fields
         const roleSelector = document.querySelector('input[name="role"]:checked');
         if (roleSelector) {
             const role = roleSelector.value;
-            let roleIds = [];
-
-            if (role === 'student') {
-                // Based on validateRegisterForm logic
-                roleIds = ['enrollment_no', 'category', 'level', 'degree', 'department'];
-            } else if (role === 'alumni') {
-                // Based on validateRegisterForm logic
-                roleIds = ['alum_enrollment_no', 'alum_category', 'alum_level', 'alum_degree', 'alum_department', 'pass_year'];
-            } else if (role === 'faculty') {
-                // Based on validation logic + new qualification field
-                roleIds = ['fac_employee_id', 'fac_department', 'fac_designation', 'fac_qualification'];
+            const roleContainer = document.getElementById(role + 'Fields');
+            if (roleContainer) {
+                const roleInputs = roleContainer.querySelectorAll('input, select');
+                roleInputs.forEach(input => {
+                    totalFields++;
+                    if (input.value.trim() !== '') filledFields++;
+                });
             }
-
-            roleIds.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    totalRequired++;
-                    if (el.value.trim() !== '') filledRequired++;
-                }
-            });
         }
 
-        const percentage = totalRequired === 0 ? 0 : Math.round((filledRequired / totalRequired) * 100);
-
-        // Update UI
+        const percentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
         const progressBar = document.getElementById('form-progress');
         const badge = document.getElementById('completion-badge');
 
         if (progressBar) progressBar.style.width = `${percentage}%`;
-        if (badge) badge.textContent = `${percentage}% Completed`;
+        if (badge) badge.textContent = `${percentage}% Complete`;
 
         // Color change based on progress
-        if (progressBar) {
-            if (percentage < 50) {
-                progressBar.style.background = 'linear-gradient(90deg, #ef4444, #f59e0b)';
-            } else if (percentage < 100) {
-                progressBar.style.background = 'linear-gradient(90deg, #f59e0b, #6366f1)';
-            } else {
-                progressBar.style.background = 'linear-gradient(90deg, #10b981, #059669)';
-            }
+        if (percentage < 50) {
+            if (progressBar) progressBar.style.background = 'linear-gradient(90deg, #ef4444, #f59e0b)';
+        } else {
+            if (progressBar) progressBar.style.background = 'linear-gradient(90deg, #6366f1, #10b981)';
         }
     }
 
@@ -928,26 +890,19 @@
         // Initial form field setup
         updateFormFields();
 
-        // Magnetic Button Logic (Optimized)
+        // Magnetic Button Logic
         const magneticBtns = document.querySelectorAll('.magnetic-button');
         magneticBtns.forEach(btn => {
-            let ticking = false;
             btn.addEventListener('mousemove', (e) => {
-                if (!ticking) {
-                    window.requestAnimationFrame(() => {
-                        const { left, top, width, height } = btn.getBoundingClientRect();
-                        const x = (e.clientX - left - width / 2) * 0.3;
-                        const y = (e.clientY - top - height / 2) * 0.3;
-                        const glow = btn.querySelector('.btn-glow');
+                const { left, top, width, height } = btn.getBoundingClientRect();
+                const x = (e.clientX - left - width / 2) * 0.3;
+                const y = (e.clientY - top - height / 2) * 0.3;
+                const glow = btn.querySelector('.btn-glow');
 
-                        btn.style.transform = `translate(${x}px, ${y}px)`;
-                        if (glow) {
-                            glow.style.left = `${e.clientX - left}px`;
-                            glow.style.top = `${e.clientY - top}px`;
-                        }
-                        ticking = false;
-                    });
-                    ticking = true;
+                btn.style.transform = `translate(${x}px, ${y}px)`;
+                if (glow) {
+                    glow.style.left = `${e.clientX - left}px`;
+                    glow.style.top = `${e.clientY - top}px`;
                 }
             });
             btn.addEventListener('mouseleave', () => {
@@ -955,29 +910,22 @@
             });
         });
 
-        // 3D Parallax Tilt & Glow for Register Card (Optimized)
+        // 3D Parallax Tilt & Glow for Register Card
         const registerCard = document.querySelector('.card-modern');
         if (registerCard) {
-            let ticking = false;
             registerCard.addEventListener('mousemove', (e) => {
-                if (!ticking) {
-                    window.requestAnimationFrame(() => {
-                        const rect = registerCard.getBoundingClientRect();
-                        const x = e.clientX - rect.left;
-                        const y = e.clientY - rect.top;
+                const rect = registerCard.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
 
-                        const centerX = rect.width / 2;
-                        const centerY = rect.height / 2;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
 
-                        // Subtle tilt
-                        const rotateX = (y - centerY) / 50;
-                        const rotateY = (centerX - x) / 50;
+                // Subtle tilt
+                const rotateX = (y - centerY) / 50;
+                const rotateY = (centerX - x) / 50;
 
-                        registerCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                        ticking = false;
-                    });
-                    ticking = true;
-                }
+                registerCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             });
 
             registerCard.addEventListener('mouseleave', () => {
@@ -986,11 +934,9 @@
         }
 
         // --- Floating Label Fix for Overlap (Always-Up Persistence) ---
-        // Updated to include standard .form-control and .form-check-input for proper progress tracking
-        const formInputs = document.querySelectorAll('.form-control, .form-select, .form-check-input');
+        const formInputs = document.querySelectorAll('.form-control-modern, .form-select');
 
         function updateLabel(input) {
-            // value check only relevant for text-like inputs, but harmless for others
             if (input.value && input.value.trim() !== '') {
                 input.classList.add('has-content');
             } else {
@@ -1005,7 +951,6 @@
             input.addEventListener('input', () => updateLabel(input));
             input.addEventListener('change', () => updateLabel(input));
             input.addEventListener('blur', () => updateLabel(input));
-            input.addEventListener('click', () => updateLabel(input)); // For checkboxes
 
             input.addEventListener('animationstart', (e) => {
                 if (e.animationName === 'onAutoFillStart') {
@@ -1068,11 +1013,11 @@
             const degree = document.getElementById('degree');
             const department = document.getElementById('department');
 
-            if (!enrollment_no.value.trim()) return showError(enrollment_no, 'Enrollment No is required!');
-            if (!category.value) return showError(category, 'Category is required!');
-            if (!level.value) return showError(level, 'Level is required!');
-            if (!degree.value) return showError(degree, 'Course/Degree is required!');
-            if (!department.value) return showError(department, 'Department is required!');
+            if (!enrollment_no.value.trim()) return showError(enrollment_no, 'Enrollment No details are incomplete!');
+            if (!category.value) return showError(category, 'Category details are incomplete!');
+            if (!level.value) return showError(level, 'Level details are incomplete!');
+            if (!degree.value) return showError(degree, 'Course/Degree details are incomplete!');
+            if (!department.value) return showError(department, 'Department details are incomplete!');
         }
         else if (role === 'alumni') {
             const enrollment_no = document.getElementById('alum_enrollment_no');
@@ -1082,23 +1027,21 @@
             const department = document.getElementById('alum_department');
             const pass_year = document.getElementById('pass_year');
 
-            if (!enrollment_no.value.trim()) return showError(enrollment_no, 'Enrollment No is required!');
-            if (!category.value) return showError(category, 'Category is required!');
-            if (!level.value) return showError(level, 'Level is required!');
-            if (!degree.value) return showError(degree, 'Course/Degree is required!');
-            if (!department.value) return showError(department, 'Department is required!');
-            if (!pass_year.value) return showError(pass_year, 'Passing Year is required!');
+            if (!enrollment_no.value.trim()) return showError(enrollment_no, 'Enrollment No details are incomplete!');
+            if (!category.value) return showError(category, 'Category details are incomplete!');
+            if (!level.value) return showError(level, 'Level details are incomplete!');
+            if (!degree.value) return showError(degree, 'Course/Degree details are incomplete!');
+            if (!department.value) return showError(department, 'Department details are incomplete!');
+            if (!pass_year.value) return showError(pass_year, 'Passing Year details are incomplete!');
         }
         else if (role === 'faculty') {
             const employee_id = document.getElementById('fac_employee_id');
             const department = document.getElementById('fac_department');
             const designation = document.getElementById('fac_designation');
-            const qualification = document.getElementById('fac_qualification');
 
-            if (!employee_id.value.trim()) return showError(employee_id, 'Employee ID is required!');
-            if (!department.value) return showError(department, 'Department is required!');
-            if (!designation.value) return showError(designation, 'Designation is required!');
-            if (!qualification.value.trim()) return showError(qualification, 'Qualification is required!');
+            if (!employee_id.value.trim()) return showError(employee_id, 'Employee ID details are incomplete!');
+            if (!department.value) return showError(department, 'Department details are incomplete!');
+            if (!designation.value) return showError(designation, 'Designation details are incomplete!');
         }
 
         // Strict Gmail Validation
@@ -1233,37 +1176,30 @@
         updateProgress();
 
 
-        // 3. 3D Tilt Effect with Parallax (Optimized)
+        // 3. 3D Tilt Effect with Parallax
         const cardTilts = document.querySelectorAll('[data-tilt], .glass-card');
 
         cardTilts.forEach(card => {
             const innerIcon = card.querySelector('i');
-            let ticking = false;
 
             card.addEventListener('mousemove', (e) => {
-                if (!ticking) {
-                    window.requestAnimationFrame(() => {
-                        const rect = card.getBoundingClientRect();
-                        const x = e.clientX - rect.left;
-                        const y = e.clientY - rect.top;
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
 
-                        const centerX = rect.width / 2;
-                        const centerY = rect.height / 2;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
 
-                        const rotateX = ((y - centerY) / centerY) * -12; // Max tilt 12deg
-                        const rotateY = ((x - centerX) / centerX) * 12;
+                const rotateX = ((y - centerY) / centerY) * -12; // Max tilt 12deg
+                const rotateY = ((x - centerX) / centerX) * 12;
 
-                        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
 
-                        // Parallax depth for the icon inside
-                        if (innerIcon) {
-                            const moveX = ((x - centerX) / centerX) * 15; // Move icon opposite
-                            const moveY = ((y - centerY) / centerY) * 15;
-                            innerIcon.style.transform = `translateZ(50px) translateX(${moveX}px) translateY(${moveY}px)`;
-                        }
-                        ticking = false;
-                    });
-                    ticking = true;
+                // Parallax depth for the icon inside
+                if (innerIcon) {
+                    const moveX = ((x - centerX) / centerX) * 15; // Move icon opposite
+                    const moveY = ((y - centerY) / centerY) * 15;
+                    innerIcon.style.transform = `translateZ(50px) translateX(${moveX}px) translateY(${moveY}px)`;
                 }
             });
 
