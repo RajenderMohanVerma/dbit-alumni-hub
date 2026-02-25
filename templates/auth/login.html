@@ -1,721 +1,309 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}Login - DBIT Alumni Hub{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to DBIT Alumni Hub - Access your elite professional portal.">
+    <title>Login - DBIT Alumni Hub</title>
 
-{% block content %}
-<!-- Premium Fonts -->
-<link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet">
+    <!-- Premium Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
-<div class="position-relative overflow-hidden min-vh-100 d-flex justify-content-center py-5"
-    style="padding-top: 100px !important;">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Animated Mesh Background -->
-    <div class="mesh-background">
-        <div class="mesh-ball ball-1"></div>
-        <div class="mesh-ball ball-2"></div>
-        <div class="mesh-ball ball-3"></div>
-        <div class="mesh-ball ball-4"></div>
-    </div>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Container -->
-    <div class="container position-relative z-2">
-        <div class="row justify-content-center">
-            <div class="col-xl-11 col-lg-12">
+    <style>
+        :root {
+            --crystalline-primary: #6366f1;
+            --crystalline-secondary: #ec4899;
+            --crystalline-glass: rgba(255, 255, 255, 0.7);
+            --crystalline-glass-border: rgba(255, 255, 255, 0.5);
+            --crystalline-glow: rgba(99, 102, 241, 0.2);
+            --v3-font-heading: 'Outfit', sans-serif;
+            --v3-font-body: 'Plus Jakarta Sans', sans-serif;
+        }
 
-                <!-- Glassmorphic Card -->
-                <div class="card-modern glass-panel reveal-fade shadow-2xl"
-                    style="border-radius: 30px; overflow: hidden; height: 85vh; min-height: 700px; border: 1px solid rgba(255,255,255,0.4);">
-                    <div class="row g-0 h-100">
+        body {
+            font-family: var(--v3-font-body);
+            background: #f8fafc;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-                        <!-- LEFT SIDE: Branding (Sticky) -->
-                        <div class="col-lg-4 d-none d-lg-flex flex-column position-relative overflow-hidden text-white branding-sidebar"
-                            style="background: #0f172a !important; background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%) !important;">
+        .iridescent-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 25%, #f5f3ff 50%, #fdf2f8 75%, #f0fdf4 100%);
+            background-size: 400% 400%;
+            animation: gradientMove 15s ease infinite;
+        }
 
-                            <!-- Animated Background Elements -->
-                            <canvas class="network-canvas position-absolute top-0 start-0 w-100 h-100"
-                                style="opacity: 0.6; pointer-events: none;"></canvas>
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% 50%;
+            }
 
-                            <!-- Glowing Orbs (Subtle) -->
-                            <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden"
-                                style="pointer-events: none;">
-                                <div class="position-absolute rounded-circle"
-                                    style="width: 400px; height: 400px; background: #3b82f6; opacity: 0.05; top: -100px; left: -100px; filter: blur(80px);">
-                                </div>
-                                <div class="position-absolute rounded-circle"
-                                    style="width: 300px; height: 300px; background: #8b5cf6; opacity: 0.05; bottom: -50px; right: -50px; filter: blur(60px);">
-                                </div>
-                            </div>
+            50% {
+                background-position: 100% 50%;
+            }
 
-                            <div class="p-4 d-flex flex-column h-100 position-relative z-1">
-                                <!-- Logo AREA -->
-                                <div class="mb-4">
-                                    <div
-                                        class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-10 px-3 py-2 rounded-pill backdrop-blur-sm border border-white border-opacity-10 shadow-sm">
-                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                                            style="width: 24px; height: 24px;">
-                                            <i class="fas fa-graduation-cap text-white" style="font-size: 12px;"></i>
-                                        </div>
-                                        <span class="small fw-bold tracking-wide text-uppercase text-white">DBIT Alumni
-                                            Hub</span>
-                                    </div>
-                                </div>
+            100% {
+                background-position: 0% 50%;
+            }
+        }
 
-                                <!-- Main Content with Carousel -->
-                                <div class="my-auto py-3">
-                                    <h1
-                                        class="display-6 fw-bold mb-4 leading-tight text-white d-flex flex-wrap align-items-center justify-content-center gap-2">
-                                        <span>Access Your</span>
-                                        <div class="marquee-wrapper">
-                                            <div class="marquee-content shadow-text">
-                                                <span class="text-gradient-cyan">Elite Portal</span>
-                                                <span class="text-gradient-cyan">Global Reach</span>
-                                                <span class="text-gradient-cyan">Career Hub</span>
-                                                <span class="text-gradient-cyan">Member Area</span>
-                                                <!-- Duplicate for infinite loop -->
-                                                <span class="text-gradient-cyan">Elite Portal</span>
-                                            </div>
-                                        </div>
-                                    </h1>
+        .mesh-ball {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out;
+        }
 
-                                    <!-- Testimonial/Benefit Carousel -->
-                                    <div id="brandingCarousel" class="carousel slide carousel-fade"
-                                        data-bs-ride="carousel" data-bs-interval="4000">
-                                        <div class="carousel-inner">
-                                            <!-- Slide 1: Access -->
-                                            <div class="carousel-item active">
-                                                <div class="glass-card p-4 rounded-4 border border-white border-opacity-10 bg-white bg-opacity-5 shadow-lg transition-all"
-                                                    style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
-                                                    <div class="d-inline-flex align-items-center justify-content-center bg-cyan bg-opacity-10 rounded-pill mb-3 px-3 py-1"
-                                                        style="border: 1px solid rgba(34, 211, 238, 0.2);">
-                                                        <i class="fas fa-key fs-6" style="color: #22d3ee;"></i>
-                                                        <span class="ms-2 small fw-bold text-cyan"
-                                                            style="color: #22d3ee;">Secure Login</span>
-                                                    </div>
-                                                    <h5 class="fw-bold mb-2 text-white">Seamless Sync</h5>
-                                                    <p class="text-white-50 small mb-0 lh-base">Sign in to instantly
-                                                        reconnect and synchronize with your global professional circle.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <!-- Slide 2: Perks -->
-                                            <div class="carousel-item">
-                                                <div class="glass-card p-4 rounded-4 border border-white border-opacity-10 bg-white bg-opacity-5 shadow-lg transition-all"
-                                                    style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
-                                                    <div class="d-inline-flex align-items-center justify-content-center bg-purple bg-opacity-10 rounded-pill mb-3 px-3 py-1"
-                                                        style="border: 1px solid rgba(167, 139, 250, 0.2);">
-                                                        <i class="fas fa-star fs-6" style="color: #a78bfa;"></i>
-                                                        <span class="ms-2 small fw-bold text-purple"
-                                                            style="color: #a78bfa;">Member Perks</span>
-                                                    </div>
-                                                    <h5 class="fw-bold mb-2 text-white">Exclusive Access</h5>
-                                                    <p class="text-white-50 small mb-0 lh-base">Browse alumni-only job
-                                                        boards, mentorship opportunities, and campus events.</p>
-                                                </div>
-                                            </div>
-                                            <!-- Slide 3: Impact -->
-                                            <div class="carousel-item">
-                                                <div class="glass-card p-4 rounded-4 border border-white border-opacity-10 bg-white bg-opacity-5 shadow-lg transition-all"
-                                                    style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
-                                                    <div class="d-inline-flex align-items-center justify-content-center bg-emerald bg-opacity-10 rounded-pill mb-3 px-3 py-1"
-                                                        style="border: 1px solid rgba(52, 211, 153, 0.2);">
-                                                        <i class="fas fa-heart fs-6" style="color: #34d399;"></i>
-                                                        <span class="ms-2 small fw-bold text-emerald"
-                                                            style="color: #34d399;">Impact</span>
-                                                    </div>
-                                                    <h5 class="fw-bold mb-2 text-white">Your Legacy</h5>
-                                                    <p class="text-white-50 small mb-0 lh-base">Continue your journey of
-                                                        giving back—mentor students and shape the DBIT future.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- Carousel Progress Bar -->
-                                        <div class="carousel-progress-container mt-4 mb-2"
-                                            style="height: 2px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden;">
-                                            <div class="carousel-progress-bar"
-                                                style="width: 0%; height: 100%; background: linear-gradient(90deg, #22d3ee, #818cf8); transition: none;">
-                                            </div>
-                                        </div>
-                                        <!-- Indicators -->
-                                        <div
-                                            class="carousel-indicators position-static justify-content-start mt-4 px-0 mx-0">
-                                            <button type="button" data-bs-target="#brandingCarousel"
-                                                data-bs-slide-to="0" class="active rounded-circle bg-white"
-                                                style="width: 8px; height: 8px; opacity: 1;"></button>
-                                            <button type="button" data-bs-target="#brandingCarousel"
-                                                data-bs-slide-to="1" class="rounded-circle bg-white"
-                                                style="width: 8px; height: 8px; opacity: 0.3;"></button>
-                                            <button type="button" data-bs-target="#brandingCarousel"
-                                                data-bs-slide-to="2" class="rounded-circle bg-white"
-                                                style="width: 8px; height: 8px; opacity: 0.3;"></button>
-                                        </div>
-                                    </div>
-                                </div>
+        .ball-1 {
+            width: 400px;
+            height: 400px;
+            background: #818cf8;
+            top: -100px;
+            left: -100px;
+        }
 
-                                <!-- Footer / Stats -->
-                                <div class="mt-4 pt-3 border-top border-white border-opacity-10">
-                                    <div
-                                        class="row g-3 p-3 rounded-4 bg-blue bg-opacity-5 border border-white border-opacity-10 shadow-sm">
-                                        <div class="col-6">
-                                            <h4 class="fw-bold mb-0 text-white"><span class="counter"
-                                                    data-target="5000">0</span>+</h4>
-                                            <span class="text-white-50 small">Alumni Connected</span>
-                                        </div>
-                                        <div class="col-6">
-                                            <h4 class="fw-bold mb-0 text-white"><span class="counter"
-                                                    data-target="100">0</span>+</h4>
-                                            <span class="text-white-50 small">Partner Companies</span>
-                                        </div>
-                                    </div>
-                                    <div class="mt-4">
-                                        <a href="/"
-                                            class="text-white-50 text-decoration-none hover-white small transition-all">
-                                            <i class="fas fa-arrow-left me-2"></i> Back to Home
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        .ball-2 {
+            width: 300px;
+            height: 300px;
+            background: #f472b6;
+            bottom: -50px;
+            right: -50px;
+        }
 
-                        <!-- RIGHT SIDE: Scrollable Form -->
-                        <div class="col-lg-8 h-100 bg-white position-relative">
+        @keyframes float {
 
-                            <!-- Mobile Branding Header (Visible < lg) -->
-                            <div class="d-lg-none text-center pt-4 pb-2 position-relative z-3">
-                                <div
-                                    class="d-inline-flex align-items-center gap-2 bg-light px-3 py-2 rounded-pill border shadow-sm">
-                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                                        style="width: 24px; height: 24px;">
-                                        <i class="fas fa-graduation-cap text-white" style="font-size: 12px;"></i>
-                                    </div>
-                                    <span class="small fw-bold tracking-wide text-uppercase text-dark">DBIT Alumni
-                                        Hub</span>
-                                </div>
-                            </div>
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
 
-                            <div class="p-4 p-md-5 h-100 overflow-auto custom-scrollbar">
-                                <div class="login-header mb-5">
-                                    <h2 class="fw-bold mb-2 text-dark font-heading">Welcome Back!</h2>
-                                    <p class="text-muted">Please enter your details to sign in.</p>
-                                </div>
+            50% {
+                transform: translate(20px, -30px) scale(1.05);
+            }
+        }
 
-                                <!-- Flash Messages -->
-                                {% with messages = get_flashed_messages(with_categories=true) %}
-                                {% if messages %}
-                                {% for category, message in messages %}
-                                <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm border-0 mb-4"
-                                    role="alert" style="border-radius: 12px;">
-                                    <i class="fas fa-info-circle me-2"></i> {{ message }}
-                                    <button type="button" class="btn-close" data-bs-alert="alert"
-                                        aria-label="Close"></button>
-                                </div>
-                                {% endfor %}
-                                {% endif %}
-                                {% endwith %}
+        .crystalline-card {
+            background: var(--crystalline-glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--crystalline-glass-border);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1000px;
+            min-height: 600px;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
 
-                                <form method="POST" action="/login" class="needs-validation">
-                                    <!-- Email Input -->
-                                    <div class="form-group mb-4 position-relative">
-                                        <label for="email"
-                                            class="form-label fw-bold small text-uppercase text-muted tracking-wide">Email
-                                            Address</label>
-                                        <div class="input-group input-group-lg">
-                                            <span class="input-group-text bg-light border-0 text-primary ps-3"><i
-                                                    class="fas fa-envelope"></i></span>
-                                            <input type="email" class="form-control bg-light border-0 ps-3 font-outfit"
-                                                id="email" name="email" placeholder="name@example.com" required
-                                                style="border-radius: 0 12px 12px 0;">
-                                        </div>
-                                    </div>
+        .branding-sidebar {
+            width: 40%;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            position: relative;
+        }
 
-                                    <!-- Password Input -->
-                                    <div class="form-group mb-4 position-relative">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <label for="password"
-                                                class="form-label fw-bold small text-uppercase text-muted tracking-wide">Password</label>
-                                            <a href="{{ url_for('forgot_password') }}"
-                                                class="text-primary small text-decoration-none fw-semibold">Forgot
-                                                Password?</a>
-                                        </div>
-                                        <div class="input-group input-group-lg">
-                                            <span class="input-group-text bg-light border-0 text-primary ps-3"><i
-                                                    class="fas fa-lock"></i></span>
-                                            <input type="password"
-                                                class="form-control bg-light border-0 ps-3 font-outfit" id="password"
-                                                name="password" placeholder="••••••••" required
-                                                style="border-radius: 0 12px 12px 0;">
-                                        </div>
-                                    </div>
+        .form-area {
+            flex: 1;
+            padding: 4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
-                                    <div class="d-flex align-items-center mb-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="rememberMe">
-                                            <label class="form-check-label text-muted small" for="rememberMe">Keep me
-                                                logged
-                                                in</label>
-                                        </div>
-                                    </div>
+        h1,
+        h2,
+        h3,
+        h5 {
+            font-family: var(--v3-font-heading);
+            font-weight: 700;
+        }
 
-                                    <button type="submit"
-                                        class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow-lg hover-lift"
-                                        style="border-radius: 12px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border: none;">
-                                        Sign In <i class="fas fa-arrow-right ms-2"></i>
-                                    </button>
-                                </form>
+        .text-gradient {
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-                                <div class="text-center mt-5">
-                                    <p class="text-muted mb-0">Don't have an account? <a href="/register"
-                                            class="fw-bold text-primary text-decoration-none">Create Account</a></p>
-                                </div>
-                            </div>
+        .form-label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-                        </div>
+        .form-control {
+            border-radius: 16px;
+            border: 2px solid #f1f5f9;
+            padding: 1rem 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--crystalline-primary);
+            box-shadow: 0 0 0 4px var(--crystalline-glow);
+            outline: none;
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            padding: 1.1rem;
+            border-radius: 18px;
+            font-weight: 700;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .reveal-fade {
+            animation: reveal 0.8s ease-out forwards;
+        }
+
+        @keyframes reveal {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 991px) {
+            .crystalline-card {
+                flex-direction: column;
+                max-width: 500px;
+                min-height: auto;
+                margin: 2rem 0;
+            }
+
+            .branding-sidebar {
+                width: 100%;
+                padding: 2.5rem;
+            }
+
+            .form-area {
+                padding: 2.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="iridescent-bg"></div>
+    <div class="mesh-ball ball-1"></div>
+    <div class="mesh-ball ball-2"></div>
+
+    <div class="container d-flex justify-content-center">
+        <div class="crystalline-card reveal-fade">
+            <!-- Left Branding -->
+            <div class="branding-sidebar">
+                <div class="mb-5 d-flex align-items-center gap-3">
+                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px;">
+                        <i class="fas fa-graduation-cap text-white"></i>
                     </div>
+                    <h4 class="mb-0">DBIT Hub</h4>
+                </div>
+                <div class="my-auto">
+                    <h1 class="display-5 mb-4">Welcome <br><span class="text-gradient">Back.</span></h1>
+                    <p class="text-white-50 lead">Access your custom dashboard and stay connected with the network.</p>
+                </div>
+                <div class="mt-auto">
+                    <a href="/" class="text-white-50 text-decoration-none small transition-all">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Home
+                    </a>
+                </div>
+            </div>
 
+            <!-- Right Form Area -->
+            <div class="form-area">
+                <div class="mb-5">
+                    <h2 class="mb-1">Sign In</h2>
+                    <p class="text-muted">Enter your institutional credentials</p>
                 </div>
 
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} fade show mb-4 border-0 shadow-sm rounded-4"
+                    role="alert">
+                    <i class="fas fa-info-circle me-2"></i> {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="/login">
+                    <div class="mb-4">
+                        <label class="form-label">Institutional Email</label>
+                        <input type="email" class="form-control" name="email" required placeholder="name@domain.com">
+                    </div>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between">
+                            <label class="form-label">Password</label>
+                            <a href="{{ url_for('forgot_password') }}"
+                                class="small text-primary text-decoration-none fw-bold">Recovery?</a>
+                        </div>
+                        <input type="password" class="form-control" name="password" required placeholder="••••••••">
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label text-muted small" for="rememberMe">Maintain session</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-premium">
+                        Authenticate <i class="fas fa-sign-in-alt ms-2"></i>
+                    </button>
+
+                    <div class="text-center mt-5 text-muted">
+                        New here? <a href="/register" class="text-primary text-decoration-none fw-bold">Request
+                            Access</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</body>
 
-</div>
-
-<style>
-    /* New Branding Section Styles & Animations */
-
-    /* Blob Animations */
-    .blob-1 {
-        animation: float 10s infinite ease-in-out;
-    }
-
-    .blob-2 {
-        animation: float 12s infinite ease-in-out reverse;
-    }
-
-    @keyframes float {
-
-        0%,
-        100% {
-            transform: translate(0px, 0px) scale(1);
-        }
-
-        33% {
-            transform: translate(30px, -50px) scale(1.1);
-        }
-
-        66% {
-            transform: translate(-20px, 20px) scale(0.9);
-        }
-    }
-
-    /* Neon Pulse for Badges */
-    .bg-cyan.bg-opacity-10,
-    .bg-purple.bg-opacity-10,
-    .bg-emerald.bg-opacity-10 {
-        animation: neonPulse 3s infinite ease-in-out;
-    }
-
-    @keyframes neonPulse {
-
-        0%,
-        100% {
-            box-shadow: 0 0 5px rgba(255, 255, 255, 0.05);
-        }
-
-        50% {
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-        }
-    }
-
-    /* Carousel Entry Animations - Unified Horizontal Slide */
-    .carousel-item.active .glass-card,
-    .carousel-item-next .glass-card,
-    .carousel-item-prev .glass-card {
-        opacity: 0;
-        animation: slideInFromRight 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        position: relative;
-        overflow: hidden;
-    }
-
-    /* Swipe Shine Effect */
-    .carousel-item.active .glass-card::after {
-        content: "";
-        position: absolute;
-        top: -100%;
-        left: -100%;
-        width: 300%;
-        height: 300%;
-        background: linear-gradient(45deg, transparent 45%, rgba(255, 255, 255, 0.1) 50%, transparent 55%);
-        animation: shineSweep 2s ease-in-out forwards;
-        pointer-events: none;
-    }
-
-    /* Staggered Content Removed as per user request for unified feel */
-
-    /* Keyframes */
-    @keyframes slideInFromRight {
-        from {
-            opacity: 0;
-            transform: translateX(120px) scale(0.9) skewX(6deg);
-            filter: blur(8px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateX(0) scale(1) skewX(0);
-            filter: blur(0);
-        }
-    }
-
-    @keyframes shineSweep {
-        0% {
-            transform: translateX(-100%) translateY(-100%) rotate(0deg);
-        }
-
-        100% {
-            transform: translateX(100%) translateY(100%) rotate(0deg);
-        }
-    }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes zoomIn {
-        from {
-            opacity: 0;
-            transform: scale(0.5);
-        }
-
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    /* Text Gradient */
-    .text-gradient-cyan {
-        background: linear-gradient(to right, #22d3ee, #818cf8);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        background-size: 200% auto;
-        animation: gradientFlow 5s ease infinite;
-    }
-
-    @keyframes gradientFlow {
-        0% {
-            background-position: 0% 50%;
-        }
-
-        50% {
-            background-position: 100% 50%;
-        }
-
-        100% {
-            background-position: 0% 50%;
-        }
-    }
-
-    /* Form Styles */
-    .hover-lift {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .hover-lift:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
-    }
-
-    .glass-card {
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
-        background: rgba(255, 255, 255, 0.03) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    }
-
-    .glass-card:hover {
-        transform: translateY(-8px) scale(1.02);
-        background: rgba(255, 255, 255, 0.08) !important;
-        border-color: rgba(34, 211, 238, 0.4) !important;
-    }
-
-    .branding-sidebar h1,
-    .branding-sidebar h4,
-    .branding-sidebar h5 {
-        color: #ffffff !important;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    .branding-sidebar p {
-        color: rgba(255, 255, 255, 0.8) !important;
-    }
-
-    /* Marquee Animation */
-    .marquee-wrapper {
-        height: 1.6rem;
-        overflow: hidden;
-        position: relative;
-        display: inline-block;
-        vertical-align: middle;
-        margin-left: 2px;
-    }
-
-    .marquee-content {
-        display: flex;
-        flex-direction: column;
-        animation: marqueeVertical 16s cubic-bezier(0.76, 0, 0.24, 1) infinite;
-    }
-
-    .marquee-content span {
-        height: 1.6rem;
-        line-height: 1.6rem;
-        display: flex;
-        align-items: center;
-        font-size: 1.1rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        white-space: nowrap;
-    }
-
-    @keyframes marqueeVertical {
-
-        0%,
-        20% {
-            transform: translateY(0);
-        }
-
-        25%,
-        45% {
-            transform: translateY(-1.6rem);
-        }
-
-        50%,
-        70% {
-            transform: translateY(-3.2rem);
-        }
-
-        75%,
-        95% {
-            transform: translateY(-4.8rem);
-        }
-
-        100% {
-            transform: translateY(-6.4rem);
-        }
-    }
-
-    .shadow-text {
-        text-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-    }
-
-    .reveal-fade {
-        opacity: 0;
-        transform: translateY(20px);
-        transition: all 0.8s ease-out;
-    }
-
-    .reveal-fade.revealed {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-    }
-
-    .form-control:focus {
-        box-shadow: none;
-        background-color: #fff !important;
-        border: 1px solid #4f46e5 !important;
-    }
-
-    .font-outfit {
-        font-family: 'Outfit', sans-serif;
-    }
-
-    /* ===== RESPONSIVE MEDIA QUERIES ===== */
-    @media (max-width: 991px) {
-        .glass-panel {
-            height: auto !important;
-            min-height: auto !important;
-            margin-bottom: 2rem;
-        }
-
-        .login-header {
-            margin-top: 2rem;
-            text-align: center;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .container {
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-
-        .p-4.p-md-5 {
-            padding: 1.5rem !important;
-        }
-    }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- Reveal Animations ---
-        setTimeout(() => {
-            document.querySelectorAll('.reveal-fade').forEach(el => el.classList.add('revealed'));
-        }, 100);
-
-        // --- Advanced Branding Animations ---
-
-        // 1. Sliding Marquee logic is now CSS-only for performance.
-
-        // 2. Animated Number Counters
-        const counters = document.querySelectorAll('.counter');
-        const speed = 200; // The lower the slower
-
-        const animateCounters = () => {
-            counters.forEach(counter => {
-                const updateCount = () => {
-                    const target = +counter.getAttribute('data-target');
-                    const count = +counter.innerText;
-                    const inc = target / speed;
-
-                    if (count < target) {
-                        counter.innerText = Math.ceil(count + inc);
-                        setTimeout(updateCount, 20);
-                    } else {
-                        counter.innerText = target.toLocaleString(); // Format with commas
-                    }
-                };
-                updateCount();
-            });
-        };
-
-        // Trigger counters when in view
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    animateCounters();
-                    observer.unobserve(entry.target); // Run once
-                }
-            });
-        });
-
-        if (document.querySelector('.mt-4.pt-3')) {
-            observer.observe(document.querySelector('.mt-4.pt-3')); // Observe the stats section
-        }
-
-        // --- Carousel Advanced Logic ---
-        const carousel = document.querySelector('#brandingCarousel');
-        const progressBar = document.querySelector('.carousel-progress-bar');
-        const interval = 4000; // Match data-bs-interval
-        let progressStart = Date.now();
-        let progressTimer;
-
-        if (carousel && progressBar) {
-            function updateProgress() {
-                const elapsed = Date.now() - progressStart;
-                const percentage = Math.min((elapsed / interval) * 100, 100);
-                progressBar.style.width = percentage + '%';
-
-                if (percentage < 100) {
-                    progressTimer = requestAnimationFrame(updateProgress);
-                }
-            }
-
-            carousel.addEventListener('slide.bs.carousel', () => {
-                cancelAnimationFrame(progressTimer);
-                progressBar.style.width = '0%';
-                progressBar.style.transition = 'none';
-            });
-
-            carousel.addEventListener('slid.bs.carousel', () => {
-                progressStart = Date.now();
-                updateProgress();
-            });
-
-            // Start initial progress
-            updateProgress();
-        }
-
-
-        // 3. 3D Tilt Effect with Parallax
-        const cardTilts = document.querySelectorAll('[data-tilt], .glass-card');
-
-        cardTilts.forEach(card => {
-            const innerIcon = card.querySelector('i');
-
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-
-                const rotateX = ((y - centerY) / centerY) * -12; // Max tilt 12deg
-                const rotateY = ((x - centerX) / centerX) * 12;
-
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-
-                // Parallax depth for the icon inside
-                if (innerIcon) {
-                    const moveX = ((x - centerX) / centerX) * 15; // Move icon opposite
-                    const moveY = ((y - centerY) / centerY) * 15;
-                    innerIcon.style.transform = `translateZ(50px) translateX(${moveX}px) translateY(${moveY}px)`;
-                }
-            });
-
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
-                if (innerIcon) {
-                    innerIcon.style.transform = 'translateZ(0) translateX(0) translateY(0)';
-                }
-            });
-        });
-
-
-        // 4. Mouse Parallax for Blobs (Optimized)
-        let ticking = false;
-        document.addEventListener('mousemove', (e) => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    const blobs = document.querySelectorAll('.blob-1, .blob-2');
-                    const x = (window.innerWidth - e.pageX * 2) / 100;
-                    const y = (window.innerHeight - e.pageY * 2) / 100;
-
-                    blobs.forEach((blob, index) => {
-                        const speed = index === 0 ? 2 : -2; // Opposite directions
-                        blob.style.transform = `translateX(${x * speed}px) translateY(${y * speed}px)`;
-                    });
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        });
-
-    });
-</script>
-{% endblock %}
+</html>

@@ -1,1567 +1,652 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}Register - DBIT Alumni Hub{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% block content %}
-<link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet">
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Official DBIT Alumni Hub - Connect, network, and grow with the Don Bosco Institute of Technology alumni community.">
+    <title>Register - DBIT Alumni Hub</title>
 
-<div class="position-relative overflow-hidden min-vh-100 d-flex justify-content-center py-5"
-    style="padding-top: 100px !important;">
+    <!-- Premium Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
-    <!-- Animated Mesh Background -->
-    <div class="mesh-background">
-        <div class="mesh-ball ball-1"></div>
-        <div class="mesh-ball ball-2"></div>
-        <div class="mesh-ball ball-3"></div>
-        <div class="mesh-ball ball-4"></div>
-    </div>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Container -->
-    <div class="container position-relative z-2">
-        <div class="row justify-content-center">
-            <div class="col-xl-11 col-lg-12">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-                <!-- Glassmorphic Card -->
-                <div class="card-modern glass-panel reveal-fade shadow-2xl"
-                    style="border-radius: 30px; overflow: hidden; height: 85vh; min-height: 700px; border: 1px solid rgba(255,255,255,0.4);">
-                    <div class="row g-0 h-100">
+    <style>
+        :root {
+            --crystalline-primary: #6366f1;
+            --crystalline-secondary: #ec4899;
+            --crystalline-glass: rgba(255, 255, 255, 0.7);
+            --crystalline-glass-border: rgba(255, 255, 255, 0.5);
+            --crystalline-glow: rgba(99, 102, 241, 0.2);
+            --v3-font-heading: 'Outfit', sans-serif;
+            --v3-font-body: 'Plus Jakarta Sans', sans-serif;
+        }
 
-                        <!-- LEFT SIDE: Branding (Sticky) -->
-                        <div class="col-lg-4 d-none d-lg-flex flex-column position-relative overflow-hidden text-white branding-sidebar"
-                            style="background: #0f172a !important; background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%) !important;">
+        body {
+            font-family: var(--v3-font-body);
+            background: #f8fafc;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-                            <!-- Animated Background Elements -->
-                            <canvas class="network-canvas position-absolute top-0 start-0 w-100 h-100"
-                                style="opacity: 0.6; pointer-events: none;"></canvas>
+        /* Animated Iridescent Background */
+        .iridescent-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 25%, #f5f3ff 50%, #fdf2f8 75%, #f0fdf4 100%);
+            background-size: 400% 400%;
+            animation: gradientMove 15s ease infinite;
+        }
 
-                            <!-- Glowing Orbs (Subtle) -->
-                            <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden"
-                                style="pointer-events: none;">
-                                <div class="position-absolute rounded-circle"
-                                    style="width: 400px; height: 400px; background: #3b82f6; opacity: 0.05; top: -100px; left: -100px; filter: blur(80px);">
-                                </div>
-                                <div class="position-absolute rounded-circle"
-                                    style="width: 300px; height: 300px; background: #8b5cf6; opacity: 0.05; bottom: -50px; right: -50px; filter: blur(60px);">
-                                </div>
-                            </div>
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% 50%;
+            }
 
-                            <div class="p-4 d-flex flex-column h-100 position-relative z-1">
-                                <!-- Logo AREA -->
-                                <div class="mb-4">
-                                    <div
-                                        class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-10 px-3 py-2 rounded-pill backdrop-blur-sm border border-white border-opacity-10 shadow-sm">
-                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                                            style="width: 24px; height: 24px;">
-                                            <i class="fas fa-graduation-cap text-white" style="font-size: 12px;"></i>
-                                        </div>
-                                        <span class="small fw-bold tracking-wide text-uppercase text-white">DBIT Alumni
-                                            Hub</span>
-                                    </div>
-                                </div>
+            50% {
+                background-position: 100% 50%;
+            }
 
-                                <!-- Main Content with Carousel -->
-                                <div class="my-auto py-3">
-                                    <h1
-                                        class="display-6 fw-bold mb-4 leading-tight text-white d-flex flex-wrap align-items-center justify-content-center gap-2">
-                                        <span>Elevate Your</span>
-                                        <div class="marquee-wrapper">
-                                            <div class="marquee-content shadow-text">
-                                                <span class="text-gradient-cyan">Professional Path</span>
-                                                <span class="text-gradient-cyan">Global Network</span>
-                                                <span class="text-gradient-cyan">Career Potential</span>
-                                                <span class="text-gradient-cyan">Future Legacy</span>
-                                                <!-- Duplicate for infinite loop -->
-                                                <span class="text-gradient-cyan">Professional Path</span>
-                                            </div>
-                                        </div>
-                                    </h1>
+            100% {
+                background-position: 0% 50%;
+            }
+        }
 
-                                    <!-- Testimonial/Benefit Carousel -->
-                                    <div id="brandingCarousel" class="carousel slide carousel-fade"
-                                        data-bs-ride="carousel" data-bs-interval="4000">
-                                        <div class="carousel-inner">
-                                            <!-- Slide 1: Networking -->
-                                            <div class="carousel-item active">
-                                                <div class="glass-card p-4 rounded-4 border border-white border-opacity-10 bg-white bg-opacity-5 shadow-lg transition-all"
-                                                    style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
-                                                    <div class="d-inline-flex align-items-center justify-content-center bg-cyan bg-opacity-10 rounded-pill mb-3 px-3 py-1"
-                                                        style="border: 1px solid rgba(34, 211, 238, 0.2);">
-                                                        <i class="fas fa-users fs-6" style="color: #22d3ee;"></i>
-                                                        <span class="ms-2 small fw-bold text-cyan"
-                                                            style="color: #22d3ee;">Networking</span>
-                                                    </div>
-                                                    <h5 class="fw-bold mb-2 text-white">Build Connections</h5>
-                                                    <p class="text-white-50 small mb-0 lh-base">Reconnect with
-                                                        batchmates and
-                                                        expand your professional network across industries.</p>
-                                                </div>
-                                            </div>
-                                            <!-- Slide 2: Careers -->
-                                            <div class="carousel-item">
-                                                <div class="glass-card p-4 rounded-4 border border-white border-opacity-10 bg-white bg-opacity-5 shadow-lg transition-all"
-                                                    style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
-                                                    <div class="d-inline-flex align-items-center justify-content-center bg-purple bg-opacity-10 rounded-pill mb-3 px-3 py-1"
-                                                        style="border: 1px solid rgba(167, 139, 250, 0.2);">
-                                                        <i class="fas fa-briefcase fs-6" style="color: #a78bfa;"></i>
-                                                        <span class="ms-2 small fw-bold text-purple"
-                                                            style="color: #a78bfa;">Careers</span>
-                                                    </div>
-                                                    <h5 class="fw-bold mb-2 text-white">Career Growth</h5>
-                                                    <p class="text-white-50 small mb-0 lh-base">Discover job
-                                                        opportunities,
-                                                        mentorship programs, and exclusive career events.</p>
-                                                </div>
-                                            </div>
-                                            <!-- Slide 3: Community -->
-                                            <div class="carousel-item">
-                                                <div class="glass-card p-4 rounded-4 border border-white border-opacity-10 bg-white bg-opacity-5 shadow-lg transition-all"
-                                                    style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
-                                                    <div class="d-inline-flex align-items-center justify-content-center bg-emerald bg-opacity-10 rounded-pill mb-3 px-3 py-1"
-                                                        style="border: 1px solid rgba(52, 211, 153, 0.2);">
-                                                        <i class="fas fa-university fs-6" style="color: #34d399;"></i>
-                                                        <span class="ms-2 small fw-bold text-emerald"
-                                                            style="color: #34d399;">Community</span>
-                                                    </div>
-                                                    <h5 class="fw-bold mb-2 text-white">Give Back</h5>
-                                                    <p class="text-white-50 small mb-0 lh-base">Share your expertise,
-                                                        mentor
-                                                        students, and contribute to your alma mater's legacy.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- Carousel Progress Bar -->
-                                        <div class="carousel-progress-container mt-4 mb-2"
-                                            style="height: 2px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden;">
-                                            <div class="carousel-progress-bar"
-                                                style="width: 0%; height: 100%; background: linear-gradient(90deg, #22d3ee, #818cf8); transition: none;">
-                                            </div>
-                                        </div>
-                                        <!-- Indicators -->
-                                        <div
-                                            class="carousel-indicators position-static justify-content-start mt-4 px-0 mx-0">
-                                            <button type="button" data-bs-target="#brandingCarousel"
-                                                data-bs-slide-to="0" class="active rounded-circle bg-white"
-                                                style="width: 8px; height: 8px; opacity: 1;"></button>
-                                            <button type="button" data-bs-target="#brandingCarousel"
-                                                data-bs-slide-to="1" class="rounded-circle bg-white"
-                                                style="width: 8px; height: 8px; opacity: 0.3;"></button>
-                                            <button type="button" data-bs-target="#brandingCarousel"
-                                                data-bs-slide-to="2" class="rounded-circle bg-white"
-                                                style="width: 8px; height: 8px; opacity: 0.3;"></button>
-                                        </div>
-                                    </div>
-                                </div>
+        .mesh-ball {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out;
+        }
 
-                                <!-- Footer / Stats -->
-                                <div class="mt-4 pt-3 border-top border-white border-opacity-10">
-                                    <div
-                                        class="row g-3 p-3 rounded-4 bg-blue bg-opacity-5 border border-white border-opacity-10 shadow-sm">
-                                        <div class="col-6">
-                                            <h4 class="fw-bold mb-0 text-white"><span class="counter"
-                                                    data-target="5000">0</span>+</h4>
-                                            <span class="text-white-50 small">Alumni Connected</span>
-                                        </div>
-                                        <div class="col-6">
-                                            <h4 class="fw-bold mb-0 text-white"><span class="counter"
-                                                    data-target="100">0</span>+</h4>
-                                            <span class="text-white-50 small">Partner Companies</span>
-                                        </div>
-                                    </div>
-                                    <div class="mt-4">
-                                        <a href="/"
-                                            class="text-white-50 text-decoration-none hover-white small transition-all">
-                                            <i class="fas fa-arrow-left me-2"></i> Back to Home
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        .ball-1 {
+            width: 400px;
+            height: 400px;
+            background: #818cf8;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
 
-                        <!-- RIGHT SIDE: Scrollable Form -->
-                        <div class="col-lg-8 h-100 bg-white position-relative">
+        .ball-2 {
+            width: 300px;
+            height: 300px;
+            background: #f472b6;
+            bottom: -50px;
+            right: -50px;
+            animation-delay: -5s;
+        }
 
-                            <!-- Mobile Branding Header (Visible < lg) -->
-                            <div class="d-lg-none text-center pt-4 pb-2 position-relative z-3">
-                                <div
-                                    class="d-inline-flex align-items-center gap-2 bg-light px-3 py-2 rounded-pill border shadow-sm">
-                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                                        style="width: 24px; height: 24px;">
-                                        <i class="fas fa-graduation-cap text-white" style="font-size: 12px;"></i>
-                                    </div>
-                                    <span class="small fw-bold tracking-wide text-uppercase text-dark">DBIT Alumni
-                                        Hub</span>
-                                </div>
-                            </div>
+        .ball-3 {
+            width: 250px;
+            height: 250px;
+            background: #2dd4bf;
+            top: 40%;
+            left: 60%;
+            animation-delay: -10s;
+        }
 
-                            <!-- Progress Bar -->
-                            <div class="progress-container position-absolute top-0 start-0 w-100 z-3"
-                                style="height: 6px; background: #f1f5f9;">
-                                <div id="form-progress" class="progress-bar-premium"
-                                    style="width: 0%; height: 100%; background: linear-gradient(90deg, #6366f1, #ec4899); transition: width 0.3s ease;">
-                                </div>
-                            </div>
+        @keyframes float {
 
-                            <div class="h-100 overflow-y-auto custom-scrollbar p-5">
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
 
-                                <div class="d-flex justify-content-between align-items-end mb-5">
-                                    <div>
-                                        <h2 class="fw-bold text-dark mb-1 font-heading">Create Account</h2>
-                                        <p class="text-muted mb-0">It only takes a minute.</p>
-                                    </div>
-                                    <span class="badge bg-light text-primary border rounded-pill px-3 py-2"
-                                        id="completion-badge">0% Completed</span>
-                                </div>
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
 
-                                {% with messages = get_flashed_messages(with_categories=true) %}
-                                {% if messages %}
-                                {% for category, message in messages %}
-                                <div class="alert alert-{{ category }} fade show mb-4 border-0 shadow-sm rounded-3"
-                                    role="alert">
-                                    <i class="fas fa-info-circle me-2"></i> {{ message }}
-                                </div>
-                                {% endfor %}
-                                {% endif %}
-                                {% endwith %}
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
 
-                                <form method="POST" id="registerForm" class="needs-validation"
-                                    onsubmit="return validateRegisterForm()">
+        /* Centered Crystalline Card */
+        .crystalline-card {
+            background: var(--crystalline-glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--crystalline-glass-border);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1100px;
+            min-height: 750px;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
 
-                                    <!-- Role Selection -->
-                                    <div class="mb-5 section-fade">
-                                        <label
-                                            class="form-label fw-bold small text-uppercase text-muted tracking-wide mb-3">I
-                                            am a...</label>
-                                        <div class="row g-3">
-                                            <div class="col-md-4">
-                                                <input type="radio" class="btn-check" name="role" id="roleStudent"
-                                                    value="student" {% if role=='student' or not role %}checked{% endif
-                                                    %} onchange="updateFormFields()">
-                                                <label
-                                                    class="card-role w-100 p-4 text-center cursor-pointer rounded-4 border"
-                                                    for="roleStudent">
-                                                    <i class="fas fa-graduation-cap fa-2x mb-3 text-primary"></i>
-                                                    <div class="fw-bold">Student</div>
-                                                </label>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <input type="radio" class="btn-check" name="role" id="roleAlumni"
-                                                    value="alumni" {% if role=='alumni' %}checked{% endif %}
-                                                    onchange="updateFormFields()">
-                                                <label
-                                                    class="card-role w-100 p-4 text-center cursor-pointer rounded-4 border"
-                                                    for="roleAlumni">
-                                                    <i class="fas fa-user-tie fa-2x mb-3 text-success"></i>
-                                                    <div class="fw-bold">Alumni</div>
-                                                </label>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <input type="radio" class="btn-check" name="role" id="roleFaculty"
-                                                    value="faculty" {% if role=='faculty' %}checked{% endif %}
-                                                    onchange="updateFormFields()">
-                                                <label
-                                                    class="card-role w-100 p-4 text-center cursor-pointer rounded-4 border"
-                                                    for="roleFaculty">
-                                                    <i class="fas fa-chalkboard-teacher fa-2x mb-3 text-warning"></i>
-                                                    <div class="fw-bold">Faculty</div>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
+        /* Branding Sidebar (v3 version) */
+        .branding-sidebar {
+            width: 38%;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            position: relative;
+        }
 
-                                    <!-- Basic Info -->
-                                    <div class="mb-5">
-                                        <h5 class="fw-bold text-dark mb-4 pb-2 border-bottom">Basic Information</h5>
-                                        <div class="row g-4">
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold small text-muted">Full Name</label>
-                                                <input type="text"
-                                                    class="form-control form-control-lg bg-light border-0" id="name"
-                                                    name="name" required placeholder="John Doe"
-                                                    value="{{ form_data.get('name', '') if form_data else '' }}">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold small text-muted">Email Address</label>
-                                                <input type="email"
-                                                    class="form-control form-control-lg bg-light border-0" id="email"
-                                                    name="email" required placeholder="john@example.com"
-                                                    value="{{ form_data.get('email', '') if form_data else '' }}">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold small text-muted">Phone Number</label>
-                                                <input type="tel" class="form-control form-control-lg bg-light border-0"
-                                                    id="phone" name="phone" required placeholder="+91 9876543210"
-                                                    value="{{ form_data.get('phone', '') if form_data else '' }}">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <!-- Empty column for alignment -->
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold small text-muted">Password</label>
-                                                <input type="password"
-                                                    class="form-control form-control-lg bg-light border-0" id="password"
-                                                    name="password" required placeholder="••••••••">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold small text-muted">Confirm
-                                                    Password</label>
-                                                <input type="password"
-                                                    class="form-control form-control-lg bg-light border-0"
-                                                    id="confirm_password" name="confirm_password" required
-                                                    placeholder="••••••••">
-                                            </div>
-                                        </div>
-                                    </div>
+        .branding-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent);
+            pointer-events: none;
+        }
 
-                                    <!-- Dynamic Fields (Hidden by default) -->
-                                    <div id="studentFields" class="mb-5 animate-slide-down">
-                                        <h5 class="fw-bold text-primary mb-4 pb-2 border-bottom">Student Details</h5>
-                                        <div class="row g-4">
-                                            <div class="col-md-6"><label
-                                                    class="form-label small fw-bold text-muted">Enrollment
-                                                    No</label><input type="text" class="form-control bg-light border-0"
-                                                    id="enrollment_no" name="enrollment_no"
-                                                    value="{{ form_data.get('enrollment_no', '') if form_data else '' }}">
-                                            </div>
+        /* Form Area */
+        .form-area {
+            flex: 1;
+            padding: 3rem 4rem;
+            overflow-y: auto;
+            max-height: 85vh;
+            background: rgba(255, 255, 255, 0.5);
+        }
 
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-muted">Category</label>
-                                                <select class="form-select bg-light border-0" id="category"
-                                                    name="category" onchange="updateCourseDropdown()">
-                                                    <option value="">Select Category</option>
-                                                    <option value="IT">IT / Technology</option>
-                                                    <option value="Engineering">Engineering</option>
-                                                    <!-- Add other options as needed in JS or static -->
-                                                    <option value="Science">Science</option>
-                                                    <option value="Commerce">Commerce</option>
-                                                    <option value="Arts">Arts</option>
-                                                    <option value="Medical">Medical</option>
-                                                    <option value="Law">Law</option>
-                                                </select>
-                                            </div>
+        .form-area::-webkit-scrollbar {
+            width: 6px;
+        }
 
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-muted">Level</label>
-                                                <select class="form-select bg-light border-0" id="level" name="level"
-                                                    onchange="updateCourseDropdown()">
-                                                    <option value="">Select Level</option>
-                                                    <option value="UG">Undergraduate</option>
-                                                    <option value="PG">Postgraduate</option>
-                                                    <option value="Diploma">Diploma</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-muted">Course</label>
-                                                <select class="form-select bg-light border-0" id="degree" name="degree">
-                                                    <option value="">Select Course</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-muted">Department</label>
-                                                <select class="form-select bg-light border-0" id="department"
-                                                    name="department">
-                                                    <option value="">Select Department</option>
-                                                    <option value="Information Technology">IT</option>
-                                                    <option value="Computer Science">CS</option>
-                                                    <option value="Computer Engineering">Computer Engg</option>
-                                                    <option value="Electronics & Communication">EXTC</option>
-                                                    <option value="Mechanical Engineering">Mechanical</option>
-                                                    <option value="Civil Engineering">Civil</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-muted">Semester</label>
-                                                <select class="form-select bg-light border-0" id="semester"
-                                                    name="semester">
-                                                    <option value="">Select Semester</option>
-                                                    <option value="1">1</option>
-                                                    <option value="2">2</option>
-                                                    <option value="3">3</option>
-                                                    <option value="4">4</option>
-                                                    <option value="5">5</option>
-                                                    <option value="6">6</option>
-                                                    <option value="7">7</option>
-                                                    <option value="8">8</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+        .form-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
 
-                                    <div id="alumniFields" style="display: none;" class="mb-5 animate-slide-down">
-                                        <h5 class="fw-bold text-success mb-4 pb-2 border-bottom">Alumni Details</h5>
-                                        <div class="row g-4">
-                                            <div class="col-md-6"><label
-                                                    class="form-label small fw-bold text-muted">Enrollment
-                                                    No</label><input type="text" class="form-control bg-light border-0"
-                                                    id="alum_enrollment_no" name="enrollment_no"
-                                                    value="{{ form_data.get('enrollment_no', '') if form_data else '' }}">
-                                            </div>
+        .form-area::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
 
-                                            <!-- Alumni Education Fields (Mirrors Student) -->
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-muted">Category</label>
-                                                <select class="form-select bg-light border-0" id="alum_category"
-                                                    name="category" onchange="updateAlumniCourseDropdown()">
-                                                    <option value="">Select Category</option>
-                                                    <option value="IT">IT / Technology</option>
-                                                    <option value="Engineering">Engineering</option>
-                                                    <option value="Science">Science</option>
-                                                    <option value="Commerce">Commerce</option>
-                                                    <option value="Arts">Arts</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-muted">Level</label>
-                                                <select class="form-select bg-light border-0" id="alum_level"
-                                                    name="level" onchange="updateAlumniCourseDropdown()">
-                                                    <option value="">Select Level</option>
-                                                    <option value="UG">Undergraduate</option>
-                                                    <option value="PG">Postgraduate</option>
-                                                    <option value="Diploma">Diploma</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-muted">Course</label>
-                                                <select class="form-select bg-light border-0" id="alum_degree"
-                                                    name="degree">
-                                                    <option value="">Select Course</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-muted">Department</label>
-                                                <select class="form-select bg-light border-0" id="alum_department"
-                                                    name="department">
-                                                    <option value="">Select Department</option>
-                                                    <option value="Information Technology">IT</option>
-                                                    <option value="Computer Science">CS</option>
-                                                    <option value="Mechanical Engineering">Mechanical</option>
-                                                    <option value="Civil Engineering">Civil</option>
-                                                </select>
-                                            </div>
+        /* Typography */
+        h1,
+        h2,
+        h3,
+        h5 {
+            font-family: var(--v3-font-heading);
+            font-weight: 700;
+        }
 
-                                            <div class="col-md-6"><label
-                                                    class="form-label small fw-bold text-muted">Passing
-                                                    Year</label>
-                                                <select class="form-select bg-light border-0" id="pass_year"
-                                                    name="pass_year">
-                                                    {% for year in range(2024, 1999, -1) %}<option value="{{ year }}">{{
-                                                        year }}</option>{% endfor %}
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6"><label
-                                                    class="form-label small fw-bold text-muted">Current
-                                                    Company</label><input type="text"
-                                                    class="form-control bg-light border-0" id="company_name"
-                                                    name="company_name"
-                                                    value="{{ form_data.get('company_name', '') if form_data else '' }}">
-                                            </div>
-                                            <div class="col-md-6"><label
-                                                    class="form-label small fw-bold text-muted">Designation</label><input
-                                                    type="text" class="form-control bg-light border-0"
-                                                    id="alum_designation" name="designation"></div>
-                                        </div>
-                                    </div>
+        .text-gradient {
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-                                    <div id="facultyFields" style="display: none;" class="mb-5 animate-slide-down">
-                                        <h5 class="fw-bold text-warning mb-4 pb-2 border-bottom">Faculty Details</h5>
-                                        <div class="row g-4">
-                                            <div class="col-md-6"><label
-                                                    class="form-label small fw-bold text-muted">Employee
-                                                    ID</label><input type="text" class="form-control bg-light border-0"
-                                                    id="fac_employee_id" name="employee_id"
-                                                    value="{{ form_data.get('employee_id', '') if form_data else '' }}">
-                                            </div>
-                                            <div class="col-md-6"><label
-                                                    class="form-label small fw-bold text-muted">Department</label>
-                                                <select class="form-select bg-light border-0" id="fac_department"
-                                                    name="department">
-                                                    <option value="">Select Department</option>
-                                                    <option value="Information Technology">IT</option>
-                                                    <option value="Computer Science">CS</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6"><label
-                                                    class="form-label small fw-bold text-muted">Designation</label>
-                                                <select class="form-select bg-light border-0" id="fac_designation"
-                                                    name="designation">
-                                                    <option value="Professor">Professor</option>
-                                                    <option value="Assistant Professor">Assistant Professor</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+        /* Progress Tracker */
+        .progress-header {
+            position: sticky;
+            top: -3rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            margin: -3rem -4rem 2rem -4rem;
+            padding: 1.5rem 4rem;
+            z-index: 20;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
 
-                                    <div class="mb-4 form-check">
-                                        <input type="checkbox" class="form-check-input" id="terms" required>
-                                        <label class="form-check-label text-muted small" for="terms">I agree to the <a
-                                                href="#" class="text-primary text-decoration-none">Terms &
-                                                Conditions</a> and <a href="#"
-                                                class="text-primary text-decoration-none">Privacy
-                                                Policy</a>.</label>
-                                    </div>
+        .progress-bar-container {
+            height: 6px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
 
-                                    <button type="submit"
-                                        class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow-lg hover-lift"
-                                        style="border-radius: 12px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border: none;">
-                                        Create Account <i class="fas fa-arrow-right ms-2"></i>
-                                    </button>
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #6366f1, #ec4899);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+        }
 
-                                    <div class="text-center mt-4 text-muted">
-                                        Already have an account? <a href="/login"
-                                            class="fw-bold text-primary text-decoration-none">Login Here</a>
-                                    </div>
+        /* Role Cards */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
 
-                                </form>
-                            </div>
-                        </div>
+        .role-card {
+            border: 2px solid transparent;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .role-input:checked+.role-card {
+            border-color: var(--crystalline-primary);
+            background: rgba(99, 102, 241, 0.03);
+            transform: scale(1.02);
+            box-shadow: 0 0 0 4px var(--crystalline-glow);
+        }
+
+        /* Form Controls */
+        .form-label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 16px;
+            border: 2px solid #f1f5f9;
+            padding: 0.8rem 1.2rem;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--crystalline-primary);
+            box-shadow: 0 0 0 4px var(--crystalline-glow);
+            outline: none;
+        }
+
+        /* Buttons */
+        .btn-premium {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.4s;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+            width: 100%;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+            filter: brightness(1.1);
+        }
+
+        /* Animations */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease-out;
+        }
+
+        .fade-in-section.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 991px) {
+            .crystalline-card {
+                flex-direction: column;
+                max-width: 600px;
+                min-height: auto;
+                margin: 2rem 0;
+            }
+
+            .branding-sidebar {
+                width: 100%;
+                padding: 2rem;
+            }
+
+            .form-area {
+                padding: 2rem;
+            }
+
+            .role-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="iridescent-bg"></div>
+    <div class="mesh-ball ball-1"></div>
+    <div class="mesh-ball ball-2"></div>
+    <div class="mesh-ball ball-3"></div>
+
+    <div class="container d-flex justify-content-center py-5">
+        <div class="crystalline-card">
+            <!-- Left Branding -->
+            <div class="branding-sidebar">
+                <div class="mb-5 d-flex align-items-center gap-3">
+                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px;">
+                        <i class="fas fa-graduation-cap text-white"></i>
+                    </div>
+                    <h4 class="mb-0">DBIT Hub</h4>
+                </div>
+                <div class="my-auto">
+                    <h1 class="display-5 mb-4">Reconnect. <br><span class="text-gradient">Empower.</span> <br>Excel.
+                    </h1>
+                    <p class="text-white-50 lead">Join our elite community of professionals and shape the legacy of
+                        DBIT.</p>
+                </div>
+                <div class="mt-auto">
+                    <a href="/" class="text-white-50 text-decoration-none small transition-all">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Form Area -->
+            <div class="form-area">
+                <div class="progress-header">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4 class="mb-0">Create Account</h4>
+                        <span id="completion-badge" class="badge rounded-pill bg-light text-primary border px-3 py-2">0%
+                            Completed</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div id="form-progress" class="progress-bar-fill"></div>
                     </div>
                 </div>
 
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} fade show mb-4 border-0 shadow-sm rounded-4"
+                    role="alert">
+                    <i class="fas fa-info-circle me-2"></i> {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <form method="POST" id="registerForm" class="needs-validation" onsubmit="return validateRegisterForm()">
+
+                    <!-- Role Selection -->
+                    <div class="fade-in-section active mb-5">
+                        <label class="form-label">Classification</label>
+                        <div class="role-grid">
+                            <label class="position-relative">
+                                <input type="radio" name="role" value="student" class="role-input d-none"
+                                    id="roleStudent" {% if role=='student' or not role %}checked{% endif %}
+                                    onchange="updateFormFields()">
+                                <div class="role-card">
+                                    <i class="fas fa-graduation-cap fa-2x mb-3 text-primary"></i>
+                                    <div class="fw-bold">Student</div>
+                                </div>
+                            </label>
+                            <label class="position-relative">
+                                <input type="radio" name="role" value="alumni" class="role-input d-none" id="roleAlumni"
+                                    {% if role=='alumni' %}checked{% endif %} onchange="updateFormFields()">
+                                <div class="role-card">
+                                    <i class="fas fa-user-tie fa-2x mb-3 text-success"></i>
+                                    <div class="fw-bold">Alumni</div>
+                                </div>
+                            </label>
+                            <label class="position-relative">
+                                <input type="radio" name="role" value="faculty" class="role-input d-none"
+                                    id="roleFaculty" {% if role=='faculty' %}checked{% endif %}
+                                    onchange="updateFormFields()">
+                                <div class="role-card">
+                                    <i class="fas fa-chalkboard-teacher fa-2x mb-3 text-warning"></i>
+                                    <div class="fw-bold">Faculty</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information -->
+                    <div class="fade-in-section active mb-5">
+                        <h5 class="mb-4 text-gradient">Personal Credentials</h5>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" name="name" id="name" required
+                                    placeholder="John Doe" value="{{ form_data.get('name', '') if form_data else '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-control" name="email" id="email" required
+                                    placeholder="john@gmail.com"
+                                    value="{{ form_data.get('email', '') if form_data else '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" name="phone" id="phone" required
+                                    placeholder="+91 9876543210"
+                                    value="{{ form_data.get('phone', '') if form_data else '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-control" name="password" id="password" required
+                                    placeholder="••••••••">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" name="confirm_password"
+                                    id="confirm_password" required placeholder="••••••••">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Role Specific Fields -->
+                    <div id="studentFields" class="fade-in-section mb-5" style="display: none;">
+                        <h5 class="mb-4 text-primary">Academic Details</h5>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Enrollment No</label>
+                                <input type="text" class="form-control" name="enrollment_no" id="enrollment_no"
+                                    placeholder="D123456789">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" name="category" id="category"
+                                    onchange="updateCourseDropdown()">
+                                    <option value="">Select Category</option>
+                                    <option value="IT">IT / Technology</option>
+                                    <option value="Engineering">Engineering</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Level</label>
+                                <select class="form-select" name="level" id="level" onchange="updateCourseDropdown()">
+                                    <option value="">Select Level</option>
+                                    <option value="UG">Undergraduate</option>
+                                    <option value="PG">Postgraduate</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Course</label>
+                                <select class="form-select" name="degree" id="degree">
+                                    <option value="">Select Course</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="alumniFields" class="fade-in-section mb-5" style="display: none;">
+                        <h5 class="mb-4 text-success">Professional Details</h5>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Passing Year</label>
+                                <select class="form-select" name="pass_year" id="pass_year">
+                                    {% for year in range(2024, 1999, -1) %}<option value="{{ year }}">{{ year }}
+                                    </option>{% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Current Company</label>
+                                <input type="text" class="form-control" name="company_name" id="company_name"
+                                    placeholder="Google / Microsoft">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="facultyFields" class="fade-in-section mb-5" style="display: none;">
+                        <h5 class="mb-4 text-warning">Faculty Details</h5>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Employee ID</label>
+                                <input type="text" class="form-control" name="employee_id" id="fac_employee_id">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Department</label>
+                                <select class="form-select" name="department" id="fac_department">
+                                    <option value="Information Technology">IT</option>
+                                    <option value="Computer Engineering">Computer Engg</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="mb-5">
+                        <div class="form-check p-0 d-flex align-items-center gap-3">
+                            <input type="checkbox" class="form-check-input ms-0" id="terms" required
+                                style="width: 20px; height: 20px;">
+                            <label class="form-check-label text-muted small" for="terms">
+                                I agree to the <a href="#" class="text-primary text-decoration-none fw-bold">Terms &
+                                    Conditions</a>.
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-premium btn-lg">
+                        Create Account <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+
+                    <div class="text-center mt-4 text-muted">
+                        Already a member? <a href="/login" class="text-primary text-decoration-none fw-bold">Sign In</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
 
-<style>
-    .card-role {
-        transition: all 0.3s ease;
-        border-color: #e2e8f0;
-    }
-
-    .btn-check:checked+.card-role {
-        border-color: #6366f1;
-        background-color: #eff6ff;
-        color: #4f46e5;
-        box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.1), 0 2px 4px -1px rgba(99, 102, 241, 0.06);
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        background-color: #fff !important;
-        border: 1px solid #6366f1 !important;
-        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
-    }
-
-    .animate-slide-down {
-        animation: slideDown 0.4s ease-out;
-    }
-
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>
-
-<style>
-    /* Role Card Styles */
-    .card-role {
-        background: rgba(255, 255, 255, 0.5);
-        border: 2px solid transparent;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .card-role:hover {
-        background: rgba(255, 255, 255, 0.8);
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .btn-check:checked+.card-role {
-        background: rgba(99, 102, 241, 0.1);
-        border-color: #6366f1;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
-    }
-
-    .role-icon {
-        font-size: 1.5rem;
-        color: #64748b;
-        transition: all 0.3s ease;
-    }
-
-    .btn-check:checked+.card-role .role-icon {
-        color: #6366f1;
-        transform: scale(1.1);
-    }
-
-    .role-name {
-        font-weight: 600;
-        color: #1e293b;
-    }
-
-    .role-check {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        color: #6366f1;
-        opacity: 0;
-        font-size: 0.8rem;
-        transform: scale(0);
-        transition: all 0.3s ease;
-    }
-
-    .btn-check:checked+.card-role .role-check {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    /* Inner Glass Container */
-    .glass-inner {
-        background: rgba(255, 255, 255, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.6);
-    }
-
-    /* Custom Scrollbar for Form Area */
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.02);
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: rgba(99, 102, 241, 0.2);
-        border-radius: 10px;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: rgba(99, 102, 241, 0.4);
-    }
-
-    /* Reveal Animation for Progress Bar */
-    @keyframes progressGlow {
-        0% {
-            box-shadow: 0 0 5px rgba(99, 102, 241, 0.5);
-        }
-
-        50% {
-            box-shadow: 0 0 15px rgba(236, 72, 153, 0.7);
-        }
-
-        100% {
-            box-shadow: 0 0 5px rgba(99, 102, 241, 0.5);
-        }
-    }
-
-    .progress-bar-premium {
-        animation: progressGlow 2s infinite;
-    }
-
-    /* Floating Icons Animation */
-    @keyframes floatIcon {
-
-        0%,
-        100% {
-            transform: translateY(0);
-        }
-
-        50% {
-            transform: translateY(-15px);
-        }
-    }
-
-    .floating-icon {
-        animation: floatIcon 4s ease-in-out infinite;
-        pointer-events: none;
-    }
-
-    .icon-1 {
-        animation-delay: 0s;
-    }
-
-    .icon-2 {
-        animation-delay: 1.5s;
-    }
-
-    .icon-3 {
-        animation-delay: 2.5s;
-    }
-
-    .cursor-blink {
-        animation: blink 0.7s infinite;
-    }
-
-    @keyframes blink {
-
-        0%,
-        100% {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0;
-        }
-    }
-</style>
-
-<script>
-    // Course data (kept exactly as original)
-    const courseData = {
-        'IT': {
-            'UG': ['BCA – Bachelor of Computer Applications', 'B.Sc Computer Science', 'B.Sc Information Technology', 'B.Tech Computer Science Engineering', 'B.Tech Information Technology', 'B.Tech AI & ML', 'B.Tech Data Science', 'B.Tech Cyber Security', 'B.Tech Cloud Computing', 'B.Tech Software Engineering', 'B.Tech IoT', 'B.Tech Computer Engineering', 'B.Tech Blockchain Technology'],
-            'PG': ['MCA – Master of Computer Applications', 'M.Sc Computer Science', 'M.Sc Information Technology', 'M.Tech Computer Science', 'M.Tech Information Technology', 'M.Tech AI / ML', 'M.Tech Data Science', 'M.Tech Cyber Security'],
-            'Diploma': ['Diploma in Computer Engineering', 'Diploma in Information Technology', 'Diploma in Software Engineering', 'Full Stack Development', 'Data Science', 'AI / ML', 'Cyber Security', 'Cloud Computing']
-        },
-        'Engineering': {
-            'UG': ['B.Tech Mechanical Engineering', 'B.Tech Civil Engineering', 'B.Tech Electrical Engineering', 'B.Tech Electronics & Communication (ECE)', 'B.Tech Electronics & Instrumentation', 'B.Tech Automobile Engineering', 'B.Tech Chemical Engineering', 'B.Tech Aerospace Engineering', 'B.Tech Biomedical Engineering'],
-            'PG': ['M.Tech Mechanical Engineering', 'M.Tech Civil Engineering', 'M.Tech Electrical Engineering', 'M.Tech Electronics Engineering', 'M.Tech Structural Engineering', 'M.Tech Thermal Engineering']
-        },
-        'Science': {
-            'UG': ['B.Sc Mathematics', 'B.Sc Physics', 'B.Sc Chemistry', 'B.Sc Biotechnology', 'B.Sc Microbiology', 'B.Sc Environmental Science'],
-            'PG': ['M.Sc Mathematics', 'M.Sc Physics', 'M.Sc Chemistry', 'M.Sc Biotechnology', 'M.Sc Microbiology']
-        },
-        'Commerce': {
-            'UG': ['B.Com', 'BBA – Bachelor of Business Administration', 'BMS – Business Management Studies'],
-            'PG': ['M.Com', 'MBA – Master of Business Administration', 'PGDM']
-        },
-        'Arts': {
-            'UG': ['BA (History)', 'BA (Political Science)', 'BA (English)', 'BA (Economics)', 'BA (Sociology)', 'BJMC – Journalism & Mass Communication', 'BFA – Fine Arts'],
-            'PG': ['MA (English)', 'MA (History)', 'MA (Political Science)', 'MA (Economics)', 'MA (Sociology)', 'MJMC – Journalism']
-        },
-        'Medical': {
-            'UG': ['MBBS', 'BDS', 'B.Pharm', 'B.Sc Nursing', 'BPT – Physiotherapy', 'BAMS', 'BHMS'],
-            'PG': ['MD', 'MS', 'M.Pharm', 'M.Sc Nursing']
-        },
-        'Law': {
-            'UG': ['LLB', 'BA LLB', 'B.Ed', 'Hotel Management (BHM)', 'Fashion Designing', 'Interior Designing'],
-            'PG': ['M.Ed', 'D.El.Ed', 'Hotel Management (MHM)']
-        }
-    };
-
-    function updateFormFields() {
-        const roleSelector = document.querySelector('input[name="role"]:checked');
-        if (!roleSelector) return;
-
-        const role = roleSelector.value;
-
-        ['student', 'alumni', 'faculty'].forEach(r => {
-            const field = document.getElementById(r + 'Fields');
-            if (field) {
-                if (role === r) {
-                    field.style.display = 'block';
-                    // Trigger reveal animation slightly after display
-                    setTimeout(() => field.classList.add('revealed'), 50);
-                } else {
-                    field.style.display = 'none';
-                    field.classList.remove('revealed');
-                }
+    <script>
+        const courseData = {
+            'IT': {
+                'UG': ['BCA', 'B.Sc IT', 'B.Sc CS'],
+                'PG': ['MCA', 'M.Sc IT']
+            },
+            'Engineering': {
+                'UG': ['B.Tech IT', 'B.Tech CS', 'B.Tech Mech'],
+                'PG': ['M.Tech CS']
             }
-        });
-
-        // Trigger progress calculation update on role change
-        setTimeout(calculateProgress, 100);
-    }
-
-    function updateCourseDropdown() {
-        const category = document.getElementById('category').value;
-        const level = document.getElementById('level').value;
-        const degreeSelect = document.getElementById('degree');
-
-        degreeSelect.innerHTML = '<option value="">Select Course</option>';
-
-        if (category && level && courseData[category] && courseData[category][level]) {
-            courseData[category][level].forEach(course => {
-                const option = document.createElement('option');
-                option.value = course;
-                option.textContent = course;
-                degreeSelect.appendChild(option);
-            });
-        }
-        calculateProgress();
-    }
-
-    function updateAlumniCourseDropdown() {
-        const category = document.getElementById('alum_category').value;
-        const level = document.getElementById('alum_level').value;
-        const degreeSelect = document.getElementById('alum_degree');
-
-        degreeSelect.innerHTML = '<option value="">Select Course</option>';
-
-        if (category && level && courseData[category] && courseData[category][level]) {
-            courseData[category][level].forEach(course => {
-                const option = document.createElement('option');
-                option.value = course;
-                option.textContent = course;
-                degreeSelect.appendChild(option);
-            });
-        }
-        calculateProgress();
-    }
-
-    // Progress Bar Calculation
-    function calculateProgress() {
-        let totalFields = 0;
-        let filledFields = 0;
-
-        // Common fields
-        const commonInputs = document.querySelectorAll('#name, #email, #phone, #password');
-        totalFields += commonInputs.length;
-        commonInputs.forEach(input => {
-            if (input.value.trim() !== '') filledFields++;
-        });
-
-        // Role specific fields
-        const roleSelector = document.querySelector('input[name="role"]:checked');
-        if (roleSelector) {
-            const role = roleSelector.value;
-            const roleContainer = document.getElementById(role + 'Fields');
-            if (roleContainer) {
-                const roleInputs = roleContainer.querySelectorAll('input, select');
-                roleInputs.forEach(input => {
-                    totalFields++;
-                    if (input.value.trim() !== '') filledFields++;
-                });
-            }
-        }
-
-        const percentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
-        const progressBar = document.getElementById('form-progress');
-        const badge = document.getElementById('completion-badge');
-
-        if (progressBar) progressBar.style.width = `${percentage}%`;
-        if (badge) badge.textContent = `${percentage}% Complete`;
-
-        // Color change based on progress
-        if (percentage < 50) {
-            if (progressBar) progressBar.style.background = 'linear-gradient(90deg, #ef4444, #f59e0b)';
-        } else {
-            if (progressBar) progressBar.style.background = 'linear-gradient(90deg, #6366f1, #10b981)';
-        }
-    }
-
-    // Typing Effect
-    const textArray = ["Join Us", "Join the Future", "Join the Community", "Connect Now"];
-    let textIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-
-    function typeEffect() {
-        const currentText = textArray[textIndex];
-        const typingElement = document.getElementById('typing-text');
-
-        if (isDeleting) {
-            typingElement.textContent = currentText.substring(0, charIndex - 1);
-            charIndex--;
-        } else {
-            typingElement.textContent = currentText.substring(0, charIndex + 1);
-            charIndex++;
-        }
-
-        let typeSpeed = isDeleting ? 100 : 200;
-
-        if (!isDeleting && charIndex === currentText.length) {
-            isDeleting = true;
-            typeSpeed = 2000; // Pause at end
-        } else if (isDeleting && charIndex === 0) {
-            isDeleting = false;
-            textIndex = (textIndex + 1) % textArray.length;
-            typeSpeed = 500;
-        }
-
-        setTimeout(typeEffect, typeSpeed);
-    }
-
-
-    document.addEventListener('DOMContentLoaded', () => {
-        // Start Typing Effect
-        typeEffect();
-
-        // Trigger Initial Reveals
-        setTimeout(() => {
-            document.querySelectorAll('.reveal-fade').forEach(el => {
-                // Only reveal if not hidden by role logic (except initial ones)
-                if (el.offsetParent !== null) {
-                    el.classList.add('revealed');
-                }
-            });
-        }, 100);
-
-        // Initial form field setup
-        updateFormFields();
-
-        // Magnetic Button Logic
-        const magneticBtns = document.querySelectorAll('.magnetic-button');
-        magneticBtns.forEach(btn => {
-            btn.addEventListener('mousemove', (e) => {
-                const { left, top, width, height } = btn.getBoundingClientRect();
-                const x = (e.clientX - left - width / 2) * 0.3;
-                const y = (e.clientY - top - height / 2) * 0.3;
-                const glow = btn.querySelector('.btn-glow');
-
-                btn.style.transform = `translate(${x}px, ${y}px)`;
-                if (glow) {
-                    glow.style.left = `${e.clientX - left}px`;
-                    glow.style.top = `${e.clientY - top}px`;
-                }
-            });
-            btn.addEventListener('mouseleave', () => {
-                btn.style.transform = 'translate(0, 0)';
-            });
-        });
-
-        // 3D Parallax Tilt & Glow for Register Card
-        const registerCard = document.querySelector('.card-modern');
-        if (registerCard) {
-            registerCard.addEventListener('mousemove', (e) => {
-                const rect = registerCard.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-
-                // Subtle tilt
-                const rotateX = (y - centerY) / 50;
-                const rotateY = (centerX - x) / 50;
-
-                registerCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            });
-
-            registerCard.addEventListener('mouseleave', () => {
-                registerCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
-            });
-        }
-
-        // --- Floating Label Fix for Overlap (Always-Up Persistence) ---
-        const formInputs = document.querySelectorAll('.form-control-modern, .form-select');
-
-        function updateLabel(input) {
-            if (input.value && input.value.trim() !== '') {
-                input.classList.add('has-content');
-            } else {
-                input.classList.remove('has-content');
-            }
-            calculateProgress(); // Also update progress on input change
-        }
-
-        formInputs.forEach(input => {
-            updateLabel(input);
-
-            input.addEventListener('input', () => updateLabel(input));
-            input.addEventListener('change', () => updateLabel(input));
-            input.addEventListener('blur', () => updateLabel(input));
-
-            input.addEventListener('animationstart', (e) => {
-                if (e.animationName === 'onAutoFillStart') {
-                    input.classList.add('has-content');
-                    calculateProgress();
-                }
-            });
-        });
-
-        setTimeout(() => {
-            formInputs.forEach(updateLabel);
-            updateFormFields(); // Initialize form visibility
-        }, 100);
-    });
-
-    // Form Validation Function
-    function validateRegisterForm() {
-        const role = document.querySelector('input[name="role"]:checked')?.value;
-        const name = document.getElementById('name');
-        const email = document.getElementById('email');
-        const phone = document.getElementById('phone');
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirm_password');
-        const terms = document.getElementById('terms');
-
-        function showError(element, message) {
-            alert(message);
-            element.focus();
-            element.classList.add('is-invalid');
-            return false;
-        }
-
-        // Check common fields
-        if (!role) {
-            alert('Please select a role');
-            return false;
-        }
-
-        if (!name.value.trim()) return showError(name, 'Full Name details are incomplete!');
-        if (!email.value.trim()) return showError(email, 'Email Address details are incomplete!');
-        if (!phone.value.trim()) return showError(phone, 'Phone Number details are incomplete!');
-        if (!password.value) return showError(password, 'Password details are incomplete!');
-        if (!confirmPassword.value) return showError(confirmPassword, 'Confirm Password details are incomplete!');
-
-        if (password.value !== confirmPassword.value) {
-            return showError(confirmPassword, 'Passwords do not match!');
-        }
-
-        if (!terms.checked) {
-            alert('You must agree to the Terms & Conditions');
-            terms.focus();
-            return false;
-        }
-
-        // Check role-specific required fields
-        if (role === 'student') {
-            const enrollment_no = document.getElementById('enrollment_no');
-            const category = document.getElementById('category');
-            const level = document.getElementById('level');
-            const degree = document.getElementById('degree');
-            const department = document.getElementById('department');
-
-            if (!enrollment_no.value.trim()) return showError(enrollment_no, 'Enrollment No details are incomplete!');
-            if (!category.value) return showError(category, 'Category details are incomplete!');
-            if (!level.value) return showError(level, 'Level details are incomplete!');
-            if (!degree.value) return showError(degree, 'Course/Degree details are incomplete!');
-            if (!department.value) return showError(department, 'Department details are incomplete!');
-        }
-        else if (role === 'alumni') {
-            const enrollment_no = document.getElementById('alum_enrollment_no');
-            const category = document.getElementById('alum_category');
-            const level = document.getElementById('alum_level');
-            const degree = document.getElementById('alum_degree');
-            const department = document.getElementById('alum_department');
-            const pass_year = document.getElementById('pass_year');
-
-            if (!enrollment_no.value.trim()) return showError(enrollment_no, 'Enrollment No details are incomplete!');
-            if (!category.value) return showError(category, 'Category details are incomplete!');
-            if (!level.value) return showError(level, 'Level details are incomplete!');
-            if (!degree.value) return showError(degree, 'Course/Degree details are incomplete!');
-            if (!department.value) return showError(department, 'Department details are incomplete!');
-            if (!pass_year.value) return showError(pass_year, 'Passing Year details are incomplete!');
-        }
-        else if (role === 'faculty') {
-            const employee_id = document.getElementById('fac_employee_id');
-            const department = document.getElementById('fac_department');
-            const designation = document.getElementById('fac_designation');
-
-            if (!employee_id.value.trim()) return showError(employee_id, 'Employee ID details are incomplete!');
-            if (!department.value) return showError(department, 'Department details are incomplete!');
-            if (!designation.value) return showError(designation, 'Designation details are incomplete!');
-        }
-
-        // Strict Gmail Validation
-        const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-        if (!gmailRegex.test(email.value.trim())) {
-            return showError(email, 'Please enter a valid Gmail address (ending in @gmail.com)');
-        }
-
-        // Password Strength Validation
-        if (password.value.length < 8) {
-            return showError(password, 'Password must be at least 8 characters long!');
-        }
-
-        // Show Loading State
-        const submitBtn = document.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending OTP...';
-            submitBtn.disabled = true;
-        }
-
-        return true;
-    }
-
-    // Real-time Password Match visual
-    document.getElementById('confirm_password').addEventListener('input', function () {
-        const password = document.getElementById('password').value;
-        if (this.value === password && this.value !== '') {
-            this.classList.remove('is-invalid');
-            this.classList.add('is-valid');
-        } else {
-            this.classList.remove('is-valid');
-            this.classList.add('is-invalid');
-        }
-    });
-
-    // Remove is-invalid on input
-    document.querySelectorAll('.form-control, .form-select').forEach(input => {
-        input.addEventListener('input', function () {
-            if (this.value.trim() !== '') {
-                this.classList.remove('is-invalid');
-            }
-        });
-    });
-
-
-    // Add CSS for 3D logic dynamically
-    const style = document.createElement('style');
-    style.textContent = `
-    .card-modern {
-        transform-style: preserve-3d;
-        will-change: transform;
-        transition: transform 0.1s ease-out;
-    }
-`;
-    document.head.appendChild(style);
-</script>
-
-<script>
-    // --- Advanced Branding Animations ---
-
-    document.addEventListener('DOMContentLoaded', () => {
-
-        // 1. Sliding Marquee logic is now CSS-only for performance.
-        // Legacy typing script removed.
-
-
-        // 2. Animated Number Counters
-        const counters = document.querySelectorAll('.counter');
-        const speed = 200; // The lower the slower
-
-        const animateCounters = () => {
-            counters.forEach(counter => {
-                const updateCount = () => {
-                    const target = +counter.getAttribute('data-target');
-                    const count = +counter.innerText;
-                    const inc = target / speed;
-
-                    if (count < target) {
-                        counter.innerText = Math.ceil(count + inc);
-                        setTimeout(updateCount, 20);
-                    } else {
-                        counter.innerText = target.toLocaleString(); // Format with commas
-                    }
-                };
-                updateCount();
-            });
         };
 
-        // Trigger counters when in view
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    animateCounters();
-                    observer.unobserve(entry.target); // Run once
+        function updateFormFields() {
+            const role = document.querySelector('input[name="role"]:checked')?.value;
+            ['student', 'alumni', 'faculty'].forEach(r => {
+                const div = document.getElementById(r + 'Fields');
+                if (div) {
+                    div.style.display = (role === r) ? 'block' : 'none';
+                    if (role === r) setTimeout(() => div.classList.add('active'), 50);
+                    else div.classList.remove('active');
                 }
             });
-        });
-
-        if (document.querySelector('.mt-4.pt-3')) {
-            observer.observe(document.querySelector('.mt-4.pt-3')); // Observe the stats section
+            calculateProgress();
         }
 
-        // --- Carousel Advanced Logic ---
-        const carousel = document.querySelector('#brandingCarousel');
-        const progressBar = document.querySelector('.carousel-progress-bar');
-        const interval = 4000; // Match data-bs-interval
-        let progressStart = Date.now();
-        let progressTimer;
-
-        function updateProgress() {
-            const elapsed = Date.now() - progressStart;
-            const percentage = Math.min((elapsed / interval) * 100, 100);
-            progressBar.style.width = percentage + '%';
-
-            if (percentage < 100) {
-                progressTimer = requestAnimationFrame(updateProgress);
-            }
-        }
-
-        carousel.addEventListener('slide.bs.carousel', () => {
-            cancelAnimationFrame(progressTimer);
-            progressBar.style.width = '0%';
-            progressBar.style.transition = 'none';
-        });
-
-        carousel.addEventListener('slid.bs.carousel', () => {
-            progressStart = Date.now();
-            updateProgress();
-        });
-
-        // Start initial progress
-        updateProgress();
-
-
-        // 3. 3D Tilt Effect with Parallax
-        const cardTilts = document.querySelectorAll('[data-tilt], .glass-card');
-
-        cardTilts.forEach(card => {
-            const innerIcon = card.querySelector('i');
-
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-
-                const rotateX = ((y - centerY) / centerY) * -12; // Max tilt 12deg
-                const rotateY = ((x - centerX) / centerX) * 12;
-
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-
-                // Parallax depth for the icon inside
-                if (innerIcon) {
-                    const moveX = ((x - centerX) / centerX) * 15; // Move icon opposite
-                    const moveY = ((y - centerY) / centerY) * 15;
-                    innerIcon.style.transform = `translateZ(50px) translateX(${moveX}px) translateY(${moveY}px)`;
-                }
-            });
-
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
-                if (innerIcon) {
-                    innerIcon.style.transform = 'translateZ(0) translateX(0) translateY(0)';
-                }
-            });
-        });
-
-
-        // 4. Mouse Parallax for Blobs (Optimized)
-        let ticking = false;
-        document.addEventListener('mousemove', (e) => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    const blobs = document.querySelectorAll('.blob-1, .blob-2');
-                    const x = (window.innerWidth - e.pageX * 2) / 100;
-                    const y = (window.innerHeight - e.pageY * 2) / 100;
-
-                    blobs.forEach((blob, index) => {
-                        const speed = index === 0 ? 2 : -2; // Opposite directions
-                        blob.style.transform = `translateX(${x * speed}px) translateY(${y * speed}px)`;
-                    });
-                    ticking = false;
+        function updateCourseDropdown() {
+            const cat = document.getElementById('category').value;
+            const lvl = document.getElementById('level').value;
+            const deg = document.getElementById('degree');
+            deg.innerHTML = '<option value="">Select Course</option>';
+            if (cat && lvl && courseData[cat][lvl]) {
+                courseData[cat][lvl].forEach(c => {
+                    const o = document.createElement('option');
+                    o.value = o.textContent = c;
+                    deg.appendChild(o);
                 });
-                ticking = true;
             }
+            calculateProgress();
+        }
+
+        function calculateProgress() {
+            let total = 0;
+            let filled = 0;
+
+            // Common Fields
+            const common = ['name', 'email', 'phone', 'password', 'confirm_password'];
+            total += common.length;
+            common.forEach(id => {
+                if (document.getElementById(id).value.trim() !== '') filled++;
+            });
+
+            // Role
+            const role = document.querySelector('input[name="role"]:checked')?.value;
+            if (role) {
+                total++; filled++;
+                const container = document.getElementById(role + 'Fields');
+                if (container) {
+                    const inputs = container.querySelectorAll('input:not([type="hidden"]), select');
+                    inputs.forEach(i => {
+                        total++;
+                        if (i.value.trim() !== '') filled++;
+                    });
+                }
+            }
+
+            // Terms
+            total++;
+            if (document.getElementById('terms').checked) filled++;
+
+            const pct = Math.round((filled / total) * 100);
+            document.getElementById('form-progress').style.width = pct + '%';
+            document.getElementById('completion-badge').textContent = pct + '% Complete';
+        }
+
+        function validateRegisterForm() {
+            const p1 = document.getElementById('password').value;
+            const p2 = document.getElementById('confirm_password').value;
+            if (p1 !== p2) { alert('Passwords mismatch!'); return false; }
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateFormFields();
+            document.querySelectorAll('input, select').forEach(el => {
+                el.addEventListener('input', calculateProgress);
+                el.addEventListener('change', calculateProgress);
+            });
         });
+    </script>
+</body>
 
-    });
-</script>
-
-<style>
-    /* New Branding Section Styles & Animations */
-
-    /* Blob Animations */
-    .blob-1 {
-        animation: float 10s infinite ease-in-out;
-    }
-
-    .blob-2 {
-        animation: float 12s infinite ease-in-out reverse;
-    }
-
-    @keyframes float {
-
-        0%,
-        100% {
-            transform: translate(0px, 0px) scale(1);
-        }
-
-        33% {
-            transform: translate(30px, -50px) scale(1.1);
-        }
-
-        66% {
-            transform: translate(-20px, 20px) scale(0.9);
-        }
-    }
-
-    /* Neon Pulse for Badges */
-    .bg-cyan.bg-opacity-10,
-    .bg-purple.bg-opacity-10,
-    .bg-emerald.bg-opacity-10 {
-        animation: neonPulse 3s infinite ease-in-out;
-    }
-
-    @keyframes neonPulse {
-
-        0%,
-        100% {
-            box-shadow: 0 0 5px rgba(255, 255, 255, 0.05);
-        }
-
-        50% {
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-        }
-    }
-
-    /* Glass Card Enhancements moved to end for consistency */
-
-    /* Carousel Entry Animations - Unified Horizontal Slide */
-    .carousel-item.active .glass-card,
-    .carousel-item-next .glass-card,
-    .carousel-item-prev .glass-card {
-        opacity: 0;
-        animation: slideInFromRight 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        position: relative;
-        overflow: hidden;
-    }
-
-    /* Swipe Shine Effect */
-    .carousel-item.active .glass-card::after {
-        content: "";
-        position: absolute;
-        top: -100%;
-        left: -100%;
-        width: 300%;
-        height: 300%;
-        background: linear-gradient(45deg, transparent 45%, rgba(255, 255, 255, 0.1) 50%, transparent 55%);
-        animation: shineSweep 2s ease-in-out forwards;
-        pointer-events: none;
-    }
-
-    /* Staggered Content Removed for premium unified feel */
-
-    /* New Keyframes - Premium Right-to-Left */
-    @keyframes slideInFromRight {
-        from {
-            opacity: 0;
-            transform: translateX(120px) scale(0.9) skewX(6deg);
-            filter: blur(8px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateX(0) scale(1) skewX(0);
-            filter: blur(0);
-        }
-    }
-
-    @keyframes shineSweep {
-        0% {
-            transform: translateX(-100%) translateY(-100%) rotate(0deg);
-        }
-
-        100% {
-            transform: translateX(100%) translateY(100%) rotate(0deg);
-        }
-    }
-
-    /* Keyframes */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes zoomIn {
-        from {
-            opacity: 0;
-            transform: scale(0.5);
-        }
-
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    /* Text Graident */
-    .text-gradient-primary {
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-size: 200% auto;
-        animation: gradientFlow 5s ease infinite;
-    }
-
-    @keyframes gradientFlow {
-        0% {
-            background-position: 0% 50%;
-        }
-
-        50% {
-            background-position: 100% 50%;
-        }
-
-        100% {
-            background-position: 0% 50%;
-        }
-    }
-
-    /* Carousel Indicators */
-    .carousel-indicators button {
-        opacity: 0.5;
-        transition: all 0.3s ease;
-        width: 10px !important;
-        height: 10px !important;
-        margin: 0 6px !important;
-        border: 2px solid transparent;
-        /* Expand feeling */
-    }
-
-    .carousel-indicators button.active {
-        opacity: 1;
-        transform: scale(1.3);
-        background-color: #10b981 !important;
-        /* Green active state */
-        box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
-    }
-
-    /* Interactive Branding Logo Area */
-    .rounded-circle.bg-primary {
-        transition: transform 0.5s ease;
-    }
-
-    .rounded-circle.bg-primary:hover {
-        transform: rotate(360deg);
-        /* Playful Spin */
-    }
-
-    /* Cursor Blink */
-    .cursor-blink {
-        animation: blink 1s infinite;
-        font-weight: 100;
-        margin-left: 2px;
-        color: #0ea5e9;
-    }
-
-    @keyframes blink {
-
-        0%,
-        100% {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0;
-        }
-    }
-
-    /* Smooth Parallax Transition */
-    .blob-1,
-    .blob-2 {
-        transition: transform 0.1s ease-out;
-    }
-
-    /* Network Theme Specifics */
-    .text-gradient-cyan {
-        background: linear-gradient(to right, #22d3ee, #818cf8);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        background-size: 200% auto;
-        animation: gradientFlow 5s ease infinite;
-    }
-
-    .glass-card {
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
-        background: rgba(255, 255, 255, 0.03) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    }
-
-    .glass-card:hover {
-        transform: translateY(-8px) scale(1.02);
-        background: rgba(255, 255, 255, 0.08) !important;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-        border-color: rgba(34, 211, 238, 0.4) !important;
-    }
-
-    /* Force visibility for Carousel Text */
-    .branding-sidebar .glass-card h5,
-    .branding-sidebar h1,
-    .branding-sidebar h4 {
-        color: #ffffff !important;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    .branding-sidebar .glass-card p,
-    .branding-sidebar .text-white-50 {
-        color: rgba(255, 255, 255, 0.8) !important;
-        /* Brighter than default 50 */
-        text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    .hover-white:hover {
-        color: #fff !important;
-    }
-
-    /* Marquee Animation */
-    .marquee-wrapper {
-        height: 1.6rem;
-        overflow: hidden;
-        position: relative;
-        display: inline-block;
-        vertical-align: middle;
-        margin-left: 2px;
-    }
-
-    .marquee-content {
-        display: flex;
-        flex-direction: column;
-        animation: marqueeVertical 16s cubic-bezier(0.76, 0, 0.24, 1) infinite;
-    }
-
-    .marquee-content span {
-        height: 1.6rem;
-        line-height: 1.6rem;
-        display: flex;
-        align-items: center;
-        font-size: 1.1rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        white-space: nowrap;
-    }
-
-    @keyframes marqueeVertical {
-
-        0%,
-        20% {
-            transform: translateY(0);
-        }
-
-        25%,
-        45% {
-            transform: translateY(-1.6rem);
-        }
-
-        50%,
-        70% {
-            transform: translateY(-3.2rem);
-        }
-
-        75%,
-        95% {
-            transform: translateY(-4.8rem);
-        }
-
-        100% {
-            transform: translateY(-6.4rem);
-        }
-    }
-
-    .shadow-text {
-        text-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-    }
-
-    /* ===== RESPONSIVE MEDIA QUERIES ===== */
-    @media (max-width: 991px) {
-        .glass-panel {
-            height: auto !important;
-            min-height: auto !important;
-            margin-bottom: 2rem;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .p-5 {
-            padding: 1.5rem !important;
-        }
-
-        .mb-5.section-fade {
-            margin-bottom: 2rem !important;
-        }
-
-        .card-role {
-            padding: 1.5rem !important;
-        }
-    }
-</style>
-
-</script>
-{% endblock %}
+</html>
