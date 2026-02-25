@@ -39,8 +39,9 @@
             margin: 0;
             overflow-x: hidden;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
+            padding: 40px 0;
         }
 
         /* Animated Iridescent Background */
@@ -130,15 +131,15 @@
             border: 1px solid var(--crystalline-glass-border);
             border-radius: 40px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 1100px;
-            min-height: 750px;
+            width: 95%;
+            max-width: 1400px;
             display: flex;
             overflow: hidden;
             position: relative;
             z-index: 10;
             margin-top: 80px;
             /* Space for navbar */
+            min-height: auto;
         }
 
         /* Navbar Styling */
@@ -238,22 +239,7 @@
         .form-area {
             flex: 1;
             padding: 3rem 4rem;
-            overflow-y: auto;
-            max-height: 85vh;
             background: rgba(255, 255, 255, 0.5);
-        }
-
-        .form-area::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .form-area::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .form-area::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.05);
-            border-radius: 10px;
         }
 
         /* Typography */
@@ -268,6 +254,7 @@
         .text-gradient {
             background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 

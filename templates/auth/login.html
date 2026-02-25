@@ -34,10 +34,11 @@
             background: #f8fafc;
             min-height: 100vh;
             margin: 0;
-            overflow: hidden;
+            overflow-y: auto;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
+            padding: 40px 0;
         }
 
         .iridescent-bg {
@@ -221,6 +222,7 @@
         .text-gradient {
             background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
