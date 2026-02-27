@@ -19,6 +19,8 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from models.recommendation import get_recommended_users, get_recommended_jobs
 from flask_apscheduler import APScheduler
+from urllib.parse import quote
+# import pywhatkit as kit - Moved to lazy loading inside the route
 
 
 # Load environment variables
@@ -1497,7 +1499,7 @@ def private_chat(other_user_id):
 
     if not other_user:
         flash('User not found', 'danger')
-        return redirect(url_for('messaging_dashboard'))
+        return redirect(url_for('messages'))
 
     return render_template('messaging/private_chat.html',
                          other_user_id=other_user_id,
@@ -2956,6 +2958,122 @@ def admin_edit_job(job_id):
     conn.close()
     return render_template('admin/edit_job.html', job=job)
 
+@app.route('/admin/whatsapp-broadcast', methods=['GET', 'POST'])
+@login_required
+def admin_whatsapp_broadcast():
+    """Send WhatsApp notifications to users based on role"""
+    if current_user.role != 'admin':
+        flash('Unauthorized access!', 'danger')
+        return redirect(url_for('home'))
+
+    users = []
+    selected_role = 'all'
+    message = ''
+    auto_start = False
+
+    if request.method == 'POST':
+        action = request.form.get('action', 'generate')
+        selected_role = request.form.get('role', 'all')
+        message = request.form.get('message', '').strip()
+        
+        if action == 'auto_send':
+            auto_start = True
+
+        if not message:
+            flash('Please enter a message to broadcast.', 'warning')
+        else:
+            conn = get_db_connection()
+            # Exclude admins from the broadcast list
+            query = "SELECT name, role, phone FROM users WHERE is_verified = 1 AND role != 'admin'"
+            params = []
+
+            if selected_role != 'all':
+                query += " AND role = ?"
+                params.append(selected_role)
+
+            rows = conn.execute(query, params).fetchall()
+            conn.close()
+
+            encoded_message = quote(message)
+            for row in rows:
+                phone = row['phone']
+                clean_phone = ''.join(filter(str.isdigit, str(phone or '')))
+                
+                # Normalize preview links too
+                if len(clean_phone) == 10:
+                    clean_phone = '91' + clean_phone
+                elif len(clean_phone) > 10 and not clean_phone.startswith('91'):
+                    clean_phone = clean_phone[-10:]
+                    clean_phone = '91' + clean_phone
+                
+                whatsapp_url = f"https://wa.me/{clean_phone}?text={encoded_message}"
+                users.append({
+                    'name': row['name'],
+                    'role': row['role'],
+                    'phone': row['phone'],
+                    'whatsapp_url': whatsapp_url
+                })
+
+            if not users:
+                flash(f'No verified users found for role: {selected_role}', 'info')
+
+    return render_template('admin/whatsapp_broadcast.html', users=users, selected_role=selected_role, message=message, auto_start=auto_start)
+
+@app.route('/admin/whatsapp-send-api', methods=['POST'])
+@login_required
+def admin_whatsapp_send_api():
+    """API endpoint to send a WhatsApp message automatically using pywhatkit"""
+    import pywhatkit as kit # Lazy load to speed up app startup
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+    
+    data = request.json
+    phone = data.get('phone')
+    message = data.get('message')
+    
+    if not phone or not message:
+        return jsonify({'success': False, 'error': 'Missing phone or message'}), 400
+    
+    try:
+        # Sanitize phone number (remove non-digits)
+        clean_phone = ''.join(filter(str.isdigit, str(phone)))
+        
+        # Validation: Check if phone number is logically correct (min 10 digits)
+        if len(clean_phone) < 10:
+            return jsonify({'success': False, 'error': 'Invalid Phone Number (Short)'}), 400
+            
+        # Ensure country code (default to +91 for India if missing)
+        if len(clean_phone) == 10:
+            clean_phone = '91' + clean_phone
+        if not clean_phone.startswith('91') and len(clean_phone) > 10:
+            # Handle cases where user might have entered 0 prefix or other variations
+            clean_phone = clean_phone[-10:] # Take last 10
+            clean_phone = '91' + clean_phone
+            
+        # Add the + prefix required by pywhatkit
+        clean_phone = '+' + clean_phone
+            
+        # Final check: Must start with + and have at least 12 characters (+, 91, and 9 digits min)
+        if len(clean_phone) < 12:
+            print(f"WhatsApp Error: Invalid formatted number: {clean_phone}")
+            return jsonify({'success': False, 'error': f'Invalid Phone Format: {clean_phone}'}), 400
+
+        print(f"WhatsApp API: Sending to {clean_phone}")
+        
+        # pywhatkit.sendwhatmsg_instantly opens a tab, types the message, and sends it.
+        kit.sendwhatmsg_instantly(
+            phone_no=clean_phone,
+            message=message,
+            wait_time=15,
+            tab_close=True,
+            close_time=3
+        )
+        
+        return jsonify({'success': True, 'message': 'Message sequence initiated'})
+    except Exception as e:
+        print(f"WhatsApp API Error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/admin/jobs/delete/<int:job_id>', methods=['POST'])
 @login_required
 def admin_delete_job(job_id):
@@ -3020,19 +3138,6 @@ def sitemap_xml():
 
 # Removed - notifications route moved to student-specific section
 
-# Import the social routes blueprint
-try:
-    from routes.social_routes import social_bp
-    app.register_blueprint(social_bp)
-except ImportError:
-    print("Warning: social_routes blueprint not found")
-
-# Import the connection routes blueprint
-try:
-    from routes.connection_routes import connection_bp
-    app.register_blueprint(connection_bp)
-except ImportError:
-    print("Warning: connection_routes blueprint not found")
 
 # --- STUDENT TO ALUMNI UPGRADE ---
 
@@ -4175,7 +4280,7 @@ def periodic_profile_reminder():
                     <h3 style="color: #333;">Hello {name},</h3>
                     
                     <p style="color: #555; line-height: 1.6; font-size: 16px;">
-                        We noticed it's been a while since you last updated your profile. To make the most of the <strong>DBIT Alumni Hub</strong> and get the best career recommendations, please ensure your academic and professional details are current.
+                        We noticed it's been a while since you last updated your profile. To make the most of the <strong>DBIT ALUMNI HUB</strong> and get the best career recommendations, please ensure your academic and professional details are current.
                     </p>
                     
                     <div style="text-align: center; margin: 40px 0;">
@@ -4210,26 +4315,38 @@ if __name__ == '__main__':
     with app.app_context():
         init_db()
 
-    # Import and register messaging blueprint
-    from routes.messaging_routes import messaging_bp
-    from routes.websocket_routes import setup_websocket_handlers
-
-    app.register_blueprint(messaging_bp, url_prefix='/api')
-    setup_websocket_handlers(socketio)
-
-    # Register Connection and Discovery Routes
+    # Register Modular Blueprints
     try:
+        from routes.messaging_routes import messaging_bp
+        from routes.websocket_routes import setup_websocket_handlers
+        from routes.social_routes import social_bp
         from routes.connection_routes import connection_bp
         from routes.recommendation_routes import recommendation_bp
+
+        # Register Messaging
+        if messaging_bp.name not in app.blueprints:
+            app.register_blueprint(messaging_bp, url_prefix='/api')
         
-        # Expert safety: Check if blueprint is already in app.blueprints before registering
+        setup_websocket_handlers(socketio)
+
+        # Register Social
+        if social_bp.name not in app.blueprints:
+            app.register_blueprint(social_bp)
+
+        # Register Connections
         if connection_bp.name not in app.blueprints:
             app.register_blueprint(connection_bp)
             
+        # Register Recommendations
         if recommendation_bp.name not in app.blueprints:
             app.register_blueprint(recommendation_bp)
             
     except Exception as e:
         print(f"Warning: routes blueprint error: {e}")
 
+    print("\n" + "="*50)
+    print("DBIT ALUMNI HUB IS STARTING UP...")
+    print(f"🔗 Access the project at: http://127.0.0.1:5000")
+    print("="*50 + "\n")
+    
     socketio.run(app, debug=app.config['DEBUG'], host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)

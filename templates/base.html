@@ -7,7 +7,7 @@
 
     <!-- SEO Meta Tags -->
     <meta name="description"
-        content="Official DBIT Alumni Hub - Connect, network, and grow with the Don Bosco Institute of Technology alumni community. Post jobs, find mentors, and stay updated with college events.">
+        content="Official DBIT ALUMNI HUB - Connect, network, and grow with the Don Bosco Institute of Technology alumni community. Post jobs, find mentors, and stay updated with college events.">
     <meta name="keywords"
         content="DBIT Alumni, Don Bosco Institute of Technology, Alumni Network, Mentorship, Job Portal, College Networking, Mumbai Engineering Alumni">
     <meta name="author" content="DBIT Alumni Association">
@@ -17,7 +17,7 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.url }}">
-    <meta property="og:title" content="DBIT Alumni Hub - Connect & Grow">
+    <meta property="og:title" content="DBIT ALUMNI HUB - Connect & Grow">
     <meta property="og:description"
         content="The official platform for DBIT alumni to connect with students and grow professionally.">
     <meta property="og:image" content="{{ url_for('static', filename='img/og-image.jpg', _external=True) }}">
@@ -25,12 +25,12 @@
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ request.url }}">
-    <meta property="twitter:title" content="DBIT Alumni Hub - Connect & Grow">
+    <meta property="twitter:title" content="DBIT ALUMNI HUB - Connect & Grow">
     <meta property="twitter:description"
         content="The official platform for DBIT alumni to connect with students and grow professionally.">
     <meta property="twitter:image" content="{{ url_for('static', filename='img/og-image.jpg', _external=True) }}">
 
-    <title>{% block title %}DBIT Alumni Hub{% endblock %}</title>
+    <title>{% block title %}DBIT ALUMNI HUB{% endblock %}</title>
 
     <!-- Premium Fonts -->
     <link
@@ -484,6 +484,11 @@
                                 </a>
                             </li>
                             <li>
+                                <a class="dropdown-item" href="{{ url_for('admin_whatsapp_broadcast') }}">
+                                    <i class="fab fa-whatsapp me-2 text-success"></i> WhatsApp Broadcast
+                                </a>
+                            </li>
+                            <li>
                                 <a class="dropdown-item" href="{{ url_for('admin_messaging_control') }}">
                                     <i class="fas fa-comments me-2 text-indigo"></i> Messaging
                                 </a>
@@ -745,11 +750,11 @@
         <div class="footer-content">
             <div class="container">
                 <div class="row g-4">
-                    <!-- DBIT Alumni Hub Info -->
+                    <!-- DBIT ALUMNI HUB Info -->
                     <div class="col-md-6 col-lg-4" data-aos="fade-up">
                         <div class="footer-section px-lg-4">
                             <h5 class="footer-title">
-                                <i class="fas fa-graduation-cap"></i> DBIT Alumni Hub
+                                <i class="fas fa-graduation-cap"></i> DBIT ALUMNI HUB
                             </h5>
                             <p class="footer-text">
                                 We are the definitive bridge between university excellence and industry leadership.
@@ -810,7 +815,7 @@
                                 <a href="https://www.google.com/maps/search/?api=1&query=Don+Bosco+Institute+of+Technology,+Okhla,+New+Delhi"
                                     target="_blank" class="d-block w-100 h-100 text-decoration-none">
                                     <img src="{{ url_for('static', filename='images/location_img.png') }}"
-                                        alt="DBIT Alumni Hub Location">
+                                        alt="DBIT ALUMNI HUB Location">
                                     <div class="map-overlay">
                                         <div class="map-overlay-text text-black">
                                             <i class="fas fa-arrow-up-right-from-square"></i> View on Maps
@@ -834,12 +839,12 @@
                 <div class="row align-items-center">
                     <div class="col-md-6">
                         <p class="footer-bottom-text">
-                            &copy; 2026 DBIT Alumni Hub. All rights reserved.
+                            &copy; 2026 DBIT ALUMNI HUB. All rights reserved.
                         </p>
                     </div>
                     <div class="col-md-6 text-md-end">
                         <p class="footer-bottom-text">
-                            Designed & Developed with <i class="fas fa-heart text-danger"></i> by DBIT Alumni Hub Team
+                            Designed & Developed with <i class="fas fa-heart text-danger"></i> by DBIT ALUMNI HUB Team
                         </p>
                     </div>
                 </div>

@@ -6,28 +6,40 @@ import os
 os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
 os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
 
-try:
-    from sentence_transformers import SentenceTransformer, util
-    import transformers
-    transformers.logging.set_verbosity_error()
-    AI_AVAILABLE = True
-except ImportError:
-    AI_AVAILABLE = False
+AI_AVAILABLE = True # Assume available, will check inside lazy loader
 
 class AIRecommendationEngine:
     def __init__(self):
-        self.model = None
-        if AI_AVAILABLE:
+        self._model = None
+        self._initialized = False
+
+    @property
+    def model(self):
+        global AI_AVAILABLE
+        if not self._initialized:
             try:
+                # Lazy import heavy libraries
+                from sentence_transformers import SentenceTransformer
+                import transformers
+                transformers.logging.set_verbosity_error()
+                
+                print("[AI] Initializing Recommendation Engine (SentenceTransformer)...")
                 # Use a lightweight model for local performance
-                self.model = SentenceTransformer('all-MiniLM-L6-v2')
-            except Exception as e:
+                self._model = SentenceTransformer('all-MiniLM-L6-v2')
+                print("[AI] Engine ready.")
+                AI_AVAILABLE = True
+            except (ImportError, Exception) as e:
                 logging.error(f"AI Model Error: {e}")
+                print(f"[AI] Model loading failed or not installed: {e}. AI features will be disabled.")
+                AI_AVAILABLE = False
+            self._initialized = True
+        return self._model
 
     def get_semantic_score(self, text1, text2):
         if not self.model or not text1 or not text2:
             return 0
         try:
+            from sentence_transformers import util
             emb1 = self.model.encode(text1, convert_to_tensor=True)
             emb2 = self.model.encode(text2, convert_to_tensor=True)
             return round(util.cos_sim(emb1, emb2).item() * 10)
