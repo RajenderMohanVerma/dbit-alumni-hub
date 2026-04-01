@@ -392,6 +392,17 @@
                                     <i class="fas fa-file-alt me-2"></i> Reports
                                 </a>
                             </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="/post-job">
+                                    <i class="fas fa-plus-circle me-2 text-success"></i> Post a Job
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/jobs">
+                                    <i class="fas fa-briefcase me-2 text-primary"></i> View Jobs
+                                </a>
+                            </li>
                         </ul>
                     </li>
 
@@ -480,7 +491,13 @@
                         <ul class="dropdown-menu shadow-premium border-0" aria-labelledby="systemDropdown">
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('admin_jobs') }}">
-                                    <i class="fas fa-briefcase me-2 text-primary-gradient"></i> Jobs Matrix
+                                    <i class="fas fa-briefcase me-2 text-primary"></i> Jobs Matrix
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item position-relative" href="{{ url_for('admin_jobs') }}#pending">
+                                    <i class="fas fa-clipboard-check me-2 text-warning"></i> Job Approvals
+                                    <span class="badge bg-danger ms-1" id="pendingJobsBadge" style="font-size:0.65rem;"></span>
                                 </a>
                             </li>
                             <li>
@@ -491,6 +508,11 @@
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('admin_messaging_control') }}">
                                     <i class="fas fa-comments me-2 text-indigo"></i> Messaging
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('admin_connection_monitor') }}">
+                                    <i class="fas fa-link me-2 text-info"></i> Connection Monitor
                                 </a>
                             </li>
                             <li>
@@ -658,13 +680,15 @@
                         style="--delay: 0.4s"><i class="fas fa-users-cog me-2"></i> Users Management</a>
                     <a href="{{ url_for('admin_messaging_control') }}" class="mobile-nav-link" style="--delay: 0.45s"><i
                             class="fas fa-comments me-2"></i> Messaging Control</a>
-                    <a href="/announcements" class="mobile-nav-link" style="--delay: 0.5s"><i
+                        <a href="{{ url_for('admin_connection_monitor') }}" class="mobile-nav-link" style="--delay: 0.5s"><i
+                            class="fas fa-link me-2"></i> Connection Monitor</a>
+                        <a href="/announcements" class="mobile-nav-link" style="--delay: 0.55s"><i
                             class="fas fa-bullhorn me-2"></i> Announcements</a>
-                    <a href="/admin/events" class="mobile-nav-link" style="--delay: 0.55s"><i
+                        <a href="/admin/events" class="mobile-nav-link" style="--delay: 0.6s"><i
                             class="fas fa-calendar-check me-2"></i> Events</a>
-                    <a href="/reports" class="mobile-nav-link" style="--delay: 0.6s"><i
+                        <a href="/reports" class="mobile-nav-link" style="--delay: 0.65s"><i
                             class="fas fa-file-invoice me-2"></i> Reports</a>
-                    <a href="/admin/stats" class="mobile-nav-link" style="--delay: 0.65s"><i
+                        <a href="/admin/stats" class="mobile-nav-link" style="--delay: 0.7s"><i
                             class="fas fa-chart-pie me-2"></i> Statistics</a>
                     {% endif %}
                     <a href="/events" class="mobile-nav-link" style="--delay: 0.7s"><i
@@ -1040,6 +1064,25 @@
     <!-- Bootstrap 5 Bundle (includes Popper) (Local) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/network-animation.js') }}"></script>
+    {% if current_user.is_authenticated and current_user.role == 'admin' %}
+    <script>
+    (function loadPendingJobsBadge() {
+        function updateBadge() {
+            fetch('/api/admin/jobs/pending-count')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var badge = document.getElementById('pendingJobsBadge');
+                    if (badge) {
+                        badge.textContent = data.count > 0 ? data.count : '';
+                    }
+                })
+                .catch(function() {});
+        }
+        updateBadge();
+        setInterval(updateBadge, 60000); // refresh every minute
+    }());
+    </script>
+    {% endif %}
 </body>
 
 </html>

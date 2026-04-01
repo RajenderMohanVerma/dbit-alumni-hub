@@ -332,11 +332,13 @@
     <div class="dashboard-hero d-flex justify-content-between align-items-end" data-aos="fade-down">
         <div>
             <h1 class="fw-800 display-4 mb-2">Career Nodes Matrix</h1>
-            <p class="text-muted fs-5">Manage and monitor professional opportunities within the alumni network.</p>
+            <p class="text-muted fs-5">Review alumni &amp; faculty job submissions and manage professional opportunities.</p>
         </div>
-        <a href="{{ url_for('admin_add_job') }}" class="btn-add-floating">
-            <i class="fas fa-plus-circle"></i> Deploy New Node
+        {% if stats.pending > 0 %}
+        <a href="#pending" class="btn btn-warning fw-bold rounded-pill px-4 py-2 shadow">
+            <i class="fas fa-clipboard-check me-2"></i>{{ stats.pending }} Pending Approval
         </a>
+        {% endif %}
     </div>
 
     <!-- Stats -->
@@ -377,9 +379,104 @@
                 <div class="fs-2 fw-800 text-danger">{{ stats.inactive }}</div>
             </div>
         </div>
+        <div class="stat-card-premium" data-aos="zoom-in" data-aos-delay="500">
+            <div class="stat-icon bg-warning-subtle text-warning">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <div>
+                <div class="text-muted small fw-bold">PENDING APPROVAL</div>
+                <div class="fs-2 fw-800 text-warning">{{ stats.pending }}</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Main Table -->
+    <!-- ===== PENDING APPROVAL QUEUE ===== -->
+    {% if pending_jobs %}
+    <div id="pending" class="container-glass animate__animated animate__fadeInUp mb-5"
+         style="border: 2px solid rgba(245,158,11,0.35); background:rgba(255,251,235,0.95);">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h3 class="fw-800 mb-1" style="color:#92400e;">
+                    <i class="fas fa-clipboard-check me-2 text-warning"></i>Pending Job Approvals
+                </h3>
+                <p class="text-muted mb-0 small">Jobs submitted by alumni &amp; faculty — review and approve or reject each listing.</p>
+            </div>
+            <span class="badge bg-warning text-dark fw-bold px-3 py-2" style="font-size:1rem;border-radius:999px;">
+                {{ pending_jobs|length }} awaiting
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="job-table-premium" id="pendingJobTable">
+                <thead>
+                    <tr>
+                        <th>Job Details</th>
+                        <th>Posted By</th>
+                        <th>Role</th>
+                        <th>Deadline</th>
+                        <th>Approval Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in pending_jobs %}
+                    <tr id="pendingRow{{ job.id }}">
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="company-logo">
+                                    {% if job.company_logo %}
+                                    <img src="{{ job.company_logo }}" alt="Logo">
+                                    {% else %}
+                                    <span class="fw-bold text-primary">{{ (job.company or 'J')[0] }}</span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="fw-800 text-navy">{{ job.title }}</div>
+                                    <div class="text-muted small">{{ job.company }} &bull; {{ job.location or 'Remote' }}</div>
+                                    {% if job.description %}
+                                    <div class="text-muted" style="font-size:0.78rem;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ job.description }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="fw-bold">{{ job.posted_by_name or 'Unknown' }}</td>
+                        <td>
+                            <span class="badge rounded-pill px-3 py-1
+                                {% if job.poster_role == 'alumni' %}bg-primary-subtle text-primary
+                                {% else %}bg-success-subtle text-success{% endif %}">
+                                {{ (job.poster_role or 'unknown')|title }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if job.deadline %}
+                            <span class="fw-bold">{{ job.deadline }}</span>
+                            {% else %}
+                            <span class="text-muted">No deadline</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-success btn-sm rounded-pill fw-bold px-3"
+                                    onclick="approveJob({{ job.id }})"
+                                    title="Approve this job">
+                                    <i class="fas fa-check me-1"></i> Approve
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm rounded-pill fw-bold px-3"
+                                    onclick="rejectJobPrompt({{ job.id }})"
+                                    title="Reject this job">
+                                    <i class="fas fa-times me-1"></i> Reject
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div id="pending" class="alert" style="border-radius:1rem;border:1px dashed rgba(16,185,129,0.4);background:rgba(236,253,245,0.9);color:#065f46;font-weight:700;margin-bottom:2rem;">
+        <i class="fas fa-check-circle me-2 text-success"></i> No pending job approvals — all submissions are reviewed!
+    </div>
+    {% endif %}
     <div class="container-glass animate__animated animate__fadeInUp">
         <div class="filter-bar">
             <div class="search-input-wrapper">
@@ -531,11 +628,8 @@
 
             const data = await response.json();
             if (data.success) {
-                // Update row data-status for filtering
                 const row = checkbox.closest('tr');
                 row.dataset.status = data.new_status ? 'active' : 'inactive';
-
-                // Optional: Show toast notification
                 const statusText = data.new_status ? 'Activated' : 'Deactivated';
                 console.log(`Job ${jobId} ${statusText}`);
             } else {
@@ -545,6 +639,56 @@
         } catch (error) {
             checkbox.checked = !checkbox.checked;
             console.error('Core sync failure:', error);
+        }
+    }
+
+    // ── Approve / Reject pending jobs ──────────────────────────────────────
+    function showAdminJobToast(msg, type) {
+        const color = type === 'success' ? '#16a34a' : '#dc2626';
+        const t = document.createElement('div');
+        t.style.cssText = `position:fixed;bottom:1.4rem;right:1.4rem;z-index:9999;background:#fff;
+            border-left:4px solid ${color};padding:.65rem 1rem;border-radius:.75rem;
+            box-shadow:0 8px 24px rgba(15,23,42,.14);font-weight:700;font-size:.9rem;
+            color:#0f172a;animation:fadeInUp .4s ease;max-width:320px;`;
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 4000);
+    }
+
+    async function approveJob(jobId) {
+        const res = await fetch(`/admin/jobs/approve/${jobId}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+            const row = document.getElementById(`pendingRow${jobId}`);
+            if (row) {
+                row.style.transition = 'opacity .4s ease';
+                row.style.opacity = '0';
+                setTimeout(() => row.remove(), 450);
+            }
+            showAdminJobToast('\u2705 Job approved and is now live!', 'success');
+        } else {
+            showAdminJobToast('\u274C Approval failed. Try again.', 'danger');
+        }
+    }
+
+    async function rejectJobPrompt(jobId) {
+        const reason = prompt('Rejection reason (optional — will be sent to poster):') ?? '';
+        const res = await fetch(`/admin/jobs/reject/${jobId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason })
+        });
+        const data = await res.json();
+        if (data.success) {
+            const row = document.getElementById(`pendingRow${jobId}`);
+            if (row) {
+                row.style.transition = 'opacity .4s ease';
+                row.style.opacity = '0';
+                setTimeout(() => row.remove(), 450);
+            }
+            showAdminJobToast('\u274C Job rejected.', 'danger');
+        } else {
+            showAdminJobToast('Failed to reject job.', 'danger');
         }
     }
 </script>

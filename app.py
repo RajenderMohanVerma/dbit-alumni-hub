@@ -5,6 +5,8 @@ from flask_socketio import SocketIO
 import random
 import secrets
 import string
+import logging
+import traceback
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -20,7 +22,18 @@ from dotenv import load_dotenv
 from models.recommendation import get_recommended_users, get_recommended_jobs
 from flask_apscheduler import APScheduler
 from urllib.parse import quote
-# import pywhatkit as kit - Moved to lazy loading inside the route
+from utils.decorators import role_required
+from utils.helpers import (
+    generate_otp, save_profile_photo, save_company_logo,
+    normalize_phone, parse_db_timestamp, safe_error_message,
+    sanitize_html, validate_password, extract_job_form_data,
+    PASSWORD_MIN_LENGTH, OTP_EXPIRY_SECONDS
+)
+from services.admin_service import get_all_connections, get_connection_activity, get_user_statistics
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(name)s: %(message)s')
+logger = logging.getLogger(__name__)
 
 
 # Load environment variables
@@ -173,6 +186,50 @@ def log_registration(conn, user_id, name, email, phone, role, enrollment_no=None
     except Exception as e:
         print(f"Error logging registration: {e}")
 
+
+def update_user_activity(user_id, is_online=None, update_last_login=False):
+    """Insert/update user activity details used in admin monitoring."""
+    conn = None
+    try:
+        conn = get_db_connection()
+        existing = conn.execute('SELECT user_id FROM user_activity WHERE user_id = ?', (user_id,)).fetchone()
+
+        last_login_value = datetime.now().strftime('%Y-%m-%d %H:%M:%S') if update_last_login else None
+        status_value = None
+        if is_online is not None:
+            status_value = 'online' if is_online else 'offline'
+
+        if existing:
+            updates = []
+            values = []
+            if last_login_value is not None:
+                updates.append('last_login = ?')
+                values.append(last_login_value)
+            if status_value is not None:
+                updates.append('online_status = ?')
+                values.append(status_value)
+
+            if updates:
+                values.append(user_id)
+                conn.execute(f"UPDATE user_activity SET {', '.join(updates)} WHERE user_id = ?", tuple(values))
+        else:
+            conn.execute(
+                '''
+                INSERT INTO user_activity (user_id, last_login, online_status)
+                VALUES (?, ?, ?)
+                ''',
+                (user_id, last_login_value, status_value or 'offline')
+            )
+
+        conn.commit()
+    except Exception as e:
+        logger.warning(f"Could not update user activity for user {user_id}: {e}")
+        if conn:
+            conn.rollback()
+    finally:
+        if conn:
+            conn.close()
+
 # --- LOGIN SETUP ---
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -205,29 +262,37 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    conn = get_db_connection()
-    user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
-    conn.close()
-    if user:
-        # Avatar generation logic
-        avatar = user['profile_pic'] if user['profile_pic'] else f"https://ui-avatars.com/api/?name={user['name']}&background=0D6EFD&color=fff"
-        # Handle verification status (default to True for old users if column missing/null)
-        is_verified = user['is_verified'] if 'is_verified' in user.keys() else 1
-        
-        # Get new recommendation fields
-        def get_field(key):
-            try:
-                return user[key]
-            except (IndexError, KeyError):
-                return None
+    conn = None
+    try:
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+        if user:
+            # Avatar generation logic
+            avatar = user['profile_pic'] if user['profile_pic'] else f"https://ui-avatars.com/api/?name={user['name']}&background=0D6EFD&color=fff"
+            is_verified = user['is_verified'] if 'is_verified' in user.keys() else 1
+            
+            def get_field(key):
+                try:
+                    return user[key]
+                except (IndexError, KeyError):
+                    return None
 
-        return User(
-            user['id'], user['name'], user['email'], user['role'], avatar, user['phone'], is_verified,
-            get_field('is_suspended') or 0,
-            get_field('branch'), get_field('passing_year'), get_field('current_domain'),
-            get_field('skills'), get_field('interests'), get_field('city'), get_field('company'),
-            get_field('bio')
-        )
+            return User(
+                id=user['id'], name=user['name'], email=user['email'],
+                role=user['role'], profile_pic=avatar, phone=user['phone'],
+                is_verified=is_verified, is_suspended=get_field('is_suspended') or 0,
+                branch=get_field('branch'), passing_year=get_field('passing_year'),
+                current_domain=get_field('current_domain'), skills=get_field('skills'),
+                interests=get_field('interests'), city=get_field('city'),
+                company=get_field('company'), bio=get_field('bio')
+            )
+        return None
+    except Exception as e:
+        logger.error(f"Error loading user {user_id}: {e}")
+        return None
+    finally:
+        if conn:
+            conn.close()
 
 # --- DATABASE SETUP ---
 def init_db():
@@ -387,12 +452,27 @@ def init_db():
                 receiver_id INTEGER NOT NULL,
                 status TEXT DEFAULT 'pending',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                accepted_at TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (sender_id) REFERENCES users(id),
                 FOREIGN KEY (receiver_id) REFERENCES users(id),
                 UNIQUE(sender_id, receiver_id)
             )
         ''')
+
+        # Migration: ensure accepted_at exists for older databases
+        try:
+            c.execute('ALTER TABLE connection_requests ADD COLUMN accepted_at TIMESTAMP')
+        except sqlite3.OperationalError as e:
+            if 'duplicate column name' not in str(e).lower():
+                print(f"⚠ Warning adding accepted_at: {e}")
+
+        # Migration: ensure updated_at exists for older databases
+        try:
+            c.execute('ALTER TABLE connection_requests ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP')
+        except sqlite3.OperationalError as e:
+            if 'duplicate column name' not in str(e).lower():
+                print(f"⚠ Warning adding updated_at: {e}")
 
         # Unified Connections/Friends Table
         # Stores accepted friendships between any two users
@@ -440,6 +520,53 @@ def init_db():
             )
         ''')
 
+        # User activity used by admin monitoring
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS user_activity (
+                user_id INTEGER PRIMARY KEY,
+                last_login TIMESTAMP,
+                online_status TEXT DEFAULT 'offline',
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        ''')
+
+        # User Interactions Table — feeds ML recommendation engine
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS user_interactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                target_user_id INTEGER NOT NULL,
+                interaction_type TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (target_user_id) REFERENCES users(id)
+            )
+        ''')
+
+        # --- Performance Indexes ---
+        index_statements = [
+            'CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)',
+            'CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)',
+            'CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at)',
+            'CREATE INDEX IF NOT EXISTS idx_connection_requests_receiver ON connection_requests(receiver_id, status)',
+            'CREATE INDEX IF NOT EXISTS idx_connection_requests_sender ON connection_requests(sender_id, status)',
+            'CREATE INDEX IF NOT EXISTS idx_connections_user1 ON connections(user_id_1)',
+            'CREATE INDEX IF NOT EXISTS idx_connections_user2 ON connections(user_id_2)',
+            'CREATE INDEX IF NOT EXISTS idx_user_interactions_user ON user_interactions(user_id)',
+            'CREATE INDEX IF NOT EXISTS idx_user_interactions_target ON user_interactions(target_user_id)',
+            'CREATE INDEX IF NOT EXISTS idx_password_resets_email ON password_resets(email)',
+            'CREATE INDEX IF NOT EXISTS idx_user_activity_last_login ON user_activity(last_login)',
+            'CREATE INDEX IF NOT EXISTS idx_student_profile_user ON student_profile(user_id)',
+            'CREATE INDEX IF NOT EXISTS idx_alumni_profile_user ON alumni_profile(user_id)',
+            'CREATE INDEX IF NOT EXISTS idx_faculty_profile_user ON faculty_profile(user_id)',
+            'CREATE INDEX IF NOT EXISTS idx_registration_log_user ON registration_log(user_id)',
+        ]
+        for idx_sql in index_statements:
+            try:
+                c.execute(idx_sql)
+            except sqlite3.OperationalError:
+                pass  # Table may not exist yet
+
         # Check if admin exists
         admin_exists = c.execute("SELECT COUNT(*) FROM users WHERE role='admin'").fetchone()[0]
 
@@ -451,6 +578,66 @@ def init_db():
 
         conn.commit()
         print("Database initialized successfully!")
+
+        # ── Jobs table + migration-safe column additions ──────────────────────
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS jobs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                company TEXT,
+                location TEXT,
+                salary TEXT,
+                job_type TEXT,
+                apply_link TEXT,
+                description TEXT,
+                required_skills TEXT,
+                posted_by INTEGER,
+                is_active INTEGER DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (posted_by) REFERENCES users(id) ON DELETE CASCADE
+            )
+        ''')
+        jobs_cols_to_add = [
+            ('company_name', 'TEXT'),
+            ('company_website', 'TEXT'),
+            ('company_logo', 'TEXT'),
+            ('work_mode', 'TEXT'),
+            ('employment_type', 'TEXT'),
+            ('eligible_branch', 'TEXT'),
+            ('eligible_batch', 'TEXT'),
+            ('qualification', 'TEXT'),
+            ('min_cgpa', 'TEXT'),
+            ('experience_required', 'TEXT'),
+            ('skills_required', 'TEXT'),
+            ('skills_preferred', 'TEXT'),
+            ('ctc_range', 'TEXT'),
+            ('perks', 'TEXT'),
+            ('deadline', 'TEXT'),
+            ('joining_date', 'TEXT'),
+            ('apply_method', 'TEXT'),
+            ('openings', 'INTEGER DEFAULT 0'),
+            ('selection_process', 'TEXT'),
+            ('category', 'TEXT'),
+            ('target_role', 'TEXT'),
+            ('skill_level', 'TEXT'),
+            ('job_status', "TEXT DEFAULT 'Open'"),
+            # New columns for alumni/faculty job posting with admin approval
+            ('approval_status', "TEXT DEFAULT 'approved'"),
+            ('posted_by_role', 'TEXT'),
+            ('rejection_reason', 'TEXT'),
+        ]
+        for col_name, col_def in jobs_cols_to_add:
+            try:
+                c.execute(f'ALTER TABLE jobs ADD COLUMN {col_name} {col_def}')
+            except sqlite3.OperationalError as e:
+                if 'duplicate column name' not in str(e).lower():
+                    print(f"⚠ Warning adding jobs.{col_name}: {e}")
+        # Backfill: jobs posted by admin before approval_status existed -> mark approved
+        c.execute("""
+            UPDATE jobs SET approval_status = 'approved'
+            WHERE approval_status IS NULL OR approval_status = ''
+        """)
+        conn.commit()
 
     except sqlite3.Error as e:
         print(f"Database error: {e}")
@@ -656,12 +843,23 @@ def login():
                     flash('Your account has been suspended by an admin for violation of community guidelines.', 'danger')
                     return redirect(url_for('login'))
 
-                user_obj = User(user['id'], user['name'], user['email'], u_role, None, u_verified, u_suspended)
+                user_obj = User(
+                    id=user['id'], name=user['name'], email=user['email'],
+                    role=u_role, profile_pic=user['profile_pic'],
+                    phone=user['phone'], is_verified=u_verified, is_suspended=u_suspended,
+                    branch=get_user_field('branch'), passing_year=get_user_field('passing_year'),
+                    current_domain=get_user_field('current_domain'), skills=get_user_field('skills'),
+                    interests=get_user_field('interests'), city=get_user_field('city'),
+                    company=get_user_field('company'), bio=get_user_field('bio')
+                )
                 login_user(user_obj)
+                update_user_activity(user['id'], is_online=True, update_last_login=True)
                 if u_role == 'admin':
                     return redirect(url_for('dashboard_admin'))
                 if u_role == 'alumni':
                     return redirect(url_for('dashboard_alumni'))
+                if u_role == 'faculty':
+                    return redirect(url_for('dashboard_faculty'))
                 return redirect(url_for('dashboard_student'))
             else:
                 flash('Invalid Email or Password', 'danger')
@@ -843,7 +1041,8 @@ def register():
                 return redirect(url_for('verify_otp', email=email))
             else:
                 # Still redirect even if email fails (for testing)
-                flash(f'⚠ OTP: {otp} (Check console). {email_message}', 'warning')
+                logger.warning(f'Email failed for {email}: {email_message}. OTP: {otp}')
+                flash('⚠ Verification code could not be emailed. Please contact admin or try again.', 'warning')
                 return redirect(url_for('verify_otp', email=email))
 
         except Exception as e:
@@ -858,6 +1057,10 @@ def register():
 @app.route('/logout')
 @login_required
 def logout():
+    try:
+        update_user_activity(current_user.id, is_online=False, update_last_login=False)
+    except Exception:
+        pass
     logout_user()
     return redirect(url_for('home'))
 
@@ -955,7 +1158,11 @@ def verify_otp():
                     
                     # Auto-login if approved, else redirect to login
                     if is_approved:
-                        user_obj = User(user_id, temp_user['name'], temp_user['email'], temp_user['role'], None, 1)
+                        user_obj = User(
+                            id=user_id, name=temp_user['name'], email=temp_user['email'],
+                            role=temp_user['role'], profile_pic=None,
+                            phone=temp_user['phone'], is_verified=1
+                        )
                         login_user(user_obj)
                         flash('✓ Email verified! Account created successfully. Welcome!', 'success')
                         
@@ -963,8 +1170,12 @@ def verify_otp():
                             return redirect(url_for('dashboard_student'))
                         elif temp_user['role'] == 'alumni':
                             return redirect(url_for('dashboard_alumni'))
+                        elif temp_user['role'] == 'faculty':
+                            return redirect(url_for('dashboard_faculty'))
                         elif temp_user['role'] == 'admin':
                             return redirect(url_for('dashboard_admin'))
+                        else:
+                            return redirect(url_for('home'))
                     else:
                         flash('✓ Email verified! Your account is pending admin approval. Please wait.', 'info')
                         return redirect(url_for('login'))
@@ -1030,7 +1241,8 @@ def resend_otp():
             if email_sent:
                 flash('✓ Verification code resent successfully!', 'success')
             else:
-                flash(f'⚠ OTP: {new_otp} - {msg_text}', 'warning')
+                logger.warning(f'Resend email failed for {email}: {msg_text}. OTP: {new_otp}')
+                flash('⚠ Could not send OTP email. Please contact admin or try again.', 'warning')
             
             return render_template('auth/verify_otp.html', email=email)
         else:
@@ -1206,6 +1418,9 @@ def admin_approve_requests():
 @app.route('/student/dashboard')
 @login_required
 def dashboard_student():
+    if current_user.role not in ('student', 'admin'):
+        flash('Access denied.', 'danger')
+        return redirect(url_for('home'))
     conn = None
     try:
         conn = get_db_connection()
@@ -1275,6 +1490,9 @@ def dashboard_student():
 @app.route('/alumni/dashboard')
 @login_required
 def dashboard_alumni():
+    if current_user.role not in ('alumni', 'admin'):
+        flash('Access denied.', 'danger')
+        return redirect(url_for('home'))
     conn = None
     try:
         conn = get_db_connection()
@@ -1412,49 +1630,46 @@ def dashboard_admin():
         """
         users = conn.execute(users_query).fetchall()
         
-        a_count = conn.execute("SELECT COUNT(*) FROM users WHERE role='alumni'").fetchone()[0]
-        s_count = conn.execute("SELECT COUNT(*) FROM users WHERE role='student'").fetchone()[0]
-        f_count = conn.execute("SELECT COUNT(*) FROM users WHERE role='faculty'").fetchone()[0]
+        # Optimized: Single GROUP BY query instead of 3 separate COUNT queries
+        role_counts_raw = conn.execute(
+            "SELECT role, COUNT(*) as cnt FROM users GROUP BY role"
+        ).fetchall()
+        role_counts = {row['role']: row['cnt'] for row in role_counts_raw}
+        a_count = role_counts.get('alumni', 0)
+        s_count = role_counts.get('student', 0)
+        f_count = role_counts.get('faculty', 0)
         
         # Dynamic Chart Data Calculation
         current_year = datetime.now().year
         years = [str(y) for y in range(current_year - 4, current_year + 1)]
         
-        students_data = []
-        alumni_data = []
-        students_data = []
-        alumni_data = []
-        faculty_data = []
-        events_data = []
+        # Optimized: Single query for all yearly role counts instead of 15+ queries in a loop
+        yearly_raw = conn.execute("""
+            SELECT strftime('%Y', created_at) as year, role, COUNT(*) as cnt
+            FROM users
+            WHERE strftime('%Y', created_at) >= ?
+            GROUP BY year, role
+        """, (years[0],)).fetchall()
+        yearly_map = {}
+        for row in yearly_raw:
+            yearly_map.setdefault(row['year'], {})[row['role']] = row['cnt']
         
-        for year in years:
-            # Student registrations
-            s_count_year = conn.execute("""
-                SELECT COUNT(*) FROM users 
-                WHERE role = 'student' AND strftime('%Y', created_at) = ?
-            """, (year,)).fetchone()[0]
-            students_data.append(s_count_year)
-
-            # Alumni registrations
-            a_count_year = conn.execute("""
-                SELECT COUNT(*) FROM users 
-                WHERE role = 'alumni' AND strftime('%Y', created_at) = ?
-            """, (year,)).fetchone()[0]
-            alumni_data.append(a_count_year)
-
-            # Faculty registrations
-            f_count_year = conn.execute("""
-                SELECT COUNT(*) FROM users 
-                WHERE role = 'faculty' AND strftime('%Y', created_at) = ?
-            """, (year,)).fetchone()[0]
-            faculty_data.append(f_count_year)
-
-            # Event registrations (for stat card)
-            e_count = conn.execute("""
-                SELECT COUNT(*) FROM alumni_meet_registration 
-                WHERE strftime('%Y', created_at) = ?
-            """, (year,)).fetchone()[0]
-            events_data.append(e_count)
+        students_data = [yearly_map.get(y, {}).get('student', 0) for y in years]
+        alumni_data = [yearly_map.get(y, {}).get('alumni', 0) for y in years]
+        faculty_data = [yearly_map.get(y, {}).get('faculty', 0) for y in years]
+        
+        # Event registrations by year (single query)
+        try:
+            events_raw = conn.execute("""
+                SELECT strftime('%Y', created_at) as year, COUNT(*) as cnt
+                FROM alumni_meet_registration
+                WHERE strftime('%Y', created_at) >= ?
+                GROUP BY year
+            """, (years[0],)).fetchall()
+            events_map = {row['year']: row['cnt'] for row in events_raw}
+        except sqlite3.OperationalError:
+            events_map = {}
+        events_data = [events_map.get(y, 0) for y in years]
 
         chart_data = {
             'years': years,
@@ -1488,25 +1703,37 @@ def dashboard_admin():
 @login_required
 def private_chat(other_user_id):
     """Display private chat with another user"""
-    conn = get_db_connection()
-    c = conn.cursor()
+    conn = None
+    try:
+        conn = get_db_connection()
 
-    # Get other user details
-    other_user = c.execute('SELECT id, name, email, role, phone, profile_pic FROM users WHERE id = ?',
-                          (other_user_id,)).fetchone()
+        # Get other user details
+        other_user = conn.execute('SELECT id, name, email, role, phone, profile_pic FROM users WHERE id = ?',
+                              (other_user_id,)).fetchone()
 
-    conn.close()
+        if not other_user:
+            flash('User not found', 'danger')
+            return redirect(url_for('messages'))
 
-    if not other_user:
-        flash('User not found', 'danger')
-        return redirect(url_for('messages'))
+        # Verify users are connected before allowing chat
+        is_connected = conn.execute('''
+            SELECT 1 FROM connections 
+            WHERE (user_id_1 = ? AND user_id_2 = ?) OR (user_id_1 = ? AND user_id_2 = ?)
+        ''', (current_user.id, other_user_id, other_user_id, current_user.id)).fetchone()
 
-    return render_template('messaging/private_chat.html',
-                         other_user_id=other_user_id,
-                         other_user_name=other_user['name'],
-                         other_user_role=other_user['role'],
-                         other_user_phone=other_user['phone'],
-                         other_user_pic=other_user['profile_pic'])
+        if not is_connected and current_user.role != 'admin':
+            flash('You must be connected to chat with this user.', 'warning')
+            return redirect(url_for('messages'))
+
+        return render_template('messaging/private_chat.html',
+                             other_user_id=other_user_id,
+                             other_user_name=other_user['name'],
+                             other_user_role=other_user['role'],
+                             other_user_phone=other_user['phone'],
+                             other_user_pic=other_user['profile_pic'])
+    finally:
+        if conn:
+            conn.close()
 
 
 @app.route('/admin/messaging-control')
@@ -1518,6 +1745,105 @@ def admin_messaging_control():
         return redirect(url_for('dashboard_admin'))
 
     return render_template('admin/admin_messaging_control.html')
+
+
+@app.route('/admin/connection-monitor')
+@login_required
+def admin_connection_monitor():
+    """Admin dashboard for monitoring connection request/activity details."""
+    if current_user.role != 'admin':
+        flash('Unauthorized access', 'danger')
+        return redirect(url_for('dashboard_admin'))
+
+    role_filter = request.args.get('role', 'all').strip().lower()
+    if role_filter not in ('all', 'student', 'alumni'):
+        role_filter = 'all'
+
+    search = request.args.get('search', '').strip()
+
+    conn = None
+    try:
+        conn = get_db_connection()
+        records = get_connection_activity(conn, role_filter=role_filter, search=search)
+        return render_template(
+            'admin/connection_monitor.html',
+            records=records,
+            role_filter=role_filter,
+            search=search,
+            total_records=len(records),
+        )
+    except Exception as e:
+        logger.error(f"Error loading admin connection monitor: {e}")
+        flash('Could not load connection monitoring data.', 'danger')
+        return redirect(url_for('dashboard_admin'))
+    finally:
+        if conn:
+            conn.close()
+
+
+@app.route('/admin/connection-monitor/user/<int:user_id>')
+@login_required
+def admin_connection_monitor_user(user_id):
+    """Return complete user profile/activity data for admin modal view."""
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    conn = None
+    try:
+        conn = get_db_connection()
+        row = conn.execute(
+            '''
+            SELECT
+                u.id,
+                u.name,
+                u.role,
+                u.email,
+                COALESCE(sp.department, ap.department, fp.department, u.branch, 'N/A') AS department,
+                COALESCE(sp.skills, u.skills, '') AS skills,
+                COALESCE(u.current_domain, '') AS current_domain,
+                COALESCE(sp.semester, ap.pass_year, u.passing_year) AS passing_year,
+                COALESCE(ap.company_name, u.company, '') AS current_company,
+                ua.last_login,
+                COALESCE(ua.online_status, 'offline') AS online_status
+            FROM users u
+            LEFT JOIN student_profile sp ON sp.user_id = u.id AND u.role = 'student'
+            LEFT JOIN alumni_profile ap ON ap.user_id = u.id AND u.role = 'alumni'
+            LEFT JOIN faculty_profile fp ON fp.user_id = u.id AND u.role = 'faculty'
+            LEFT JOIN user_activity ua ON ua.user_id = u.id
+            WHERE u.id = ?
+            ''',
+            (user_id,),
+        ).fetchone()
+
+        if not row:
+            return jsonify({'error': 'User not found'}), 404
+
+        stats = get_user_statistics(conn, user_id)
+
+        try:
+            msg_row = conn.execute(
+                '''
+                SELECT COUNT(*) AS message_count
+                FROM private_messages
+                WHERE sender_id = ? OR receiver_id = ?
+                ''',
+                (user_id, user_id),
+            ).fetchone()
+            message_count = msg_row['message_count'] if msg_row else 0
+        except Exception:
+            message_count = 0
+
+        payload = dict(row)
+        payload.update(stats)
+        payload['messages_exchanged'] = message_count
+
+        return jsonify({'user': payload}), 200
+    except Exception as e:
+        logger.error(f"Error loading monitor profile for user {user_id}: {e}")
+        return jsonify({'error': 'Failed to load user profile'}), 500
+    finally:
+        if conn:
+            conn.close()
 
 
 @app.route('/alumni/meet/register', methods=['GET', 'POST'])
@@ -1633,26 +1959,40 @@ def alumni_mentorship():
 @app.route('/alumni/post-job')
 @login_required
 def alumni_post_job():
-    if current_user.role != 'alumni': return redirect(url_for('home'))
-    return render_template('alumni/post_job.html')
+    # Redirect to unified post-job route (supports both alumni and faculty)
+    return redirect(url_for('post_job'))
 
 @app.route('/alumni/jobs')
 @login_required
 def alumni_jobs():
-    if current_user.role != 'alumni': return redirect(url_for('home'))
-    conn = get_db_connection()
-    c = conn.cursor()
-    jobs = c.execute('''
-        SELECT j.*, u.name as posted_by_name 
-        FROM jobs j 
-        LEFT JOIN users u ON j.posted_by = u.id 
-        WHERE j.is_active = 1
-        ORDER BY j.created_at DESC
-    ''').fetchall()
-    # Use modular recommendation logic for recommended jobs
-    recommended = get_recommended_jobs(current_user)
-    conn.close()
-    return render_template('alumni/jobs.html', jobs=jobs, recommended=recommended)
+    if current_user.role not in ('alumni', 'faculty'): return redirect(url_for('home'))
+    conn = None
+    try:
+        conn = get_db_connection()
+        today = datetime.now().strftime('%Y-%m-%d')
+        active_jobs = conn.execute('''
+            SELECT j.*, u.name as posted_by_name 
+            FROM jobs j 
+            LEFT JOIN users u ON j.posted_by = u.id 
+            WHERE j.is_active = 1
+              AND (j.approval_status = 'approved' OR j.approval_status IS NULL)
+              AND (j.deadline IS NULL OR j.deadline = '' OR j.deadline >= ?)
+            ORDER BY j.created_at DESC
+        ''', (today,)).fetchall()
+        previous_jobs = conn.execute('''
+            SELECT j.*, u.name as posted_by_name 
+            FROM jobs j 
+            LEFT JOIN users u ON j.posted_by = u.id 
+            WHERE j.is_active = 1
+              AND (j.approval_status = 'approved' OR j.approval_status IS NULL)
+              AND j.deadline IS NOT NULL AND j.deadline != '' AND j.deadline < ?
+            ORDER BY j.deadline DESC
+        ''', (today,)).fetchall()
+        recommended = get_recommended_jobs(current_user)
+        return render_template('alumni/jobs.html', jobs=active_jobs, previous_jobs=previous_jobs, recommended=recommended)
+    finally:
+        if conn:
+            conn.close()
 
 @app.route('/alumni/spotlight')
 @login_required
@@ -2053,7 +2393,8 @@ def forgot_password():
                     flash('✓ OTP sent to your email!', 'success')
                     return redirect(url_for('verify_reset_otp', email=email))
                 else:
-                    flash(f'⚠ OTP: {otp} (Check console) - {msg_text}', 'warning')
+                    logger.warning(f'Password reset email failed for {email}: {msg_text}. OTP: {otp}')
+                    flash('⚠ Could not send OTP email. Please try again or contact admin.', 'warning')
                     return redirect(url_for('verify_reset_otp', email=email))
             else:
                 flash('Email not found!', 'danger')
@@ -2064,7 +2405,7 @@ def forgot_password():
             if conn:
                 conn.close()
                 
-    return render_template('forgot_password.html')
+    return render_template('auth/forgot_password.html')
 
 
 @app.route('/verify-reset-otp', methods=['GET', 'POST'])
@@ -2100,7 +2441,7 @@ def verify_reset_otp():
             if conn:
                 conn.close()
                 
-    return render_template('verify_otp.html', email=email, action_url='/verify-reset-otp')
+    return render_template('auth/verify_otp.html', email=email, action_url='/verify-reset-otp')
 
 @app.route('/reset-password-final', methods=['GET', 'POST'])
 def reset_password_final():
@@ -2113,7 +2454,13 @@ def reset_password_final():
         
         if password != confirm_password:
             flash('Passwords do not match!', 'warning')
-            return render_template('reset_password_final.html')
+            return render_template('auth/reset_password_final.html')
+
+        # Enforce password strength (same as registration)
+        pw_valid, pw_msg = validate_password(password)
+        if not pw_valid:
+            flash(pw_msg, 'warning')
+            return render_template('auth/reset_password_final.html')
             
         conn = None
         try:
@@ -2131,7 +2478,7 @@ def reset_password_final():
             if conn:
                 conn.close()
                 
-    return render_template('reset_password_final.html')
+    return render_template('auth/reset_password_final.html')
 
 # --- PASSWORD CHANGE ROUTES ---
 
@@ -2146,14 +2493,15 @@ def change_password():
 
         if not all([old_password, new_password, confirm_password]):
             flash('All fields are required!', 'warning')
-            return render_template('change_password.html')
+            return render_template('auth/change_password.html')
 
         if new_password != confirm_password:
             flash('New passwords do not match!', 'warning')
             return render_template('auth/change_password.html')
 
-        if len(new_password) < 6:
-            flash('Password must be at least 6 characters long!', 'warning')
+        pw_valid, pw_msg = validate_password(new_password)
+        if not pw_valid:
+            flash(pw_msg, 'warning')
             return render_template('auth/change_password.html')
 
         conn = None
@@ -2724,33 +3072,132 @@ def admin_jobs():
     if current_user.role != 'admin':
         return jsonify({'error': 'Unauthorized'}), 403
     
-    conn = get_db_connection()
-    c = conn.cursor()
-    
-    # Fetch all jobs
-    jobs = c.execute('''
-        SELECT j.*, u.name as posted_by_name 
-        FROM jobs j 
-        LEFT JOIN users u ON j.posted_by = u.id 
-        ORDER BY j.created_at DESC
-    ''').fetchall()
-    
-    # Fetch Stats
-    total_jobs = c.execute('SELECT COUNT(*) FROM jobs').fetchone()[0]
-    active_jobs = c.execute('SELECT COUNT(*) FROM jobs WHERE is_active = 1').fetchone()[0]
-    
-    today = datetime.now().strftime('%Y-%m-%d')
-    expired_jobs = c.execute('SELECT COUNT(*) FROM jobs WHERE deadline < ? AND deadline != "" AND deadline IS NOT NULL', (today,)).fetchone()[0]
-    
-    stats = {
-        'total': total_jobs,
-        'active': active_jobs,
-        'expired': expired_jobs,
-        'inactive': total_jobs - active_jobs
-    }
-    
-    conn.close()
-    return render_template('admin/jobs.html', jobs=jobs, stats=stats)
+    conn = None
+    try:
+        conn = get_db_connection()
+        today = datetime.now().strftime('%Y-%m-%d')
+
+        # Pending approval queue (jobs posted by alumni/faculty awaiting admin review)
+        pending_jobs = conn.execute('''
+            SELECT j.*, u.name as posted_by_name, u.role as poster_role
+            FROM jobs j 
+            LEFT JOIN users u ON j.posted_by = u.id 
+            WHERE j.approval_status = 'pending'
+            ORDER BY j.created_at DESC
+        ''').fetchall()
+
+        # All approved jobs
+        jobs = conn.execute('''
+            SELECT j.*, u.name as posted_by_name, u.role as poster_role
+            FROM jobs j 
+            LEFT JOIN users u ON j.posted_by = u.id 
+            WHERE j.approval_status != 'pending' OR j.approval_status IS NULL
+            ORDER BY j.created_at DESC
+        ''').fetchall()
+        
+        total_jobs = conn.execute('SELECT COUNT(*) FROM jobs').fetchone()[0]
+        active_jobs = conn.execute(
+            "SELECT COUNT(*) FROM jobs WHERE is_active = 1 AND approval_status = 'approved'"
+        ).fetchone()[0]
+        pending_count = conn.execute(
+            "SELECT COUNT(*) FROM jobs WHERE approval_status = 'pending'"
+        ).fetchone()[0]
+        expired_jobs = conn.execute(
+            "SELECT COUNT(*) FROM jobs WHERE deadline < ? AND deadline != '' AND deadline IS NOT NULL AND approval_status = 'approved'",
+            (today,)
+        ).fetchone()[0]
+        
+        stats = {
+            'total': total_jobs,
+            'active': active_jobs,
+            'expired': expired_jobs,
+            'pending': pending_count,
+            'inactive': total_jobs - active_jobs
+        }
+        
+        return render_template('admin/jobs.html', jobs=jobs, pending_jobs=pending_jobs, stats=stats)
+    finally:
+        if conn:
+            conn.close()
+
+@app.route('/admin/jobs/approve/<int:job_id>', methods=['POST'])
+@login_required
+def admin_approve_job(job_id):
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    conn = None
+    try:
+        conn = get_db_connection()
+        conn.execute(
+            "UPDATE jobs SET approval_status = 'approved', is_active = 1 WHERE id = ?",
+            (job_id,)
+        )
+        conn.commit()
+        # Notify the poster via SocketIO if online
+        job = conn.execute('SELECT posted_by, title FROM jobs WHERE id = ?', (job_id,)).fetchone()
+        if job:
+            socketio.emit('job_approval_update', {
+                'status': 'approved',
+                'job_id': job_id,
+                'job_title': job['title'],
+            }, room=f"user_{job['posted_by']}")
+        return jsonify({'success': True, 'message': 'Job approved and is now visible to students.'})
+    except Exception as e:
+        logger.error(f"Error approving job: {e}")
+        return jsonify({'error': 'Failed to approve job'}), 500
+    finally:
+        if conn:
+            conn.close()
+
+@app.route('/admin/jobs/reject/<int:job_id>', methods=['POST'])
+@login_required
+def admin_reject_job(job_id):
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    conn = None
+    try:
+        data = request.get_json(silent=True) or {}
+        reason = data.get('reason', '')
+        conn = get_db_connection()
+        conn.execute(
+            "UPDATE jobs SET approval_status = 'rejected', is_active = 0, rejection_reason = ? WHERE id = ?",
+            (reason, job_id)
+        )
+        conn.commit()
+        job = conn.execute('SELECT posted_by, title FROM jobs WHERE id = ?', (job_id,)).fetchone()
+        if job:
+            socketio.emit('job_approval_update', {
+                'status': 'rejected',
+                'job_id': job_id,
+                'job_title': job['title'],
+                'reason': reason,
+            }, room=f"user_{job['posted_by']}")
+        return jsonify({'success': True, 'message': 'Job rejected.'})
+    except Exception as e:
+        logger.error(f"Error rejecting job: {e}")
+        return jsonify({'error': 'Failed to reject job'}), 500
+    finally:
+        if conn:
+            conn.close()
+
+
+@app.route('/api/admin/jobs/pending-count', methods=['GET'])
+@login_required
+def api_pending_jobs_count():
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    conn = None
+    try:
+        conn = get_db_connection()
+        count = conn.execute("SELECT COUNT(*) FROM jobs WHERE approval_status = 'pending'").fetchone()[0]
+        return jsonify({'count': count})
+    except Exception as e:
+        logger.error(f"Error fetching pending jobs count: {e}")
+        return jsonify({'count': 0})
+    finally:
+        if conn:
+            conn.close()
+
 
 @app.route('/api/admin/jobs/toggle/<int:job_id>', methods=['POST'])
 @login_required
@@ -2758,20 +3205,22 @@ def admin_toggle_job(job_id):
     if current_user.role != 'admin':
         return jsonify({'error': 'Unauthorized'}), 403
         
-    conn = get_db_connection()
-    c = conn.cursor()
-    job = c.execute('SELECT is_active FROM jobs WHERE id = ?', (job_id,)).fetchone()
-    
-    if not job:
-        conn.close()
-        return jsonify({'error': 'Job not found'}), 404
+    conn = None
+    try:
+        conn = get_db_connection()
+        job = conn.execute('SELECT is_active FROM jobs WHERE id = ?', (job_id,)).fetchone()
         
-    new_status = 1 if job['is_active'] == 0 else 0
-    c.execute('UPDATE jobs SET is_active = ? WHERE id = ?', (new_status, job_id))
-    conn.commit()
-    conn.close()
-    
-    return jsonify({'success': True, 'new_status': new_status})
+        if not job:
+            return jsonify({'error': 'Job not found'}), 404
+            
+        new_status = 1 if job['is_active'] == 0 else 0
+        conn.execute('UPDATE jobs SET is_active = ? WHERE id = ?', (new_status, job_id))
+        conn.commit()
+        
+        return jsonify({'success': True, 'new_status': new_status})
+    finally:
+        if conn:
+            conn.close()
 
 @app.route('/admin/jobs/add', methods=['GET', 'POST'])
 @login_required
@@ -3080,14 +3529,17 @@ def admin_delete_job(job_id):
     if current_user.role != 'admin':
         return jsonify({'error': 'Unauthorized'}), 403
         
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute('DELETE FROM jobs WHERE id = ?', (job_id,))
-    conn.commit()
-    conn.close()
-    
-    flash('Job deleted successfully!', 'success')
-    return redirect(url_for('admin_jobs'))
+    conn = None
+    try:
+        conn = get_db_connection()
+        conn.execute('DELETE FROM jobs WHERE id = ?', (job_id,))
+        conn.commit()
+        
+        flash('Job deleted successfully!', 'success')
+        return redirect(url_for('admin_jobs'))
+    finally:
+        if conn:
+            conn.close()
 
 # --- NETWORKING & CONNECTIONS ---
 
@@ -3217,12 +3669,15 @@ def upgrade():
     if current_user.role == 'student':
         return render_template('student/upgrade.html')
     elif current_user.role == 'alumni':
-        conn = get_db_connection()
-        profile = conn.execute('SELECT * FROM alumni_profile WHERE user_id = ?', (current_user.id,)).fetchone()
-        conn.close()
-        return render_template('alumni/upgrade.html', profile=profile)
+        conn = None
+        try:
+            conn = get_db_connection()
+            profile = conn.execute('SELECT * FROM alumni_profile WHERE user_id = ?', (current_user.id,)).fetchone()
+            return render_template('alumni/upgrade.html', profile=profile)
+        finally:
+            if conn:
+                conn.close()
     else:
-        # Default or common upgrade page
         return render_template('upgrade.html')
 
 
@@ -3354,15 +3809,12 @@ def get_student_details(user_id):
 @app.route('/api/connection-request/send', methods=['POST'])
 @login_required
 def send_connection_request():
-    """
-    Send a connection request from current user to any other user.
-    Works for Student->Alumni, Student->Faculty, Alumni->Student, etc.
-    """
+    """Send a connection request from current user to any other user."""
+    conn = None
     try:
         data = request.get_json()
         receiver_id = data.get('receiver_id')
 
-        # Validation
         if not receiver_id or receiver_id == current_user.id:
             return jsonify({'error': 'Invalid recipient'}), 400
 
@@ -3370,231 +3822,255 @@ def send_connection_request():
         c = conn.cursor()
 
         # Check if receiver exists
-        receiver = c.execute('SELECT * FROM users WHERE id = ?', (receiver_id,)).fetchone()
+        receiver = conn.execute('SELECT * FROM users WHERE id = ?', (receiver_id,)).fetchone()
         if not receiver:
-            conn.close()
             return jsonify({'error': 'Recipient not found'}), 404
 
         # Check if already connected
-        existing_connection = c.execute('''
-            SELECT * FROM connections
+        existing_connection = conn.execute('''
+            SELECT 1 FROM connections
             WHERE (user_id_1 = ? AND user_id_2 = ?) OR (user_id_1 = ? AND user_id_2 = ?)
         ''', (current_user.id, receiver_id, receiver_id, current_user.id)).fetchone()
 
         if existing_connection:
-            conn.close()
             return jsonify({'error': 'Already connected', 'status': 'connected'}), 400
 
         # Check if request already pending
-        existing_request = c.execute('''
-            SELECT * FROM connection_requests
+        existing_request = conn.execute('''
+            SELECT 1 FROM connection_requests
             WHERE sender_id = ? AND receiver_id = ? AND status = 'pending'
         ''', (current_user.id, receiver_id)).fetchone()
 
         if existing_request:
-            conn.close()
             return jsonify({'error': 'Request already sent', 'status': 'pending'}), 400
 
         # Check for mutual request (auto-connect)
-        mutual_request = c.execute('''
-            SELECT * FROM connection_requests
+        mutual_request = conn.execute('''
+            SELECT 1 FROM connection_requests
             WHERE sender_id = ? AND receiver_id = ? AND status = 'pending'
         ''', (receiver_id, current_user.id)).fetchone()
 
         if mutual_request:
-            # Auto-accept mutual request
-            c.execute('UPDATE connection_requests SET status = ? WHERE sender_id = ? AND receiver_id = ?',
-                     ('accepted', receiver_id, current_user.id))
-            c.execute('INSERT INTO connections (user_id_1, user_id_2) VALUES (?, ?)',
+            conn.execute(
+                '''
+                UPDATE connection_requests
+                SET status = ?, accepted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+                WHERE sender_id = ? AND receiver_id = ?
+                ''',
+                ('accepted', receiver_id, current_user.id)
+            )
+            conn.execute('INSERT INTO connections (user_id_1, user_id_2) VALUES (?, ?)',
                      (min(current_user.id, receiver_id), max(current_user.id, receiver_id)))
             conn.commit()
 
-            # Send email to receiver about mutual connection
             try:
-                send_connection_email(
-                    receiver['email'],
-                    receiver['name'],
-                    current_user.name,
-                    current_user.role,
-                    'mutual'
-                )
+                send_connection_email(receiver['email'], receiver['name'], current_user.name, current_user.role, 'mutual')
             except Exception as e:
-                print(f"Email error: {e}")
+                logger.warning(f"Connection email error: {e}")
 
-            conn.close()
             return jsonify({'success': True, 'status': 'connected', 'message': 'Now connected!'}), 200
 
         # Create new request
-        c.execute('''
+        conn.execute('''
             INSERT INTO connection_requests (sender_id, receiver_id, status)
             VALUES (?, ?, 'pending')
         ''', (current_user.id, receiver_id))
-
         conn.commit()
 
-        # Send email notification to receiver
         try:
-            send_connection_email(
-                receiver['email'],
-                receiver['name'],
-                current_user.name,
-                current_user.role,
-                'request'
-            )
+            send_connection_email(receiver['email'], receiver['name'], current_user.name, current_user.role, 'request')
         except Exception as e:
-            print(f"Email error: {e}")
+            logger.warning(f"Connection email error: {e}")
 
-        conn.close()
+        # Real-time: notify receiver on their dashboard
+        socketio.emit('connection_request_received', {
+            'sender_id': current_user.id,
+            'sender_name': current_user.name,
+            'sender_role': current_user.role,
+            'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+        }, room=f'user_{receiver_id}')
+
+        # Real-time: notify admin monitor
+        socketio.emit('admin_connection_activity', {
+            'event': 'new_request',
+            'sender_id': current_user.id,
+            'sender_name': current_user.name,
+            'sender_role': current_user.role,
+            'receiver_id': receiver_id,
+            'receiver_name': receiver['name'],
+            'receiver_role': receiver['role'],
+            'status': 'pending',
+            'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+        }, room='admin_monitor')
 
         return jsonify({'success': True, 'status': 'pending', 'message': 'Request sent'}), 200
 
     except Exception as e:
-        print(f"Error sending connection request: {e}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error sending connection request: {e}")
+        return jsonify({'error': 'Failed to send request'}), 500
+    finally:
+        if conn:
+            conn.close()
 
 @app.route('/api/connection-request/accept/<int:sender_id>', methods=['POST'])
 @login_required
 def accept_connection_request(sender_id):
     """Accept a connection request"""
+    conn = None
     try:
         conn = get_db_connection()
-        c = conn.cursor()
 
-        # Get sender details for email
-        sender = c.execute('SELECT * FROM users WHERE id = ?', (sender_id,)).fetchone()
+        sender = conn.execute('SELECT * FROM users WHERE id = ?', (sender_id,)).fetchone()
 
-        # Update request status
-        c.execute('''
+        conn.execute('''
             UPDATE connection_requests
-            SET status = 'accepted', updated_at = CURRENT_TIMESTAMP
+            SET status = 'accepted', accepted_at = CURRENT_TIMESTAMP
             WHERE sender_id = ? AND receiver_id = ? AND status = 'pending'
         ''', (sender_id, current_user.id))
 
-        # Create connection
-        c.execute('''
-            INSERT INTO connections (user_id_1, user_id_2)
+        conn.execute('''
+            INSERT OR IGNORE INTO connections (user_id_1, user_id_2)
             VALUES (?, ?)
         ''', (min(sender_id, current_user.id), max(sender_id, current_user.id)))
 
         conn.commit()
 
-        # Send email to sender about acceptance
         try:
             if sender:
-                send_connection_email(
-                    sender['email'],
-                    sender['name'],
-                    current_user.name,
-                    current_user.role,
-                    'accepted'
-                )
+                send_connection_email(sender['email'], sender['name'], current_user.name, current_user.role, 'accepted')
         except Exception as e:
-            print(f"Email error: {e}")
+            logger.warning(f"Connection email error: {e}")
 
-        conn.close()
+        # Real-time: notify the original sender that their request was accepted
+        socketio.emit('connection_status_update', {
+            'status': 'accepted',
+            'by_user_id': current_user.id,
+            'by_user_name': current_user.name,
+            'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+        }, room=f'user_{sender_id}')
+
+        # Real-time: notify admin monitor
+        socketio.emit('admin_connection_activity', {
+            'event': 'accepted',
+            'sender_id': sender_id,
+            'sender_name': sender['name'] if sender else '',
+            'receiver_id': current_user.id,
+            'receiver_name': current_user.name,
+            'status': 'accepted',
+            'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+        }, room='admin_monitor')
 
         return jsonify({'success': True, 'message': 'Request accepted', 'status': 'connected'}), 200
 
     except Exception as e:
-        print(f"Error accepting connection request: {e}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error accepting connection request: {e}")
+        return jsonify({'error': 'Failed to accept request'}), 500
+    finally:
+        if conn:
+            conn.close()
 
 @app.route('/api/connection-request/reject/<int:sender_id>', methods=['POST'])
 @login_required
 def reject_connection_request(sender_id):
     """Reject a connection request"""
+    conn = None
     try:
         conn = get_db_connection()
-        c = conn.cursor()
 
-        # Get sender details for email
-        sender = c.execute('SELECT * FROM users WHERE id = ?', (sender_id,)).fetchone()
+        sender = conn.execute('SELECT * FROM users WHERE id = ?', (sender_id,)).fetchone()
 
-        # Update request status
-        c.execute('''
+        conn.execute('''
             UPDATE connection_requests
-            SET status = 'rejected', updated_at = CURRENT_TIMESTAMP
+            SET status = 'rejected', accepted_at = NULL
             WHERE sender_id = ? AND receiver_id = ? AND status = 'pending'
         ''', (sender_id, current_user.id))
 
         conn.commit()
 
-        # Send email to sender about rejection
         try:
             if sender:
-                send_connection_email(
-                    sender['email'],
-                    sender['name'],
-                    current_user.name,
-                    current_user.role,
-                    'rejected'
-                )
+                send_connection_email(sender['email'], sender['name'], current_user.name, current_user.role, 'rejected')
         except Exception as e:
-            print(f"Email error: {e}")
+            logger.warning(f"Connection email error: {e}")
 
-        conn.close()
+        # Real-time: notify the original sender that their request was rejected
+        socketio.emit('connection_status_update', {
+            'status': 'rejected',
+            'by_user_id': current_user.id,
+            'by_user_name': current_user.name,
+            'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+        }, room=f'user_{sender_id}')
+
+        # Real-time: notify admin monitor
+        socketio.emit('admin_connection_activity', {
+            'event': 'rejected',
+            'sender_id': sender_id,
+            'sender_name': sender['name'] if sender else '',
+            'receiver_id': current_user.id,
+            'receiver_name': current_user.name,
+            'status': 'rejected',
+            'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+        }, room='admin_monitor')
 
         return jsonify({'success': True, 'message': 'Request rejected', 'status': 'none'}), 200
 
     except Exception as e:
-        print(f"Error rejecting connection request: {e}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error rejecting connection request: {e}")
+        return jsonify({'error': 'Failed to reject request'}), 500
+    finally:
+        if conn:
+            conn.close()
 
 @app.route('/api/connection-request/status/<int:user_id>', methods=['GET'])
 @login_required
 def get_connection_status(user_id):
     """Get connection status between current user and another user"""
+    conn = None
     try:
         conn = get_db_connection()
-        c = conn.cursor()
 
-        # Check if already connected
-        connection = c.execute('''
-            SELECT * FROM connections
+        connection = conn.execute('''
+            SELECT 1 FROM connections
             WHERE (user_id_1 = ? AND user_id_2 = ?) OR (user_id_1 = ? AND user_id_2 = ?)
         ''', (current_user.id, user_id, user_id, current_user.id)).fetchone()
 
         if connection:
-            conn.close()
             return jsonify({'status': 'connected'}), 200
 
-        # Check if pending request from current user
-        sent_request = c.execute('''
-            SELECT * FROM connection_requests
+        sent_request = conn.execute('''
+            SELECT 1 FROM connection_requests
             WHERE sender_id = ? AND receiver_id = ? AND status = 'pending'
         ''', (current_user.id, user_id)).fetchone()
 
         if sent_request:
-            conn.close()
             return jsonify({'status': 'pending'}), 200
 
-        # Check if pending request to current user
-        received_request = c.execute('''
-            SELECT * FROM connection_requests
+        received_request = conn.execute('''
+            SELECT 1 FROM connection_requests
             WHERE sender_id = ? AND receiver_id = ? AND status = 'pending'
         ''', (user_id, current_user.id)).fetchone()
 
         if received_request:
-            conn.close()
             return jsonify({'status': 'received', 'sender_id': user_id}), 200
 
-        conn.close()
         return jsonify({'status': 'none'}), 200
 
     except Exception as e:
-        print(f"Error getting connection status: {e}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error getting connection status: {e}")
+        return jsonify({'error': 'Failed to get status'}), 500
+    finally:
+        if conn:
+            conn.close()
 
 @app.route('/api/connection-requests/pending', methods=['GET'])
 @login_required
 def get_pending_connection_requests():
     """Get all pending connection requests for current user"""
+    conn = None
     try:
         conn = get_db_connection()
-        c = conn.cursor()
 
-        # Get pending requests with sender details
-        requests = c.execute('''
+        requests_list = conn.execute('''
             SELECT cr.id, cr.sender_id, cr.receiver_id, cr.status, cr.created_at,
                    u.name, u.email, u.role, u.profile_pic
             FROM connection_requests cr
@@ -3603,16 +4079,17 @@ def get_pending_connection_requests():
             ORDER BY cr.created_at DESC
         ''', (current_user.id,)).fetchall()
 
-        conn.close()
-
         return jsonify({
-            'requests': [dict(req) for req in requests],
-            'count': len(requests)
+            'requests': [dict(req) for req in requests_list],
+            'count': len(requests_list)
         }), 200
 
     except Exception as e:
-        print(f"Error getting pending requests: {e}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error getting pending requests: {e}")
+        return jsonify({'error': 'Failed to get requests'}), 500
+    finally:
+        if conn:
+            conn.close()
 
 # ===== EMAIL HELPER FUNCTION =====
 
@@ -3774,15 +4251,15 @@ def send_connection_email(recipient_email, recipient_name, sender_name, sender_r
 
 @app.route('/privacy-policy')
 def privacy_policy():
-    return render_template('privacy_policy.html')
+    return render_template('common/privacy_policy.html')
 
 @app.route('/terms-conditions')
 def terms_conditions():
-    return render_template('terms_conditions.html')
+    return render_template('common/terms_conditions.html')
 
 @app.route('/faq')
 def faq():
-    return render_template('faq.html')
+    return render_template('common/faq.html')
 
 @app.route('/report-issue', methods=['GET', 'POST'])
 def report_issue():
@@ -3794,7 +4271,7 @@ def report_issue():
         
         if not all([name, email, issue_type, description]):
             flash('All fields are required!', 'warning')
-            return render_template('report_issue.html')
+            return render_template('common/report_issue.html')
         
         # Send email to admin using send_email function
         try:
@@ -3870,45 +4347,46 @@ def report_issue():
             print(f"Error sending issue report: {e}")
             flash('Error sending report. Please try again.', 'danger')
     
-    return render_template('report_issue.html')
+    return render_template('common/report_issue.html')
 
 
 @app.route('/contact/whatsapp/<int:user_id>')
 @login_required
 def whatsapp_bridge(user_id):
-    """
-    Secure bridge for WhatsApp redirection. 
-    Prevents raw number exposure and requests user consent.
-    """
-    conn = get_db_connection()
-    user = conn.execute('SELECT id, name, phone FROM users WHERE id = ?', (user_id,)).fetchone()
-    conn.close()
-    
-    if not user or not user['phone']:
-        flash('Contact number not available.', 'danger')
-        return redirect(request.referrer or url_for('home'))
+    """Secure bridge for WhatsApp redirection."""
+    conn = None
+    try:
+        conn = get_db_connection()
+        user = conn.execute('SELECT id, name, phone FROM users WHERE id = ?', (user_id,)).fetchone()
         
-    return render_template('contact_bridge.html', target_user=user)
+        if not user or not user['phone']:
+            flash('Contact number not available.', 'danger')
+            return redirect(request.referrer or url_for('home'))
+            
+        return render_template('contact_bridge.html', target_user=user)
+    finally:
+        if conn:
+            conn.close()
 
 
 @app.route('/contact/whatsapp/jump/<int:user_id>')
 @login_required
 def whatsapp_jump(user_id):
-    """
-    Final redirection jump. Handles the API call to wa.me on the server 
-    so the phone number is never exposed in the HTML.
-    """
-    conn = get_db_connection()
-    user = conn.execute('SELECT phone FROM users WHERE id = ?', (user_id,)).fetchone()
-    conn.close()
-    
-    if not user or not user['phone']:
-        flash('Contact number not available.', 'danger')
-        return redirect(url_for('home'))
+    """Final redirection jump for WhatsApp."""
+    conn = None
+    try:
+        conn = get_db_connection()
+        user = conn.execute('SELECT phone FROM users WHERE id = ?', (user_id,)).fetchone()
         
-    # Standardize number for WhatsApp
-    clean_phone = user['phone'].replace(' ', '').replace('+', '').replace('-', '')
-    return redirect(f"https://wa.me/{clean_phone}")
+        if not user or not user['phone']:
+            flash('Contact number not available.', 'danger')
+            return redirect(url_for('home'))
+            
+        clean_phone = user['phone'].replace(' ', '').replace('+', '').replace('-', '')
+        return redirect(f"https://wa.me/{clean_phone}")
+    finally:
+        if conn:
+            conn.close()
 
 
 @app.route('/send-email', methods=['POST'])
@@ -3994,16 +4472,19 @@ def send_user_email():
 @app.route('/compose-email/<int:user_id>')
 @login_required
 def compose_email(user_id):
-    # Fetch user details securely
-    conn = get_db_connection()
-    user = conn.execute('SELECT id, name, email FROM users WHERE id = ?', (user_id,)).fetchone()
-    conn.close()
-    
-    if not user:
-        flash('User not found!', 'danger')
-        return redirect(url_for('home'))
+    conn = None
+    try:
+        conn = get_db_connection()
+        user = conn.execute('SELECT id, name, email FROM users WHERE id = ?', (user_id,)).fetchone()
         
-    return render_template('compose_email.html', recipient=user)
+        if not user:
+            flash('User not found!', 'danger')
+            return redirect(url_for('home'))
+            
+        return render_template('compose_email.html', recipient=user)
+    finally:
+        if conn:
+            conn.close()
 
 
 
@@ -4071,8 +4552,8 @@ def settings():
 @app.route('/post-job', methods=['GET', 'POST'])
 @login_required
 def post_job():
-    if current_user.role != 'alumni':
-        flash('Only Alumni can post jobs!', 'danger')
+    if current_user.role not in ('alumni', 'faculty'):
+        flash('Only Alumni and Faculty can post jobs!', 'danger')
         return redirect(url_for('home'))
         
     if request.method == 'POST':
@@ -4115,20 +4596,24 @@ def post_job():
                 title, company, location, salary, job_type, 
                 apply_link, description, required_skills, posted_by, 
                 company_logo, category, deadline,
-                work_mode, eligible_branch, experience_required, employment_type
+                work_mode, eligible_branch, experience_required, employment_type,
+                approval_status, posted_by_role
             ) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             title, company, location, salary, job_type, 
             apply_link, description, skills, current_user.id, 
             logo_path, category, deadline,
-            work_mode, eligible_branch, experience_required, employment_type
+            work_mode, eligible_branch, experience_required, employment_type,
+            'pending', current_user.role
         ))
         conn.commit()
         conn.close()
         
-        flash('Job posted successfully! It will now be recommended to relevant students.', 'success')
-        return redirect(url_for('dashboard_alumni'))
+        flash('Job submitted for admin approval! It will be visible to students once approved.', 'success')
+        if current_user.role == 'alumni':
+            return redirect(url_for('dashboard_alumni'))
+        return redirect(url_for('faculty_dashboard'))
         
     return render_template('alumni/post_job.html')
 
@@ -4141,21 +4626,48 @@ def list_jobs():
         
     conn = get_db_connection()
     c = conn.cursor()
-    all_jobs = c.execute('''
+    today = datetime.now().strftime('%Y-%m-%d')
+
+    # Active jobs: approved + (no deadline OR deadline >= today)
+    active_jobs = c.execute('''
         SELECT j.*, u.name as posted_by_name 
         FROM jobs j 
         LEFT JOIN users u ON j.posted_by = u.id 
         WHERE j.is_active = 1
+          AND (j.approval_status = 'approved' OR j.approval_status IS NULL)
+          AND (j.deadline IS NULL OR j.deadline = '' OR j.deadline >= ?)
         ORDER BY j.created_at DESC
-    ''').fetchall()
-    
+    ''', (today,)).fetchall()
+
+    # Previous / expired jobs: approved + deadline has passed
+    previous_jobs = c.execute('''
+        SELECT j.*, u.name as posted_by_name 
+        FROM jobs j 
+        LEFT JOIN users u ON j.posted_by = u.id 
+        WHERE j.is_active = 1
+          AND (j.approval_status = 'approved' OR j.approval_status IS NULL)
+          AND j.deadline IS NOT NULL AND j.deadline != '' AND j.deadline < ?
+        ORDER BY j.deadline DESC
+    ''', (today,)).fetchall()
+
     # Use modular recommendation logic
     recommended = get_recommended_jobs(current_user)
     conn.close()
     
     if current_user.role == 'alumni':
-        return render_template('alumni/jobs.html', jobs=all_jobs, recommended=recommended)
-    return render_template('student/jobs.html', jobs=all_jobs, recommended=recommended)
+        return render_template('alumni/jobs.html',
+                               jobs=active_jobs,
+                               previous_jobs=previous_jobs,
+                               recommended=recommended)
+    if current_user.role == 'faculty':
+        return render_template('alumni/jobs.html',
+                               jobs=active_jobs,
+                               previous_jobs=previous_jobs,
+                               recommended=recommended)
+    return render_template('student/jobs.html',
+                           jobs=active_jobs,
+                           previous_jobs=previous_jobs,
+                           recommended=recommended)
 
 @app.route('/spotlight')
 @login_required
@@ -4195,7 +4707,7 @@ def reports():
 @login_required
 def approve_user(user_id):
     if current_user.role != 'admin':
-        return jsonify({'success': false, 'error': 'Unauthorized'}), 403
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
         
     conn = get_db_connection()
     try:
@@ -4203,7 +4715,8 @@ def approve_user(user_id):
         conn.commit()
         return jsonify({'success': True})
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        logger.error(f'Error approving user {user_id}: {e}')
+        return jsonify({'success': False, 'error': 'Operation failed'}), 500
     finally:
         conn.close()
 
@@ -4211,7 +4724,7 @@ def approve_user(user_id):
 @login_required
 def reject_user(user_id):
     if current_user.role != 'admin':
-        return jsonify({'success': false, 'error': 'Unauthorized'}), 403
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
         
     conn = get_db_connection()
     try:
@@ -4311,42 +4824,52 @@ def periodic_profile_reminder():
             import traceback
             traceback.print_exc()
 
-if __name__ == '__main__':
-    with app.app_context():
-        init_db()
+# --- Register Modular Blueprints (module-level for Gunicorn/production compatibility) ---
+try:
+    from routes.messaging_routes import messaging_bp
+    from routes.websocket_routes import setup_websocket_handlers
+    from routes.social_routes import social_bp
+    from routes.connection_routes import connection_bp
+    from routes.recommendation_routes import recommendation_bp
 
-    # Register Modular Blueprints
-    try:
-        from routes.messaging_routes import messaging_bp
-        from routes.websocket_routes import setup_websocket_handlers
-        from routes.social_routes import social_bp
-        from routes.connection_routes import connection_bp
-        from routes.recommendation_routes import recommendation_bp
+    if messaging_bp.name not in app.blueprints:
+        app.register_blueprint(messaging_bp, url_prefix='/api')
+    
+    setup_websocket_handlers(socketio)
 
-        # Register Messaging
-        if messaging_bp.name not in app.blueprints:
-            app.register_blueprint(messaging_bp, url_prefix='/api')
+    if social_bp.name not in app.blueprints:
+        app.register_blueprint(social_bp)
+
+    if connection_bp.name not in app.blueprints:
+        app.register_blueprint(connection_bp)
         
-        setup_websocket_handlers(socketio)
+    if recommendation_bp.name not in app.blueprints:
+        app.register_blueprint(recommendation_bp)
+        
+except Exception as e:
+    logger.warning(f"Blueprint registration error: {e}")
 
-        # Register Social
-        if social_bp.name not in app.blueprints:
-            app.register_blueprint(social_bp)
+# Initialize ML Recommendation Engine
+try:
+    from services.recommendation_engine import init_recommendation_engine
+    init_recommendation_engine(app=app)
+except Exception as e:
+    logger.warning(f"ML recommendation engine init skipped: {e}")
 
-        # Register Connections
-        if connection_bp.name not in app.blueprints:
-            app.register_blueprint(connection_bp)
-            
-        # Register Recommendations
-        if recommendation_bp.name not in app.blueprints:
-            app.register_blueprint(recommendation_bp)
-            
-    except Exception as e:
-        print(f"Warning: routes blueprint error: {e}")
+
+# Ensure DB migrations always run (works with both `python app.py` and gunicorn)
+with app.app_context():
+    try:
+        init_db()
+    except Exception as _init_err:
+        logger.warning(f"init_db warning: {_init_err}")
+
+if __name__ == '__main__':
+    pass  # init_db already called above
 
     print("\n" + "="*50)
     print("DBIT ALUMNI HUB IS STARTING UP...")
-    print(f"🔗 Access the project at: http://127.0.0.1:5000")
+    print("Access the project at: http://127.0.0.1:5000")
     print("="*50 + "\n")
     
     socketio.run(app, debug=app.config['DEBUG'], host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)

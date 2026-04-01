@@ -1072,4 +1072,35 @@
             });
     }
 </script>
+<!-- Socket.IO for real-time job approval notifications -->
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+(function initJobApprovalSocket() {
+    if (typeof io === 'undefined') return;
+
+    function showJobToast(message, type) {
+        const toast = document.createElement('div');
+        const color = type === 'success' ? 'linear-gradient(135deg,#28a745,#20c997)' : 'linear-gradient(135deg,#dc3545,#c0392b)';
+        toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;opacity:1;animation:slideUp 0.4s ease;';
+        toast.innerHTML = '<div style="background:' + color + ';color:white;padding:15px 25px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.2);font-weight:600;min-width:280px;">' +
+            '<i class="fas ' + (type === 'success' ? 'fa-check-circle' : 'fa-times-circle') + ' me-2"></i>' + message + '</div>';
+        document.body.appendChild(toast);
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.4s ease';
+            setTimeout(function() { toast.remove(); }, 400);
+        }, 4000);
+    }
+
+    const socket = io({ transports: ['websocket', 'polling'] });
+    socket.on('job_approval_update', function(data) {
+        if (data.status === 'approved') {
+            showJobToast('✅ Your job "' + data.job_title + '" has been approved and is now live!', 'success');
+        } else if (data.status === 'rejected') {
+            const reason = data.reason ? ': ' + data.reason : '';
+            showJobToast('❌ Your job "' + data.job_title + '" was rejected by admin' + reason, 'error');
+        }
+    });
+}());
+</script>
 {% endblock %}

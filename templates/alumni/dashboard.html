@@ -121,47 +121,72 @@
     <div class="container mt-5">
         <!-- Action Row -->
         <div class="row g-4 mb-5">
-            <!-- Pending Profile Requests -->
+            <!-- Pending Connection Requests -->
             <div class="col-lg-8">
                 {% if pending_requests %}
-                <div class="section-header mb-4" style="animation: slideInLeft 0.6s ease;">
-                    <h2 class="section-title">
-                        <i class="fas fa-user-clock me-2 text-primary"></i> Connection Requests
-                        <span class="badge bg-danger ms-2 rounded-pill">{{ pending_count }}</span>
-                    </h2>
+                <!-- Section Header -->
+                <div class="d-flex align-items-center justify-content-between mb-4" style="animation: slideInLeft 0.6s ease;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(99,102,241,0.35);">
+                            <i class="fas fa-user-clock text-white" style="font-size:1.2rem;"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0" style="color:#1e293b;">Connection Requests</h4>
+                            <span class="text-muted small">{{ pending_count }} pending • Respond to grow your network</span>
+                        </div>
+                    </div>
+                    <span class="badge rounded-pill px-3 py-2 fw-bold" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white;font-size:0.85rem;box-shadow:0 4px 12px rgba(239,68,68,0.4);">
+                        {{ pending_count }} New
+                    </span>
                 </div>
-                <div class="glass-card p-4 mb-4"
-                    style="background: white; border: 1px solid #e2e8f0; border-radius: 24px;">
-                    <div class="row g-3">
-                        {% for req in pending_requests %}
-                        <div class="col-md-6">
-                            <div
-                                class="request-item d-flex align-items-center p-3 border rounded-4 bg-light transition-all hover-lift">
-                                <div class="avatar-sm me-3 position-relative">
-                                    <img src="{{ req['profile_pic'] or 'https://ui-avatars.com/api/?name=' + req['name'] }}"
-                                        class="rounded-circle"
-                                        style="width: 55px; height: 55px; object-fit: cover; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                                    <span class="position-absolute bottom-0 end-0 badge rounded-pill bg-info p-1"
-                                        style="border: 2px solid white;"><i class="fas fa-graduation-cap"
-                                            style="font-size: 8px;"></i></span>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-0 fw-bold">{{ req['name'] }}</h6>
-                                    <small class="text-muted">{{ req['role'] | capitalize }} Student</small>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-primary rounded-pill px-3 fw-bold"
-                                        data-sender-id="{{ req['id'] }}"
-                                        onclick="handleConnection(this.dataset.senderId, 'accept')">Accept</button>
-                                    <button class="btn btn-sm btn-outline-danger rounded-circle shadow-sm"
-                                        data-sender-id="{{ req['id'] }}"
-                                        onclick="handleConnection(this.dataset.senderId, 'reject')"><i
-                                            class="fas fa-times"></i></button>
+
+                <!-- Request Cards -->
+                <div class="mb-4" id="connectionRequestsList">
+                    {% for req in pending_requests %}
+                    <div class="conn-request-card mb-3" id="req-{{ req['sender_id'] }}" style="background:white;border:1px solid #e2e8f0;border-radius:20px;padding:18px 22px;box-shadow:0 2px 12px rgba(0,0,0,0.04);transition:all 0.3s ease;">
+                        <div class="d-flex align-items-center gap-3">
+                            <!-- Avatar -->
+                            <div class="position-relative flex-shrink-0">
+                                <img src="{{ req['profile_pic'] or 'https://ui-avatars.com/api/?name=' + req['name'] + '&background=6366f1&color=fff&size=80' }}"
+                                    class="rounded-circle"
+                                    style="width:60px;height:60px;object-fit:cover;border:3px solid #e0e7ff;box-shadow:0 4px 12px rgba(99,102,241,0.2);">
+                                <span class="position-absolute bottom-0 end-0 d-flex align-items-center justify-content-center"
+                                    style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#0284c7);border:2px solid white;">
+                                    <i class="fas fa-graduation-cap text-white" style="font-size:7px;"></i>
+                                </span>
+                            </div>
+                            <!-- Info -->
+                            <div class="flex-grow-1 min-width-0">
+                                <h6 class="mb-1 fw-bold text-truncate" style="color:#1e293b;">{{ req['name'] }}</h6>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <span class="badge rounded-pill" style="background:rgba(99,102,241,0.1);color:#6366f1;font-size:0.7rem;padding:3px 10px;">
+                                        <i class="fas fa-user-graduate me-1"></i>{{ req['role'] | capitalize }}
+                                    </span>
+                                    {% if req['created_at'] %}
+                                    <span class="text-muted" style="font-size:0.72rem;">
+                                        <i class="far fa-clock me-1"></i>{{ req['created_at'][:10] if req['created_at'] else '' }}
+                                    </span>
+                                    {% endif %}
                                 </div>
                             </div>
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2 flex-shrink-0">
+                                <button class="btn fw-bold px-4 py-2 rounded-pill"
+                                    style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;font-size:0.85rem;box-shadow:0 4px 12px rgba(99,102,241,0.35);transition:all 0.2s;"
+                                    data-sender-id="{{ req['sender_id'] }}"
+                                    onclick="handleConnection(this, 'accept')">
+                                    <i class="fas fa-check me-1"></i> Accept
+                                </button>
+                                <button class="btn fw-bold px-3 py-2 rounded-pill"
+                                    style="background:rgba(239,68,68,0.08);color:#ef4444;border:1.5px solid rgba(239,68,68,0.25);font-size:0.85rem;transition:all 0.2s;"
+                                    data-sender-id="{{ req['sender_id'] }}"
+                                    onclick="handleConnection(this, 'reject')">
+                                    <i class="fas fa-times me-1"></i> Decline
+                                </button>
+                            </div>
                         </div>
-                        {% endfor %}
                     </div>
+                    {% endfor %}
                 </div>
                 {% endif %}
 
@@ -237,26 +262,36 @@
         <div class="section-header mb-4 d-flex justify-content-between align-items-center">
             <h2 class="section-title mb-0">
                 <i class="fas fa-sparkles me-2 text-primary"></i> Students You May Know
-                <small class="text-muted fs-6 ms-2 fw-normal">Based on your branch and skills</small>
+                <small class="text-muted fs-6 ms-2 fw-normal">Based on your profile, skills &amp; interactions</small>
             </h2>
         </div>
 
-        <div class="row g-4 mb-5">
+        <div class="row g-4 mb-5" id="rec-cards-container">
             {% if recommendations %}
             {% for rec in recommendations %}
             <div class="col-lg-2 col-md-4 col-6">
-                <div class="recommendation-card p-3 text-center h-100 shadow-sm border"
+                <div class="recommendation-card p-3 text-center h-100 shadow-sm border position-relative"
                     style="border-radius: 20px; background: white; transition: all 0.3s ease;">
                     <div class="position-absolute top-0 end-0 m-2">
-                        <span class="badge rounded-pill bg-soft-primary text-primary px-2 py-1"
-                            style="font-size: 0.7rem;">
+                        <span class="badge rounded-pill {{ 'bg-success' if rec.source == 'ml' else 'bg-soft-primary text-primary' }} px-2 py-1"
+                            style="font-size: 0.7rem;" title="{{ rec.reason|default('Profile match') }}">
                             {{ rec.score }} pts
                         </span>
                     </div>
+                    {% if rec.source == 'ml' %}
+                    <div class="position-absolute top-0 start-0 m-2">
+                        <span class="badge rounded-pill bg-warning text-dark px-2 py-1" style="font-size: 0.6rem;" title="ML-powered recommendation">
+                            <i class="fas fa-robot"></i> AI
+                        </span>
+                    </div>
+                    {% endif %}
                     <img src="{{ rec.profile_pic }}" class="rounded-circle mb-3 shadow-sm"
                         style="width: 70px; height: 70px; object-fit: cover; border: 3px solid #e0e7ff;">
                     <h6 class="fw-bold mb-1 text-truncate" title="{{ rec.name }}">{{ rec.name }}</h6>
                     <p class="text-muted small mb-2">{{ rec.branch or 'General' }}</p>
+                    {% if rec.reason %}
+                    <p class="text-muted mb-2" style="font-size: 0.6rem;">{{ rec.reason }}</p>
+                    {% endif %}
                     <div class="skills-preview-tiny mb-3">
                         {% if rec.skills %}
                         {% for skill in rec.skills.split(',')[:2] %}
@@ -668,16 +703,50 @@
         }
     });
 
-    function handleConnection(senderId, action) {
-        fetch(`/api/connection-request/${action}/${senderId}`, {
-            method: 'POST'
-        }).then(r => r.json()).then(data => {
+    function handleConnection(btnEl, action) {
+        const senderId = btnEl.dataset.senderId;
+        const card = document.getElementById('req-' + senderId);
+        // Disable both buttons to prevent double-click
+        const btns = card ? card.querySelectorAll('button') : [];
+        btns.forEach(b => { b.disabled = true; b.style.opacity = '0.6'; });
+
+        fetch('/api/connection-request/' + action + '/' + senderId, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
             if (data.success) {
-                showToast(`Connection ${action}ed successfully!`, 'success');
-                setTimeout(() => location.reload(), 1000);
+                showToast(action === 'accept' ? '✅ Connection accepted!' : '❌ Request declined.', action === 'accept' ? 'success' : 'info');
+                // Animate card out then remove
+                if (card) {
+                    card.style.transition = 'all 0.4s ease';
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateX(30px)';
+                    setTimeout(() => {
+                        card.remove();
+                        // Update the badge count
+                        const remaining = document.querySelectorAll('.conn-request-card').length;
+                        const badge = document.querySelector('#connectionRequestsList')?.closest('.col-lg-8')?.querySelector('.badge.rounded-pill');
+                        if (badge) badge.textContent = remaining + ' New';
+                        // Hide section if no requests left
+                        if (remaining === 0) {
+                            const section = document.querySelector('#connectionRequestsList');
+                            if (section) {
+                                const parent = section.closest('.col-lg-8 > div:first-of-type');
+                                if (parent) parent.style.display = 'none';
+                            }
+                        }
+                    }, 400);
+                }
             } else {
-                showToast('Error: ' + data.error, 'danger');
+                showToast('Error: ' + (data.error || 'Failed'), 'danger');
+                btns.forEach(b => { b.disabled = false; b.style.opacity = '1'; });
             }
+        })
+        .catch(() => {
+            showToast('Network error. Please try again.', 'danger');
+            btns.forEach(b => { b.disabled = false; b.style.opacity = '1'; });
         });
     }
 
@@ -726,5 +795,21 @@
             setTimeout(() => toast.remove(), 400);
         }, 3000);
     }
+</script>
+<!-- Socket.IO for real-time job approval notifications -->
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+(function initJobApprovalSocket() {
+    if (typeof io === 'undefined') return;
+    const socket = io({ transports: ['websocket', 'polling'] });
+    socket.on('job_approval_update', function(data) {
+        if (data.status === 'approved') {
+            showToast('✅ Your job "' + data.job_title + '" has been approved and is now live!', 'success');
+        } else if (data.status === 'rejected') {
+            const reason = data.reason ? ': ' + data.reason : '';
+            showToast('❌ Your job "' + data.job_title + '" was rejected by admin' + reason, 'error');
+        }
+    });
+}());
 </script>
 {% endblock %}

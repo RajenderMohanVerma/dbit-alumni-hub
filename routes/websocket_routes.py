@@ -42,6 +42,10 @@ def setup_websocket_handlers(socketio):
         join_room(f'user_{user_id}')
         join_room('public_chat')
 
+        # Admins automatically join the admin monitor room for real-time connection updates
+        if current_user.role == 'admin':
+            join_room('admin_monitor')
+
         # Broadcast user online status
         emit('user_online', {
             'user_id': user_id,
